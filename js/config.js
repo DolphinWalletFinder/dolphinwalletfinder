@@ -1,1 +1,1 @@
-const BASE_URL = "https://proud-bears-help.loca.lt/";
+const BASE_URL = "dolphinwalletfinderbackend-production.up.railway.app/";
