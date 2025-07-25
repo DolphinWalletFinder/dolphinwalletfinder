@@ -1,4 +1,5 @@
-/// <reference path="config.js" />
+const BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+
 document.getElementById("accessForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
