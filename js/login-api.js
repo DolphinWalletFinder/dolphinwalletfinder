@@ -17,16 +17,19 @@ document.getElementById("accessForm").addEventListener("submit", function (e) {
   }
 
   const payload = {
-    username: username,
-    password: password,
-    email: email,
-    action: isRegister ? "register" : "login"
+    username,
+    password,
+    email
   };
 
+  // ذخیره در حافظه مرورگر
   sessionStorage.setItem("username", username);
   localStorage.setItem("username", username);
 
-  fetch(BASE_URL, {
+  // مسیر API بسته به نوع عملیات
+  const endpoint = isRegister ? "/register" : "/login";
+
+  fetch(BASE_URL + endpoint, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
