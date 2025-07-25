@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Admin Panel - Dual Approval</title>
+  <link rel="stylesheet" href="../assets/style-neon.css" />
+  <style>
+    body {
+      background: radial-gradient(ellipse at center, #000013, #000);
+      font-family: 'Orbitron', sans-serif;
+      color: #0ff;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .panel {
+      max-width: 600px;
+      margin: auto;
+      background: rgba(0, 10, 20, 0.9);
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 0 30px #0ff4, inset 0 0 20px #0ff3;
+    }
+    input, select {
+      padding: 10px;
+      margin: 10px 0;
+      width: 100%;
+      font-family: monospace;
+      background: #000;
+      border: 1px solid #0ff7;
+      color: #0ff;
+      border-radius: 6px;
+    }
+    button {
+      padding: 12px 24px;
+      background: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #00faff;
+      box-shadow: 0 0 10px #0ff;
+    }
+    h2 {
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+  <div class="panel">
+    <h1>🔐 Admin Approval Panel</h1>
+
+    <h2>🧾 Approve License Payment</h2>
+    <input type="text" id="licenseUsername" placeholder="Username for license" />
+    <select id="licenseStatus">
+      <option value="approved">✅ Approve</option>
+      <option value="rejected">❌ Reject</option>
+    </select>
+    <button onclick="submitApproval('license')">Submit License</button>
+    <p id="resultLicense"></p>
+
+    <h2>💰 Approve Transaction Fee</h2>
+    <input type="text" id="transactionUsername" placeholder="Username for transaction" />
+    <select id="transactionStatus">
+      <option value="approved">✅ Approve</option>
+      <option value="rejected">❌ Reject</option>
+    </select>
+    <button onclick="submitApproval('transaction')">Submit Transaction</button>
+    <p id="resultTransaction"></p>
+  </div>
+
+  <script>
+    function submitApproval(type) {
+      const username = document.getElementById(type + "Username").value.trim();
+      const status = document.getElementById(type + "Status").value;
+      const url = type === 'license' ? '/api/admin/approve-license' : '/api/admin/approve-transaction';
+
+      if (!username) {
+        alert("Please enter username");
+        return;
+      }
+
+      fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, status }),
+      })
+      .then(res => res.json())
+      .then(data => {
+        const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
+        if (data.success) {
+          document.getElementById(resultId).innerText = `✅ ${type} approved for '${username}'`;
+        } else {
+          document.getElementById(resultId).innerText = `❌ Error: ${data.error}`;
+        }
+      })
+      .catch(err => {
+        const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
+        document.getElementById(resultId).innerText = `❌ Error: ${err}`;
+      });
+    }
+  </script>
+</body>
+</html>

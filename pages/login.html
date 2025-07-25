@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="manifest" href="../manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8" />
+  <title>Dolphin Wallet Finder - Login</title>
+  <link rel="stylesheet" href="../assets/style-neon.css" />
+  <link rel="apple-touch-icon" href="../assets/icon-192.png">
+  <style>
+    body {
+      background: radial-gradient(ellipse at center, #000022, #000);
+      font-family: 'Orbitron', sans-serif;
+      color: #0ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .box {
+      background: rgba(0, 10, 20, 0.5);
+      border: 1px solid #0ff4;
+      border-radius: 12px;
+      padding: 40px 30px;
+      width: 90%;
+      max-width: 440px;
+      text-align: center;
+      box-shadow: 0 0 30px #0ff3;
+    }
+    h2 { margin-bottom: 20px; }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #0ff4;
+      border-radius: 5px;
+      background: transparent;
+      color: #0ff;
+      font-family: monospace;
+    }
+    .btn {
+      margin-top: 15px;
+      padding: 12px 20px;
+      font-size: 1em;
+      border: 2px solid #0ff;
+      background: transparent;
+      color: #0ff;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background: #0ff;
+      color: #000;
+      box-shadow: 0 0 10px #0ff;
+    }
+    .toggle {
+      margin-top: 20px;
+      font-size: 0.9em;
+      color: #aaf;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Welcome to Dolphin Wallet Finder</h2>
+    <form id="accessForm">
+      <input type="text" name="username" placeholder="Username" required />
+      <input type="password" name="password" placeholder="Password" required />
+      <div id="registerFields" style="display:none;">
+        <input type="password" name="confirm" placeholder="Repeat Password" />
+        <input type="email" name="email" placeholder="Email Address" />
+      </div>
+      <button class="btn" type="submit" id="formBtn">Login</button>
+    </form>
+    <div class="toggle" onclick="toggleForm()">Not registered yet? Create an account</div>
+  </div>
+
+  <script>
+    let isRegister = false;
+    function toggleForm() {
+      const regFields = document.getElementById("registerFields");
+      const formBtn = document.getElementById("formBtn");
+      const toggle = document.querySelector(".toggle");
+      if (!isRegister) {
+        regFields.style.display = "block";
+        formBtn.textContent = "Register";
+        toggle.textContent = "Already registered? Login";
+        isRegister = true;
+      } else {
+        regFields.style.display = "none";
+        formBtn.textContent = "Login";
+        toggle.textContent = "Not registered yet? Create an account";
+        isRegister = false;
+      }
+    }
+  </script>
+  <script src="../js/config.js"></script>
+  <script src="../js/login-api.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('../service-worker.js')
+        .then(reg => console.log("✅ Service Worker registered", reg))
+        .catch(err => console.log("❌ Service Worker error", err));
+    }
+  </script>
+</body>
+</html>

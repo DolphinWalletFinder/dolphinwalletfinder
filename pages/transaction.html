@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Transaction Fee - Dolphin Wallet</title>
+  <link rel="stylesheet" href="../assets/style-neon.css" />
+  <style>
+    body {
+      background: radial-gradient(ellipse at center, #000014, #000);
+      font-family: 'Orbitron', sans-serif;
+      color: #0ff;
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .box {
+      background: rgba(0, 10, 20, 0.85);
+      padding: 30px;
+      border-radius: 18px;
+      box-shadow: 0 0 25px #0ff4, inset 0 0 20px #0ff3;
+      text-align: center;
+      max-width: 600px;
+      width: 100%;
+    }
+    h1 {
+      margin-bottom: 20px;
+    }
+    .wallet-address {
+      font-family: monospace;
+      background: #000;
+      padding: 10px;
+      border: 1px dashed #0ff8;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      word-break: break-all;
+    }
+    .copy-btn, .btn {
+      margin: 10px auto;
+      padding: 10px 24px;
+      font-size: 0.95em;
+      background: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .btn:hover, .copy-btn:hover {
+      background: #00faff;
+      box-shadow: 0 0 10px #0ff;
+    }
+    .input-field {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-family: monospace;
+      background: #000;
+      color: #0ff;
+      border: 1px solid #0ff6;
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Final Transaction Fee</h1>
+    <p id="feeText">Loading fee...</p>
+    <div class="wallet-address" id="dynamicWallet">Loading wallet address...</div>
+    <button class="copy-btn" onclick="copyWallet()">Copy Wallet Address</button>
+    <p>After sending, enter the transaction hash below:</p>
+    <input class="input-field" id="txFinalHash" placeholder="Paste final transaction hash..." />
+    <button class="btn" onclick="submitFinal()">Submit</button>
+  </div>
+
+  <script>
+    const networkAddresses = {
+      "Bitcoin": "bc1qexamplebtcaddress0987xyz",
+      "Ethereum": "0xexampleethaddress9988abcd",
+      "BNB Chain": "bnb1examplebnbaddr3344asdf",
+      "Polygon": "0xexamplepolygon1234567",
+      "Tron": "TExmpl3TronAddr554488",
+      "Solana": "SolExampleAddress999xxxyy"
+    };
+
+    const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
+    const currency = wallet.balance?.split(" ")[1] || "USDT";
+    const amount = parseFloat(wallet.balance?.split(" ")[0]) || 0;
+    const fee = (amount * 0.001).toFixed(6);
+    const network = wallet.network || "Ethereum";
+
+    document.getElementById("feeText").innerHTML = `Please send <strong>${fee} ${currency}</strong> to the wallet below:`;
+    document.getElementById("dynamicWallet").innerText = networkAddresses[network] || "No address for this network.";
+
+    function copyWallet() {
+      const addr = document.getElementById("dynamicWallet").innerText;
+      navigator.clipboard.writeText(addr);
+      alert("Wallet address copied!");
+    }
+
+    function submitFinal() {
+      const hash = document.getElementById("txFinalHash").value.trim();
+      if (!hash) {
+        alert("Please enter transaction hash.");
+        return;
+      }
+      localStorage.setItem("final_tx", hash);
+      localStorage.setItem("final_tx_status", "pending");
+      window.location.href = "success.html";
+    }
+  </script>
+</body>
+</html>
