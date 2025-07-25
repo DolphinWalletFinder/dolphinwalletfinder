@@ -2,13 +2,13 @@
 document.getElementById("accessForm").addEventListener("submit", function (e) {
   e.preventDefault();
 
-  const username = document.querySelector('input[name="username"]').value;
+  const username = document.querySelector('input[name="username"]').value.trim();
   const password = document.querySelector('input[name="password"]').value;
   const emailInput = document.querySelector('input[name="email"]');
   const confirmInput = document.querySelector('input[name="confirm"]');
 
   const isRegister = emailInput && emailInput.offsetParent !== null;
-  const email = emailInput ? emailInput.value : null;
+  const email = emailInput ? emailInput.value.trim() : null;
   const confirm = confirmInput ? confirmInput.value : null;
 
   if (isRegister && password !== confirm) {
@@ -17,24 +17,24 @@ document.getElementById("accessForm").addEventListener("submit", function (e) {
   }
 
   const payload = {
-    username,
-    password,
-    email
+    username: username,
+    password: password,
+    email: email,
+    action: isRegister ? "register" : "login"
   };
 
-  // ذخیره در حافظه مرورگر
   sessionStorage.setItem("username", username);
   localStorage.setItem("username", username);
 
-  // مسیر API بسته به نوع عملیات
-  const endpoint = isRegister ? "/register" : "/login";
-
-  fetch(BASE_URL + endpoint, {
+  fetch(`${BASE_URL}/${payload.action}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload)
   })
-    .then(res => res.json())
+    .then(res => {
+      if (!res.ok) throw new Error("HTTP error " + res.status);
+      return res.json();
+    })
     .then(data => {
       if (data.error) {
         alert("❌ " + data.error);
