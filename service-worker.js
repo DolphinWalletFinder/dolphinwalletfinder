@@ -1,6 +1,5 @@
 const CACHE_NAME = "dolphin-cache-v1";
 const urlsToCache = [
-  "/dolphinwalletfinder/pages/index.html",
   "/dolphinwalletfinder/pages/login.html",
   "/dolphinwalletfinder/pages/profile.html",
   "/dolphinwalletfinder/pages/license.html",
