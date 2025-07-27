@@ -1,13 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="../manifest.json">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#000000">
   <meta name="mobile-web-app-capable" content="yes">
-  <meta charset="UTF-8" />
+  <link rel="manifest" href="../manifest.json">
+  <link rel="apple-touch-icon" href="../assets/icon-192.png">
   <title>Dolphin Wallet Finder - Login</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
-  <link rel="apple-touch-icon" href="../assets/icon-192.png">
   <style>
     body {
       background: radial-gradient(ellipse at center, #000022, #000);
@@ -18,18 +19,21 @@
       justify-content: center;
       height: 100vh;
       margin: 0;
+      overflow: auto;
     }
     .box {
       background: rgba(0, 10, 20, 0.5);
       border: 1px solid #0ff4;
       border-radius: 12px;
       padding: 40px 30px;
-      width: 90%;
-      max-width: 440px;
+      width: 95%;
+      max-width: 100%;
       text-align: center;
       box-shadow: 0 0 30px #0ff3;
     }
-    h2 { margin-bottom: 20px; }
+    h2 {
+      margin-bottom: 20px;
+    }
     input {
       width: 100%;
       padding: 10px;
@@ -39,11 +43,12 @@
       background: transparent;
       color: #0ff;
       font-family: monospace;
+      font-size: 16px;
     }
     .btn {
       margin-top: 15px;
       padding: 12px 20px;
-      font-size: 1em;
+      font-size: 1.1em;
       border: 2px solid #0ff;
       background: transparent;
       color: #0ff;
@@ -86,6 +91,7 @@
       const regFields = document.getElementById("registerFields");
       const formBtn = document.getElementById("formBtn");
       const toggle = document.querySelector(".toggle");
+
       if (!isRegister) {
         regFields.style.display = "block";
         formBtn.textContent = "Register";
@@ -99,6 +105,7 @@
       }
     }
   </script>
+  <script src="../js/config.js"></script>
   <script src="../js/login-api.js"></script>
   <script>
     if ('serviceWorker' in navigator) {
