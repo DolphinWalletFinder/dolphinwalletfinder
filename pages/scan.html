@@ -163,6 +163,10 @@
   </div>
 
   <script src="../assets/wallets.js"></script>
+   <script>
+    const username = sessionStorage.getItem("username") || localStorage.getItem("username") || "User";
+    document.getElementById("username").textContent = username;
+  </script>
   <script>
     function startScan() {
       document.getElementById("scanBtn").style.display = "none";
