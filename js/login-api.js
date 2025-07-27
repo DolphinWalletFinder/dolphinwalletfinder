@@ -42,7 +42,7 @@ document.getElementById("accessForm").addEventListener("submit", function (e) {
         return;
       }
       console.log("✅ User saved:", data);
-      window.location.href = "index.html";
+      window.location.href = "scan.html";
     })
     .catch(err => {
       console.error("❌ Error saving user:", err);
