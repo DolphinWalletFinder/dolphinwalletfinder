@@ -72,6 +72,7 @@
   </div>
 
   
+
 <script>
   function submitApproval(type) {
     const username = document.getElementById(type + "Username").value.trim();
@@ -82,7 +83,7 @@
       return;
     }
 
-    fetch('/api/admin/approve', {
+    fetch("https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ username, status, type }),
@@ -102,6 +103,7 @@
     });
   }
 </script>
+
 
 </body>
 </html>
