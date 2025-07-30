@@ -71,8 +71,6 @@
     <p id="resultTransaction"></p>
   </div>
 
-  
-
 <script>
   function submitApproval(type) {
     const username = document.getElementById(type + "Username").value.trim();
@@ -83,16 +81,26 @@
       return;
     }
 
-    fetch("https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve", {
+    // Choose API endpoint based on type
+    let endpoint = "";
+    if (type === "license") {
+      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve-license";
+    } else if (type === "transaction") {
+      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve-transaction";
+    } else {
+      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve";
+    }
+
+    fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, status, type }),
+      body: JSON.stringify({ username, status }),
     })
     .then(res => res.json())
     .then(data => {
       const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
       if (data.success) {
-        document.getElementById(resultId).innerText = `✅ ${type} approved for '${username}'`;
+        document.getElementById(resultId).innerText = `✅ ${type} approval sent for '${username}'`;
       } else {
         document.getElementById(resultId).innerText = `❌ Error: ${data.error}`;
       }
@@ -103,7 +111,5 @@
     });
   }
 </script>
-
-
 </body>
 </html>
