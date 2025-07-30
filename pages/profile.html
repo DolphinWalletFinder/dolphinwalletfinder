@@ -90,10 +90,7 @@
     </table>
     <button id="withdrawBtn" class="btn" disabled onclick="goToTransaction()">💸 Withdraw Assets</button>
   
-    <button class="btn" id="goTransaction" disabled onclick="window.location.href='transaction.html'">
-      Proceed to Transaction Payment
-    </button>
-</div>
+    
 
   <script>
     function goToTransaction() {
@@ -121,16 +118,15 @@
 
 <script>
   const username = localStorage.getItem("username");
-  document.getElementById("username").innerText = username;
+  const usernameSpan = document.getElementById("username");
+  if (usernameSpan) usernameSpan.innerText = username;
 
   fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
     .then(res => res.json())
     .then(data => {
       const btn = document.getElementById("goTransaction");
-      if (data.status === "approved") {
+      if (btn && data.status === "approved") {
         btn.disabled = false;
-      } else {
-        btn.disabled = true;
       }
     });
 </script>
