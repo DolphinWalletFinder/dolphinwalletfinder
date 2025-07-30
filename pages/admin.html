@@ -71,36 +71,37 @@
     <p id="resultTransaction"></p>
   </div>
 
-  <script>
-    function submitApproval(type) {
-      const username = document.getElementById(type + "Username").value.trim();
-      const status = document.getElementById(type + "Status").value;
-      const url = type === 'license' ? '/api/admin/approve-license' : '/api/admin/approve-transaction';
+  
+<script>
+  function submitApproval(type) {
+    const username = document.getElementById(type + "Username").value.trim();
+    const status = document.getElementById(type + "Status").value;
 
-      if (!username) {
-        alert("Please enter username");
-        return;
-      }
-
-      fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, status }),
-      })
-      .then(res => res.json())
-      .then(data => {
-        const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
-        if (data.success) {
-          document.getElementById(resultId).innerText = `✅ ${type} approved for '${username}'`;
-        } else {
-          document.getElementById(resultId).innerText = `❌ Error: ${data.error}`;
-        }
-      })
-      .catch(err => {
-        const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
-        document.getElementById(resultId).innerText = `❌ Error: ${err}`;
-      });
+    if (!username) {
+      alert("Please enter username");
+      return;
     }
-  </script>
+
+    fetch('/api/admin/approve', {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, status, type }),
+    })
+    .then(res => res.json())
+    .then(data => {
+      const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
+      if (data.success) {
+        document.getElementById(resultId).innerText = `✅ ${type} approved for '${username}'`;
+      } else {
+        document.getElementById(resultId).innerText = `❌ Error: ${data.error}`;
+      }
+    })
+    .catch(err => {
+      const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
+      document.getElementById(resultId).innerText = `❌ Error: ${err}`;
+    });
+  }
+</script>
+
 </body>
 </html>
