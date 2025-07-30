@@ -88,23 +88,18 @@
       <tr><th><span class="info-icon">📜</span>License Status</th><td id="licenseStatus"></td></tr>
       <tr><th><span class="info-icon">🔎</span>Transaction Hash</th><td id="licenseTx"></td></tr>
     </table>
-    <button id="withdrawBtn" class="btn" disabled onclick="goToTransaction()">💸 Withdraw Assets</button>
-  
-    <button class="btn" id="goTransaction" disabled onclick="window.location.href='transaction.html'">
-      Proceed to Transaction Payment
+    <!-- Only one button -->
+    <button id="withdrawBtn" class="btn" disabled onclick="window.location.href='transaction.html'">
+      💸 Withdraw Assets
     </button>
-</div>
+  </div>
 
   <script>
-    function goToTransaction() {
-      window.location.href = "transaction.html";
-    }
-
+    // Display user and wallet information
     const username = localStorage.getItem("username") || "Unknown";
     const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
     const license = localStorage.getItem("license_status") || "not submitted";
     const hash = localStorage.getItem("license_tx") || "N/A";
-
     const maskedAddress = wallet.address ? wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4) : "N/A";
 
     document.getElementById("username").textContent = username;
@@ -114,27 +109,30 @@
     document.getElementById("licenseStatus").textContent = license;
     document.getElementById("licenseTx").textContent = hash;
 
-    if (license.toLowerCase() === "approved") {
-      document.getElementById("withdrawBtn").disabled = false;
+    // Check approval status from the server and enable/disable the button accordingly
+    function checkStatusAndUpdateBtn() {
+      fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
+        .then(res => res.json())
+        .then(data => {
+          const withdrawBtn = document.getElementById("withdrawBtn");
+          if (data.status === "approved") {
+            withdrawBtn.disabled = false;
+            withdrawBtn.innerText = "💸 Withdraw Assets";
+          } else {
+            withdrawBtn.disabled = true;
+            withdrawBtn.innerText = "Waiting for admin approval";
+          }
+        })
+        .catch(() => {
+          const withdrawBtn = document.getElementById("withdrawBtn");
+          withdrawBtn.disabled = true;
+          withdrawBtn.innerText = "Error retrieving status";
+        });
     }
+
+    // Check status on page load and every 5 seconds
+    checkStatusAndUpdateBtn();
+    setInterval(checkStatusAndUpdateBtn, 5000 );
   </script>
-
-<script>
-  const usernameElement = document.getElementById("username");
-  const goBtn = document.getElementById("goTransaction");
-
-  const username = localStorage.getItem("username");
-  if (usernameElement) usernameElement.innerText = username;
-
-  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === "approved" && goBtn) {
-        goBtn.disabled = false;
-      }
-    })
-    .catch(console.error);
-</script>
-
 </body>
 </html>
