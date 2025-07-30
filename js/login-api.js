@@ -16,7 +16,7 @@ document.getElementById("accessForm").addEventListener("submit", function (e) {
     alert("Passwords do not match!");
     return;
   }
-
+  
   const payload = {
     username: username,
     password: password,
