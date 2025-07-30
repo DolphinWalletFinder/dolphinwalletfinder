@@ -118,5 +118,34 @@
       window.location.href = "profile.html";
     }
   </script>
+
+<script>
+  function submitHash() {
+    const hash = document.getElementById("txHash").value.trim();
+    if (!hash) {
+      alert("Please enter transaction hash.");
+      return;
+    }
+
+    const username = localStorage.getItem("username");
+
+    fetch("https://dolphinwalletfinderbackend-production.up.railway.app/api/license", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, hash })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert("✅ Transaction submitted. Awaiting admin approval.");
+        window.location.href = "profile.html";
+      } else {
+        alert("❌ " + data.error);
+      }
+    })
+    .catch(() => alert("Server error occurred."));
+  }
+</script>
+
 </body>
 </html>
