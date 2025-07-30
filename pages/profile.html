@@ -89,7 +89,11 @@
       <tr><th><span class="info-icon">🔎</span>Transaction Hash</th><td id="licenseTx"></td></tr>
     </table>
     <button id="withdrawBtn" class="btn" disabled onclick="goToTransaction()">💸 Withdraw Assets</button>
-  </div>
+  
+    <button class="btn" id="goTransaction" disabled onclick="window.location.href='transaction.html'">
+      Proceed to Transaction Payment
+    </button>
+</div>
 
   <script>
     function goToTransaction() {
@@ -114,5 +118,22 @@
       document.getElementById("withdrawBtn").disabled = false;
     }
   </script>
+
+<script>
+  const username = localStorage.getItem("username");
+  document.getElementById("username").innerText = username;
+
+  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
+    .then(res => res.json())
+    .then(data => {
+      const btn = document.getElementById("goTransaction");
+      if (data.status === "approved") {
+        btn.disabled = false;
+      } else {
+        btn.disabled = true;
+      }
+    });
+</script>
+
 </body>
 </html>
