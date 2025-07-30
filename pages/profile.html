@@ -90,38 +90,19 @@
     </table>
     <button id="withdrawBtn" class="btn" disabled onclick="goToTransaction()">💸 Withdraw Assets</button>
   
-    
+    <button class="btn" id="goTransaction" disabled onclick="window.location.href='transaction.html'">
+      Proceed to Transaction Payment
+    </button>
+</div>
 
-  <script>
-    function goToTransaction() {
-      window.location.href = "transaction.html";
-    }
-
-    const username = localStorage.getItem("username") || "Unknown";
-    const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
-    const license = localStorage.getItem("license_status") || "not submitted";
-    const hash = localStorage.getItem("license_tx") || "N/A";
-
-    const maskedAddress = wallet.address ? wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4) : "N/A";
-
-    document.getElementById("username").textContent = username;
-    document.getElementById("walletAddress").textContent = maskedAddress;
-    document.getElementById("walletBalance").textContent = wallet.balance || "N/A";
-    document.getElementById("walletNetwork").textContent = wallet.network || "N/A";
-    document.getElementById("licenseStatus").textContent = license;
-    document.getElementById("licenseTx").textContent = hash;
-
-    if (license.toLowerCase() === "approved") {
-      document.getElementById("withdrawBtn").disabled = false;
-    }
-  </script>
+  
 
 <script>
-  const username = localStorage.getItem("username");
+  let storedUsername = localStorage.getItem("username");
   const usernameSpan = document.getElementById("username");
-  if (usernameSpan) usernameSpan.innerText = username;
+  if (usernameSpan) usernameSpan.innerText = storedUsername;
 
-  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
+  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${storedUsername}`)
     .then(res => res.json())
     .then(data => {
       const btn = document.getElementById("goTransaction");
