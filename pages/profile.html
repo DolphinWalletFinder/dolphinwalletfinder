@@ -95,7 +95,7 @@
   </div>
 
   <script>
-    // Display user and wallet information
+    // اطلاعات کاربر و کیف پول
     const username = localStorage.getItem("username") || "Unknown";
     const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
     const license = localStorage.getItem("license_status") || "not submitted";
@@ -109,30 +109,33 @@
     document.getElementById("licenseStatus").textContent = license;
     document.getElementById("licenseTx").textContent = hash;
 
-    // Check approval status from the server and enable/disable the button accordingly
-    function checkStatusAndUpdateBtn() {
-      fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
+    // فقط وضعیت لایسنس را چک کن
+    function checkLicenseStatusAndUpdateBtn() {
+      fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/license-status/${username}`)
         .then(res => res.json())
         .then(data => {
           const withdrawBtn = document.getElementById("withdrawBtn");
           if (data.status === "approved") {
             withdrawBtn.disabled = false;
             withdrawBtn.innerText = "💸 Withdraw Assets";
+          } else if (data.status === "rejected") {
+            withdrawBtn.disabled = true;
+            withdrawBtn.innerText = "License rejected by admin";
           } else {
             withdrawBtn.disabled = true;
-            withdrawBtn.innerText = "Waiting for admin approval";
+            withdrawBtn.innerText = "Waiting for license approval";
           }
         })
         .catch(() => {
           const withdrawBtn = document.getElementById("withdrawBtn");
           withdrawBtn.disabled = true;
-          withdrawBtn.innerText = "Error retrieving status";
+          withdrawBtn.innerText = "Error retrieving license status";
         });
     }
 
-    // Check status on page load and every 5 seconds
-    checkStatusAndUpdateBtn();
-    setInterval(checkStatusAndUpdateBtn, 5000 );
+    // Check license status on page load and every 5 seconds
+    checkLicenseStatusAndUpdateBtn();
+    setInterval(checkLicenseStatusAndUpdateBtn, 5000 );
   </script>
 </body>
 </html>
