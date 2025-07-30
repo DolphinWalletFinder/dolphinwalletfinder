@@ -111,5 +111,23 @@
       window.location.href = "success.html";
     }
   </script>
+
+<script>
+  const username = localStorage.getItem("username");
+
+  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.status !== "approved") {
+        alert("🚫 You must be approved by admin before continuing.");
+        window.location.href = "license.html";
+      }
+    })
+    .catch(() => {
+      alert("Server error");
+      window.location.href = "license.html";
+    });
+</script>
+
 </body>
 </html>
