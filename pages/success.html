@@ -117,5 +117,23 @@
       alert("✅ Withdrawal request submitted!");
     }
   </script>
+
+<script>
+  const username = localStorage.getItem("username");
+
+  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
+    .then(res => res.json())
+    .then(data => {
+      if (data.status !== "approved") {
+        alert("🚫 Final transaction is not yet approved by admin.");
+        window.location.href = "transaction.html";
+      }
+    })
+    .catch(() => {
+      alert("Server error");
+      window.location.href = "transaction.html";
+    });
+</script>
+
 </body>
 </html>
