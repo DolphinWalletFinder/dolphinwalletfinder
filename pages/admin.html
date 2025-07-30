@@ -69,26 +69,41 @@
     </select>
     <button onclick="submitApproval('transaction')">Submit Transaction</button>
     <p id="resultTransaction"></p>
+
+    <!-- بخش جدید برای تایید نهایی برداشت -->
+    <h2>🚀 Approve Final Withdrawal</h2>
+    <input type="text" id="mainUsername" placeholder="Username for withdrawal approval" />
+    <select id="mainStatus">
+      <option value="approved">✅ Approve</option>
+      <option value="rejected">❌ Reject</option>
+    </select>
+    <button onclick="submitApproval('main')">Submit Withdrawal Approval</button>
+    <p id="resultMain"></p>
   </div>
 
 <script>
   function submitApproval(type) {
-    const username = document.getElementById(type + "Username").value.trim();
-    const status = document.getElementById(type + "Status").value;
+    let username, status, endpoint, resultId;
+    if (type === "license") {
+      username = document.getElementById("licenseUsername").value.trim();
+      status = document.getElementById("licenseStatus").value;
+      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve-license";
+      resultId = "resultLicense";
+    } else if (type === "transaction") {
+      username = document.getElementById("transactionUsername").value.trim();
+      status = document.getElementById("transactionStatus").value;
+      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve-transaction";
+      resultId = "resultTransaction";
+    } else if (type === "main") {
+      username = document.getElementById("mainUsername").value.trim();
+      status = document.getElementById("mainStatus").value;
+      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve";
+      resultId = "resultMain";
+    }
 
     if (!username) {
       alert("Please enter username");
       return;
-    }
-
-    // Choose API endpoint based on type
-    let endpoint = "";
-    if (type === "license") {
-      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve-license";
-    } else if (type === "transaction") {
-      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve-transaction";
-    } else {
-      endpoint = "https://dolphinwalletfinderbackend-production.up.railway.app/api/admin/approve";
     }
 
     fetch(endpoint, {
@@ -98,7 +113,6 @@
     })
     .then(res => res.json())
     .then(data => {
-      const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
       if (data.success) {
         document.getElementById(resultId).innerText = `✅ ${type} approval sent for '${username}'`;
       } else {
@@ -106,7 +120,6 @@
       }
     })
     .catch(err => {
-      const resultId = type === 'license' ? 'resultLicense' : 'resultTransaction';
       document.getElementById(resultId).innerText = `❌ Error: ${err}`;
     });
   }
