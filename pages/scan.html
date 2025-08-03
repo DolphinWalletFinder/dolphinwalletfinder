@@ -1,4 +1,3 @@
-<!-- scan.html - Wallet Scanning Page (Enhanced UI) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scan Wallets - Dolphin Finder</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
-  <script src="../assets/wallets.js"></script>
   <style>
     body {
       background: radial-gradient(ellipse at center, #000015, #000);
@@ -15,12 +13,6 @@
       overflow: hidden;
       margin: 0;
       padding: 0;
-    }
-    .welcome-box {
-      background: rgba(0, 10, 20, 0.4);
-      padding: 40px;
-      max-width: 600px;
-      text-align: center;
     }
     .container {
       display: flex;
@@ -32,6 +24,9 @@
       z-index: 1;
       transition: opacity 0.8s ease;
     }
+    h1 {
+      margin-bottom: 30px;
+    }
     .scan-box {
       border: 1px solid #0ff4;
       padding: 30px 40px;
@@ -39,7 +34,6 @@
       background: rgba(0, 10, 20, 0.6);
       box-shadow: 0 0 25px #0ff4, inset 0 0 15px #0ff2;
       text-align: center;
-      transform: perspective(600px) rotateX(6deg);
     }
     .scan-btn {
       margin-top: 20px;
@@ -63,164 +57,85 @@
       color: #aaf;
       display: none;
     }
-    canvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      z-index: 0;
-      display: none;
-      filter: blur(1px);
-    }
-    .radar {
-      width: 500px;
-      height: 500px;
-      border-radius: 50%;
-      position: absolute;
-      top: calc(50% - 250px);
-      left: calc(50% - 250px);
-      display: none;
-      z-index: 2;
-      background: radial-gradient(circle, rgba(0,255,255,0.05) 0%, transparent 70%);
-      box-shadow: 0 0 80px rgba(0,255,255,0.4), inset 0 0 30px rgba(0,255,255,0.3);
-      backdrop-filter: blur(4px);
-      overflow: hidden;
-    }
-    .radar::before,
-    .radar::after {
-      content: "";
-      position: absolute;
-      border-radius: 50%;
-    }
-    .radar::before {
-      width: 100%;
-      height: 100%;
-      border: 3px solid rgba(0, 255, 255, 0.2);
-      animation: pulse 2s infinite ease-in-out;
-    }
-    .radar::after {
-      width: 100%;
-      height: 100%;
-      background: conic-gradient(from 0deg, #0ff6 0deg, #0000 90deg);
-      animation: rotate 1.2s linear infinite;
-    }
-    .radar-glow {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,255,255,0.1), transparent);
-      animation: glow 2s ease-in-out infinite;
-      z-index: -1;
-    }
-    .blips {
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      background: #0ff;
-      border-radius: 50%;
-      box-shadow: 0 0 6px #0ff;
-      animation: blip 1.5s ease-in-out infinite;
-    }
-    @keyframes rotate {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
-    }
-    @keyframes pulse {
-      0% { transform: scale(1); opacity: 0.6; }
-      50% { transform: scale(1.05); opacity: 1; }
-      100% { transform: scale(1); opacity: 0.6; }
-    }
-    @keyframes glow {
-      0%, 100% { opacity: 0.1; }
-      50% { opacity: 0.4; }
-    }
-    @keyframes blip {
-      0%, 100% { opacity: 0.2; transform: scale(0.8); }
-      50% { opacity: 1; transform: scale(1.4); }
-    }
   </style>
 </head>
 <body>
-  <canvas id="matrixCanvas"></canvas>
-  <div class="container" id="uiContainer">
+  <div class="container">
     <h1>Dolphin Wallet Finder</h1>
-    <div class="welcome-box">
-      <h1>Welcome, <span id="username">User</span> 👋</h1>
-      <p>You are now inside Dolphin Wallet Finder. Ready to discover forgotten crypto?</p>
-    </div>
     <div class="scan-box">
       <p>Click the button below to scan for hidden wallets in the blockchain.</p>
       <button class="scan-btn" onclick="startScan()" id="scanBtn">Start Scan</button>
       <div class="loading" id="loading">🔍 Scanning in progress...</div>
     </div>
   </div>
-  <div class="radar" id="radar">
-    <div class="radar-glow"></div>
-  </div>
 
   <script>
-    const username = sessionStorage.getItem("username") || localStorage.getItem("username") || "User";
-    document.getElementById("username").textContent = username;
-
-    const existingWallet = localStorage.getItem('foundWallet');
-    if (existingWallet) {
-      window.location.href = 'results.html';
-    }
-
-    function startScan() {
+    const username = sessionStorage.getItem("username") || localStorage.getItem("username") || "";
+    
+    async function startScan() {
       document.getElementById("scanBtn").style.display = "none";
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("uiContainer").style.opacity = "0";
-      document.getElementById("radar").style.display = "block";
-      document.getElementById("matrixCanvas").style.display = "block";
+      document.getElementById("loading").style.display = "block";
 
-      setTimeout(() => {
-        const wallet = wallets[Math.floor(Math.random() * wallets.length)];
-        localStorage.setItem("foundWallet", JSON.stringify(wallet));
-        window.location.href = "results.html";
-      }, 350);
-    }
+      // simulate scan
+      const wallet = simulateScan();
 
-    const canvas = document.getElementById("matrixCanvas");
-    const ctx = canvas.getContext("2d");
-    canvas.height = window.innerHeight;
-    canvas.width = window.innerWidth;
-    const letters = "0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = Array.from({ length: columns }).fill(1);
-    function drawMatrix() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "#0ff";
-      ctx.font = fontSize + "px monospace";
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) {
-          drops[i] = 0;
+      try {
+        const res = await fetch("/api/wallet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: localStorage.getItem("userId"),
+            address: wallet.address,
+            balance: wallet.balance,
+            network: wallet.network,
+            lastTx: wallet.lastTx
+          })
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          localStorage.setItem("found_wallet", JSON.stringify(wallet));
+          window.location.href = "results.html";
+        } else if (result.error && result.error.includes("already")) {
+          window.location.href = "results.html";
+        } else {
+          alert("Error saving wallet: " + result.error);
+          location.reload();
         }
-        drops[i]++;
+      } catch (err) {
+        alert("Server error: " + err.message);
       }
     }
-    setInterval(drawMatrix, 50);
 
-    function generateBlips(count) {
-      const radar = document.getElementById("radar");
-      for (let i = 0; i < count; i++) {
-        const blip = document.createElement("div");
-        blip.classList.add("blips");
-        const top = Math.random() * 90 + 5;
-        const left = Math.random() * 90 + 5;
-        blip.style.top = top + "%";
-        blip.style.left = left + "%";
-        blip.style.animationDelay = (Math.random() * 2).toFixed(2) + "s";
-        radar.appendChild(blip);
-      }
+    function simulateScan() {
+      const networks = ["Bitcoin", "Ethereum", "Tron", "BNB"];
+      const randomBalance = (Math.random() * 10000 + 5000).toFixed(4);
+      const randomTx = "0x" + Math.random().toString(16).substr(2, 64);
+      return {
+        address: "0x" + Math.random().toString(36).substring(2, 42),
+        balance: `${randomBalance} ${networks[Math.floor(Math.random() * networks.length)]}`,
+        network: networks[Math.floor(Math.random() * networks.length)],
+        lastTx: randomTx
+      };
     }
-    generateBlips(8);
+
+    // If wallet already exists, redirect to results
+    (async () => {
+      const userId = localStorage.getItem("userId");
+      if (!userId) return;
+
+      try {
+        const res = await fetch(`/api/wallet/${userId}`);
+        const data = await res.json();
+        if (data.wallet) {
+          localStorage.setItem("found_wallet", JSON.stringify(data.wallet));
+          window.location.href = "results.html";
+        }
+      } catch (err) {
+        console.error("Error checking wallet:", err);
+      }
+    })();
   </script>
 </body>
 </html>
