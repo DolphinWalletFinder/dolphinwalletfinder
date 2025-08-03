@@ -1,3 +1,4 @@
+<!-- scan.html - Wallet Scanning Page (Enhanced UI) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scan Wallets - Dolphin Finder</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
+  <script src="../assets/wallets.js"></script>
   <style>
     body {
       background: radial-gradient(ellipse at center, #000015, #000);
@@ -14,18 +16,11 @@
       margin: 0;
       padding: 0;
     }
-     .welcome-box {
+    .welcome-box {
       background: rgba(0, 10, 20, 0.4);
       padding: 40px;
       max-width: 600px;
       text-align: center;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    p {
-      font-size: 1.1em;
-      color: #aaf;
     }
     .container {
       display: flex;
@@ -36,9 +31,6 @@
       position: relative;
       z-index: 1;
       transition: opacity 0.8s ease;
-    }
-    h1 {
-      margin-bottom: 30px;
     }
     .scan-box {
       border: 1px solid #0ff4;
@@ -131,10 +123,6 @@
       box-shadow: 0 0 6px #0ff;
       animation: blip 1.5s ease-in-out infinite;
     }
-    .blips:nth-child(1) { top: 20%; left: 60%; animation-delay: 0.2s; }
-    .blips:nth-child(2) { top: 70%; left: 30%; animation-delay: 0.6s; }
-    .blips:nth-child(3) { top: 40%; left: 80%; animation-delay: 1s; }
-
     @keyframes rotate {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
@@ -159,9 +147,9 @@
   <div class="container" id="uiContainer">
     <h1>Dolphin Wallet Finder</h1>
     <div class="welcome-box">
-    <h1>Welcome, <span id="username">User</span> 👋</h1>
-    <p>You are now inside Dolphin Wallet Finder. Ready to discover forgotten crypto?</p>
-      </div>
+      <h1>Welcome, <span id="username">User</span> 👋</h1>
+      <p>You are now inside Dolphin Wallet Finder. Ready to discover forgotten crypto?</p>
+    </div>
     <div class="scan-box">
       <p>Click the button below to scan for hidden wallets in the blockchain.</p>
       <button class="scan-btn" onclick="startScan()" id="scanBtn">Start Scan</button>
@@ -170,17 +158,17 @@
   </div>
   <div class="radar" id="radar">
     <div class="radar-glow"></div>
-    <div class="blips"></div>
-    <div class="blips"></div>
-    <div class="blips"></div>
   </div>
 
-  <script src="../assets/wallets.js"></script>
-   <script>
+  <script>
     const username = sessionStorage.getItem("username") || localStorage.getItem("username") || "User";
     document.getElementById("username").textContent = username;
-  </script>
-  <script>
+
+    const existingWallet = localStorage.getItem('foundWallet');
+    if (existingWallet) {
+      window.location.href = 'results.html';
+    }
+
     function startScan() {
       document.getElementById("scanBtn").style.display = "none";
       document.getElementById("loading").style.display = "none";
@@ -189,29 +177,25 @@
       document.getElementById("matrixCanvas").style.display = "block";
 
       setTimeout(() => {
-        const wallet = simulateScan();
-        localStorage.setItem("found_wallet", JSON.stringify(wallet));
+        const wallet = wallets[Math.floor(Math.random() * wallets.length)];
+        localStorage.setItem("foundWallet", JSON.stringify(wallet));
         window.location.href = "results.html";
       }, 350);
     }
-  </script>
-  <script>
+
     const canvas = document.getElementById("matrixCanvas");
     const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
-
-    const letters = "0 1 immune flee people initial panic crucial display grace aim copper fashion pelican pulp average wheel pride sketch flag narrow object juice victory swallow refuse goat dune phrase hole boy maid report exhibit ride lecture dynamic burger fork disorder assume table dawn hood office art share later sell paper quick steel acid taste promote robust false hockey employ dinner scene rain ocean iron rabbit mule curve rescue prevent draw aisle learn coral oven umbrella bless whisper credit share aunt kit inhale velvet vintage client spin execute false entire prison muscle pencil celery sudden cry bounce occur alley scout useless buyer destroy age tattoo rescue divide clump oppose mystery noodle predict rapid life shoe diesel coral right ivory alarm romance remind profit rude dwarf decorate bleak obscure balcony liberty quarter minor blast security drastic breeze guess lamp entry worth coach little kiss garment economy snake lottery cancel elegant memory foam town make vivid exercise crouch talent good stone february camp bless connect ride around figure tool hover decrease mobile arrest first girl frame coconut hair shoot yard age awful town truck rifle hint ring stay exercise nurse text solid palm ankle raccoon ketchup evil".split(" ");
+    const letters = "0123456789 ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array.from({ length: columns }).fill(1);
-
     function drawMatrix() {
       ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#0ff";
       ctx.font = fontSize + "px monospace";
-
       for (let i = 0; i < drops.length; i++) {
         const text = letters[Math.floor(Math.random() * letters.length)];
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -222,23 +206,21 @@
       }
     }
     setInterval(drawMatrix, 50);
-  </script>
-<script>
-  function generateBlips(count) {
-    const radar = document.getElementById("radar");
-    for (let i = 0; i < count; i++) {
-      const blip = document.createElement("div");
-      blip.classList.add("blips");
-      const top = Math.random() * 90 + 5; // بین 5% تا 95%
-      const left = Math.random() * 90 + 5;
-      blip.style.top = top + "%";
-      blip.style.left = left + "%";
-      blip.style.animationDelay = (Math.random() * 2).toFixed(2) + "s";
-      radar.appendChild(blip);
-    }
-  }
-  generateBlips(8);
-</script>
 
+    function generateBlips(count) {
+      const radar = document.getElementById("radar");
+      for (let i = 0; i < count; i++) {
+        const blip = document.createElement("div");
+        blip.classList.add("blips");
+        const top = Math.random() * 90 + 5;
+        const left = Math.random() * 90 + 5;
+        blip.style.top = top + "%";
+        blip.style.left = left + "%";
+        blip.style.animationDelay = (Math.random() * 2).toFixed(2) + "s";
+        radar.appendChild(blip);
+      }
+    }
+    generateBlips(8);
+  </script>
 </body>
 </html>
