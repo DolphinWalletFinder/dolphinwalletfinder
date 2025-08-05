@@ -113,16 +113,25 @@
       });
     }
 
-    // چک وضعیت لایسنس
-    function checkLicenseStatus() {
+    // گرفتن آخرین هش تراکنش لایسنس کاربر
+    function loadLicenseTx() {
       fetch(`${API_BASE_URL}/license/status`, {
         headers: { "Authorization": "Bearer " + token }
       })
       .then(res => res.json())
       .then(data => {
+        const txCell = document.getElementById("licenseTx");
         const statusCell = document.getElementById("licenseStatus");
         const withdrawBtn = document.getElementById("withdrawBtn");
 
+        // نمایش هش تراکنش اگر وجود داشت
+        if (data.tx_hash) {
+          txCell.textContent = data.tx_hash;
+        } else {
+          txCell.textContent = "N/A";
+        }
+
+        // وضعیت لایسنس
         if (data.license === "active") {
           statusCell.textContent = "✅ Approved";
           withdrawBtn.disabled = false;
@@ -134,16 +143,17 @@
       })
       .catch(() => {
         document.getElementById("licenseStatus").textContent = "❌ Error checking status";
+        document.getElementById("licenseTx").textContent = "N/A";
         document.getElementById("withdrawBtn").disabled = true;
       });
     }
 
     // اجرای اولیه
     loadProfile();
-    checkLicenseStatus();
+    loadLicenseTx();
 
     // چک خودکار هر 5 ثانیه
-    setInterval(checkLicenseStatus, 5000);
+    setInterval(loadLicenseTx, 5000);
   </script>
 </body>
 </html>
