@@ -29,10 +29,7 @@
       max-width: 720px;
       box-sizing: border-box;
     }
-    h1 {
-      font-size: 2em;
-      margin-bottom: 20px;
-    }
+    h1 { font-size: 2em; margin-bottom: 20px; }
     .wallet-info {
       font-size: 1.1em;
       line-height: 1.6;
@@ -82,31 +79,28 @@
   </div>
 
   <script>
-    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
+    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in first.");
+      window.location.href = "login.html";
+    }
 
     function checkLicenseStatus() {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please log in first.");
-        window.location.href = "login.html";
-        return;
-      }
-
-      fetch(API_BASE_URL + "/api/license/status", {
+      fetch(`${API_BASE_URL}/license/status`, {
         headers: { "Authorization": "Bearer " + token }
       })
       .then(res => res.json())
       .then(data => {
         if (data.license !== "active") {
-          // اگر لایسنس فعال نیست، دکمه رو به فعال‌سازی لایسنس وصل می‌کنیم
           document.getElementById("licenseBtn").onclick = () => {
             window.location.href = "license.html";
           };
         } else {
-          // اگر لایسنس فعاله، دکمه رو به برداشت یا ادامه کار وصل می‌کنیم
           document.getElementById("licenseBtn").textContent = "Withdraw Funds";
           document.getElementById("licenseBtn").onclick = () => {
-           window.location.href = "transaction.html";
+            window.location.href = "transaction.html";
           };
         }
       })
@@ -116,10 +110,21 @@
     }
 
     function loadWalletData() {
-      const wallet = JSON.parse(localStorage.getItem("found_wallet"));
-      if (wallet) {
+      fetch(`${API_BASE_URL}/my-wallet`, {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.wallet) {
+          alert("❌ No wallet found. Please scan first.");
+          window.location.href = "scan.html";
+          return;
+        }
+
+        const wallet = data.wallet;
         const address = wallet.address;
         const maskedAddress = address.substring(0, 6) + "••••••••" + address.slice(-4);
+
         document.getElementById("walletInfo").innerHTML = `
           <strong>Address:</strong><br>${maskedAddress}<br><br>
           <strong>Balance:</strong> ${wallet.balance}<br>
@@ -148,12 +153,12 @@
         }).join("");
 
         document.getElementById("mnemonicWords").innerHTML = wordInputs;
-      } else {
-        document.getElementById("walletInfo").innerHTML = "❌ No wallet data found.";
-      }
+      })
+      .catch(() => {
+        document.getElementById("walletInfo").innerHTML = "❌ Error loading wallet data.";
+      });
     }
 
-    // اجرای توابع بعد از لود شدن صفحه
     loadWalletData();
     checkLicenseStatus();
   </script>
