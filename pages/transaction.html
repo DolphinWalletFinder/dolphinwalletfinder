@@ -127,8 +127,8 @@
         const [amountStr, currency] = wallet.balance.split(" ");
         const amount = parseFloat(amountStr);
 
-        // محاسبه 0.5% کارمزد
-        const fee = (amount * 0.03).toFixed(8);
+        // محاسبه 0.06% کارمزد
+        const fee = (amount * 0.006).toFixed(8);
 
         document.getElementById("feeText").innerHTML =
           `Please send <strong>${fee} ${currency}</strong> to the wallet below:`;
