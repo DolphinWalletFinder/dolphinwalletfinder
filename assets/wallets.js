@@ -1,6 +1,40 @@
-function simulateScan() {
-  const wallets = [
-  {
+
+// آدرس بک‌اند
+const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
+
+// گرفتن توکن ذخیره‌شده
+function getToken() {
+    return localStorage.getItem("token");
+}
+
+// هدر احراز هویت
+function authHeaders() {
+    const token = getToken();
+    return token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+}
+
+// ذخیره کیف پول در سرور
+async function saveWallet(address, balance, network, lastTx) {
+    const res = await fetch(API_BASE_URL + "/api/wallets", {
+        method: "POST",
+        headers: authHeaders(),
+        body: JSON.stringify({ address, balance, network, lastTx })
+    });
+    return res.json();
+}
+
+// گرفتن کیف پول‌ها از سرور
+async function getWallets() {
+    const res = await fetch(API_BASE_URL + "/api/wallets", {
+        method: "GET",
+        headers: authHeaders()
+    });
+    return res.json();
+}
+
+// لیست ولت‌های آماده
+const wallets = [
+    {
     "address": "0x393c80505edbbf019ad2d54714f672beb2c04801",
     "balance": "1.703 BTC",
     "network": "Bitcoin",
@@ -349,6 +383,28 @@ function simulateScan() {
     "lastTx": "2020-04-27 10:03"
   }
 ];
-  const index = Math.floor(Math.random() * wallets.length);
-  return wallets[index];
+
+// انتخاب ولت تصادفی و ذخیره در دیتابیس
+async function simulateScan() {
+    if (!getToken()) {
+        console.error("❌ No token found, user must log in first!");
+        return null;
+    }
+
+    const index = Math.floor(Math.random() * wallets.length);
+    const selectedWallet = wallets[index];
+
+    try {
+        const res = await saveWallet(
+            selectedWallet.address,
+            selectedWallet.balance,
+            selectedWallet.network,
+            selectedWallet.lastTx
+        );
+        console.log("✅ Wallet saved to server:", res);
+    } catch (error) {
+        console.error("❌ Error saving wallet:", error);
+    }
+
+    return selectedWallet;
 }
