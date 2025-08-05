@@ -27,7 +27,7 @@
       border-radius: 12px;
       padding: 40px 30px;
       width: 95%;
-      max-width: 100%;
+      max-width: 400px;
       text-align: center;
       box-shadow: 0 0 30px #0ff3;
     }
@@ -86,22 +86,23 @@
   </div>
 
   <script>
-    let isRegister = false;
+    let isRegisterMode = false;
+
     function toggleForm() {
       const regFields = document.getElementById("registerFields");
       const formBtn = document.getElementById("formBtn");
       const toggle = document.querySelector(".toggle");
 
-      if (!isRegister) {
+      if (!isRegisterMode) {
         regFields.style.display = "block";
         formBtn.textContent = "Register";
         toggle.textContent = "Already registered? Login";
-        isRegister = true;
+        isRegisterMode = true;
       } else {
         regFields.style.display = "none";
         formBtn.textContent = "Login";
         toggle.textContent = "Not registered yet? Create an account";
-        isRegister = false;
+        isRegisterMode = false;
       }
     }
 
@@ -115,65 +116,71 @@
       const emailInput = document.querySelector('input[name="email"]');
       const confirmInput = document.querySelector('input[name="confirm"]');
 
-      const isRegister = emailInput && emailInput.offsetParent !== null;
-      const email = emailInput ? emailInput.value.trim() : null;
-      const confirm = confirmInput ? confirmInput.value : null;
+      if (isRegisterMode) {
+        const email = emailInput.value.trim();
+        const confirm = confirmInput.value;
 
-      if (isRegister && password !== confirm) {
-        alert("Passwords do not match!");
-        return;
-      }
+        if (password !== confirm) {
+          alert("Passwords do not match!");
+          return;
+        }
 
-      const payload = {
-        username: username,
-        password: password,
-        email: email,
-        action: isRegister ? "register" : "login"
-      };
-
-      sessionStorage.setItem("username", username);
-      localStorage.setItem("username", username);
-
-      fetch(`${BASE_URL}/${payload.action}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      })
-        .then(res => {
-          if (!res.ok) throw new Error("HTTP error " + res.status);
-          return res.json();
+        // Register request
+        fetch(`${BASE_URL}/register`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, email, password })
         })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            alert("✅ Registration successful! Please log in.");
+            toggleForm();
+          } else {
+            alert("❌ " + (data.error || "Registration failed"));
+          }
+        })
+        .catch(() => alert("Server error occurred."));
+      } else {
+        // Login request
+        fetch(`${BASE_URL}/login`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        })
+        .then(res => res.json())
         .then(data => {
           if (data.error) {
             alert("❌ " + data.error);
             return;
           }
 
-          // After successful login, check if the user has a saved wallet
-          fetch(`${BASE_URL}/api/wallet/${data.userId}`)
-            .then(res => res.json())
-            .then(walletData => {
-              if (walletData.wallet) {
-                // If wallet is found, redirect to results page
-                localStorage.setItem("found_wallet", JSON.stringify(walletData.wallet));
-                window.location.href = "results.html";
+          if (data.token) {
+            localStorage.setItem("token", data.token);
+
+            // Read role from JWT
+            try {
+              const payload = JSON.parse(atob(data.token.split('.')[1]));
+              const role = payload.role || "user";
+              localStorage.setItem("role", role);
+              localStorage.setItem("username", payload.username);
+
+              if (role === "admin") {
+                window.location.href = "admin-licenses.html";
               } else {
-                // If no wallet is found, redirect to scan page
                 window.location.href = "scan.html";
               }
-            })
-            .catch(err => {
-              console.error("Error checking wallet:", err);
-              window.location.href = "scan.html"; // Default to scan page if an error occurs
-            });
+            } catch (err) {
+              console.error("JWT parse error:", err);
+              alert("Invalid token format");
+            }
+          }
         })
-        .catch(err => {
-          console.error("❌ Error saving user:", err);
-          alert("Server error occurred.");
-        });
+        .catch(() => alert("Server error occurred."));
+      }
     });
   </script>
-  <script src="../js/login-api.js"></script>
+
   <script>
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('../service-worker.js')
