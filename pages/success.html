@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Transaction Status - Dolphin Wallet</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
@@ -10,24 +11,25 @@
       font-family: 'Orbitron', sans-serif;
       color: #0ff;
       margin: 0;
-      padding: 40px 20px;
+      padding: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
+      min-height: 100vh;
       text-align: center;
     }
     .box {
       background: rgba(0, 10, 20, 0.85);
-      padding: 40px;
+      padding: 25px;
       border-radius: 18px;
       box-shadow: 0 0 30px #0ff4, inset 0 0 20px #0ff3;
       max-width: 700px;
       width: 100%;
     }
+    h1 { font-size: 1.5em; }
     .status {
-      font-size: 1.3em;
-      margin: 20px 0;
+      font-size: 1.2em;
+      margin: 15px 0;
     }
     .hash, .wallet-info {
       font-family: monospace;
@@ -35,8 +37,9 @@
       padding: 10px;
       border: 1px dashed #0ff8;
       border-radius: 8px;
-      margin-top: 15px;
+      margin-top: 10px;
       word-break: break-word;
+      font-size: 0.9em;
     }
     .input-field {
       width: 100%;
@@ -47,6 +50,7 @@
       color: #0ff;
       border: 1px solid #0ff6;
       border-radius: 6px;
+      font-size: 0.9em;
     }
     .btn {
       padding: 12px 24px;
@@ -56,6 +60,8 @@
       border: none;
       border-radius: 10px;
       cursor: pointer;
+      width: 100%;
+      max-width: 300px;
     }
     .btn[disabled] {
       opacity: 0.4;
@@ -64,6 +70,13 @@
     .btn:hover:not([disabled]) {
       background: #00faff;
       box-shadow: 0 0 12px #0ff;
+    }
+    @media (max-width: 600px) {
+      .box {
+        padding: 15px;
+      }
+      h1 { font-size: 1.2em; }
+      .status { font-size: 1em; }
     }
   </style>
 </head>
@@ -80,7 +93,7 @@
     <input class="input-field" id="userWallet" placeholder="e.g. your own BTC or ETH address" />
     <button class="btn" id="withdrawBtn" disabled onclick="requestWithdraw()">💸 Request Withdrawal</button>
     <p style="font-size: 0.9em; color: #aff; margin-top: 10px;">
-      This button will be enabled once your transaction is approved by admin.
+      This button will be enabled once your transaction fee is approved by admin.
     </p>
   </div>
 
@@ -93,8 +106,9 @@
     window.location.href = "login.html";
   }
 
-  // گرفتن هش تراکنش و اطلاعات ولت
+  // لود ولت و هش تراکنش هزینه
   function loadTransactionData() {
+    // ولت
     fetch(`${API_BASE_URL}/my-wallet`, {
       headers: { "Authorization": "Bearer " + token }
     })
@@ -114,28 +128,28 @@
         <strong>Network:</strong> ${wallet.network}<br>
         <strong>Last Tx:</strong> ${wallet.lastTx || 'N/A'}
       `;
-
-      // گرفتن آخرین هش تراکنش لایسنس
-      fetch(`${API_BASE_URL}/license/status`, {
-        headers: { "Authorization": "Bearer " + token }
-      })
-      .then(res => res.json())
-      .then(statusData => {
-        document.getElementById("txHash").innerText = statusData.tx_hash || "N/A";
-      });
     });
-  }
 
-  // چک کردن وضعیت تایید ادمین هر چند ثانیه
-  function checkApprovalStatus() {
-    fetch(`${API_BASE_URL}/license/status`, {
+    // هش هزینه تراکنش
+    fetch(`${API_BASE_URL}/final-tx`, {
       headers: { "Authorization": "Bearer " + token }
     })
     .then(res => res.json())
-    .then(data => {
+    .then(txData => {
+      document.getElementById("txHash").innerText = txData.tx_hash || "N/A";
+    });
+  }
+
+  // چک تایید هزینه تراکنش
+  function checkApprovalStatus() {
+    fetch(`${API_BASE_URL}/final-tx`, {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(txData => {
       const withdrawBtn = document.getElementById("withdrawBtn");
-      if (data.license === "active") {
-        document.getElementById("statusText").innerHTML = "✅ Transaction Approved! You can now request withdrawal.";
+      if (txData.status === "approved") {
+        document.getElementById("statusText").innerHTML = "✅ Transaction Fee Approved! You can now request withdrawal.";
         withdrawBtn.disabled = false;
       } else {
         document.getElementById("statusText").innerHTML = "⏳ Awaiting admin confirmation...";
@@ -144,7 +158,7 @@
     });
   }
 
-  // ارسال درخواست برداشت به سرور
+  // درخواست برداشت
   function requestWithdraw() {
     const userAddr = document.getElementById("userWallet").value.trim();
     if (!userAddr) {
