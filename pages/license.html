@@ -27,13 +27,30 @@
       border: 1px solid #0ff4;
       box-shadow: 0 0 20px #0ff4, inset 0 0 10px #0ff2;
     }
-    h1 {
-      margin-bottom: 20px;
+    h1 { margin-bottom: 20px; }
+    p { color: #aaf; font-size: 1em; margin-bottom: 20px; }
+    .wallet-address {
+      font-family: monospace;
+      background: #000;
+      padding: 10px;
+      border: 1px dashed #0ff8;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      word-break: break-word;
     }
-    p {
-      color: #aaf;
-      font-size: 1em;
+    .copy-btn {
       margin-bottom: 20px;
+      padding: 8px 16px;
+      font-size: 0.9em;
+      background: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .copy-btn:hover {
+      background: #00faff;
+      box-shadow: 0 0 8px #0ff;
     }
     input {
       width: 100%;
@@ -68,14 +85,31 @@
 <body>
   <div class="license-box">
     <h1>🔑 Activate Your License</h1>
-    <p>Enter your transaction hash below and submit it for admin approval.</p>
+    <p>
+      This license activates <strong>all features</strong> of Dolphin Wallet Finder.<br>
+      It is a <strong>one-time payment</strong> of <strong>200 USDT</strong>.
+    </p>
 
+    <div class="wallet-address" id="licenseWallet">Loading wallet address...</div>
+    <button class="copy-btn" onclick="copyWallet()">📋 Copy Wallet Address</button>
+
+    <p>After payment, enter your transaction hash below for admin approval:</p>
     <input type="text" id="txHash" placeholder="Transaction Hash" required />
     <button class="btn" onclick="submitLicense()">Submit</button>
   </div>
 
   <script>
     const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+    
+    // ولت USDT روی شبکه تتر (TRC20) به عنوان نمونه
+    const LICENSE_WALLET_ADDRESS = "TWWKr8K7pZuXTHK6ogVwZ7kAN5mVLHMmpp";
+    
+    document.getElementById("licenseWallet").innerText = LICENSE_WALLET_ADDRESS;
+
+    function copyWallet() {
+      navigator.clipboard.writeText(LICENSE_WALLET_ADDRESS);
+      alert("Wallet address copied to clipboard!");
+    }
 
     function submitLicense() {
       const token = localStorage.getItem("token");
