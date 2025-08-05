@@ -7,76 +7,42 @@
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     body {
-      margin: 0;
-      padding: 0;
-      background: radial-gradient(ellipse at center, #000010, #000);
+      background: radial-gradient(ellipse at center, #000015, #000);
       font-family: 'Orbitron', sans-serif;
       color: #0ff;
       overflow: hidden;
+      margin: 0;
+      padding: 0;
     }
-
-    .container {
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      z-index: 2;
-      position: relative;
-      padding: 20px;
-    }
-
-    h1 {
-      font-size: 2em;
-      color: #0ff;
-      margin-bottom: 15px;
-      animation: fadeInDown 1s ease-out;
-    }
-
-    #typingText {
-      font-size: 1.2em;
-      color: #aaf;
-      margin-bottom: 30px;
-      min-height: 60px;
-      white-space: pre-wrap;
-      animation: fadeIn 2s ease-in;
-    }
-
-    .glass-card {
-      background: rgba(0, 30, 60, 0.3);
-      border: 1px solid rgba(0, 255, 255, 0.2);
-      box-shadow: 0 8px 30px rgba(0, 255, 255, 0.1);
-      backdrop-filter: blur(15px);
-      -webkit-backdrop-filter: blur(15px);
-      padding: 40px 30px;
-      border-radius: 20px;
+    .welcome-box {
+      background: rgba(0, 10, 20, 0.4);
+      padding: 40px;
       max-width: 600px;
-      width: 100%;
-      animation: zoomIn 1s ease-out;
+      text-align: center;
     }
-
+    .container {
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      height: 100vh; position: relative; z-index: 1; transition: opacity 0.8s ease;
+    }
+    .scan-box {
+      border: 1px solid #0ff4;
+      padding: 30px 40px;
+      border-radius: 14px;
+      background: rgba(0, 10, 20, 0.6);
+      box-shadow: 0 0 25px #0ff4, inset 0 0 15px #0ff2;
+      text-align: center;
+      transform: perspective(600px) rotateX(6deg);
+    }
     .scan-btn {
-      margin-top: 20px;
-      padding: 14px 36px;
-      font-size: 1.1em;
-      font-weight: bold;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      color: #000;
-      background: linear-gradient(135deg, #0ff, #08f);
-      box-shadow: 0 0 12px #0ff;
-      animation: pulseGlow 2s infinite ease-in-out;
-      transition: all 0.3s ease;
+      margin-top: 20px; padding: 14px 26px; font-size: 1em;
+      border: 2px solid #0ff; background: transparent; color: #0ff;
+      border-radius: 8px; cursor: pointer; transition: all 0.3s ease;
     }
-
-    .scan-btn:hover {
-      background: linear-gradient(135deg, #09f, #0ff);
-      box-shadow: 0 0 25px #0ff;
-      transform: scale(1.05);
+    .scan-btn:hover { background: #0ff; color: #000; box-shadow: 0 0 12px #0ff; }
+    .loading { margin-top: 20px; font-size: 1.1em; color: #aaf; display: none; }
+    canvas {
+      position: absolute; top: 0; left: 0; z-index: 0; display: none; filter: blur(1px);
     }
-
     .radar {
       position: absolute;
       border-radius: 50%;
@@ -87,34 +53,28 @@
       backdrop-filter: blur(4px);
       overflow: hidden;
     }
-
     .radar::before {
       content: "";
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      border: 3px solid rgba(0, 255, 255, 0.2);
-      border-radius: 50%;
+      position: absolute; width: 100%; height: 100%;
+      border: 3px solid rgba(0, 255, 255, 0.2); border-radius: 50%;
       animation: pulse 2s infinite ease-in-out;
     }
-
     .radar::after {
       content: "";
-      position: absolute;
-      width: 100%;
-      height: 100%;
+      position: absolute; width: 100%; height: 100%;
       background: conic-gradient(from 0deg, #0ff6 0deg, #0000 90deg);
       animation: rotate 1.2s linear infinite;
     }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 1; } }
 
     .control-btns {
       position: absolute;
       bottom: 20px;
-      display: none;
+      display: flex;
       gap: 15px;
       z-index: 5;
     }
-
     .control-btn {
       padding: 10px 18px;
       background: #0ff;
@@ -125,123 +85,133 @@
       font-size: 0.9em;
       font-weight: bold;
     }
-
-    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 1; } }
-    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-    @keyframes pulseGlow { 0%, 100% { box-shadow: 0 0 12px #0ff; } 50% { box-shadow: 0 0 25px #0ff; } }
-
-    canvas {
-      position: absolute;
-      top: 0; left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 0;
-      filter: blur(1px);
-    }
+    .control-btn:hover { background: #00faff; }
   </style>
 </head>
 <body>
-<canvas id="matrixCanvas"></canvas>
-<div class="container" id="mainUI">
-  <div class="glass-card">
-    <h1>Welcome, <span id="username">User</span> 👋</h1>
-    <div id="typingText"></div>
-    <button class="scan-btn" onclick="startScan()" id="scanBtn">🚀 Start Scan</button>
+  <canvas id="matrixCanvas"></canvas>
+  <div class="container" id="uiContainer">
+    <h1>Dolphin Wallet Finder</h1>
+    <div class="welcome-box">
+      <h1>Welcome, <span id="username">User</span> 👋</h1>
+      <p>Ready to discover forgotten crypto?</p>
+    </div>
+    <div class="scan-box">
+      <p>Click the button below to scan for hidden wallets in the blockchain.</p>
+      <button class="scan-btn" onclick="startScan()" id="scanBtn">Start Scan</button>
+      <div class="loading" id="loading">🔍 Scanning in progress...</div>
+    </div>
   </div>
-</div>
-<div class="radar" id="radar"></div>
-<div class="control-btns" id="controlBtns">
-  <button class="control-btn" onclick="pauseScan()">⏸ Pause</button>
-  <button class="control-btn" onclick="resumeScan()" style="display:none;">▶ Resume</button>
-</div>
 
-<script>
-  const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
-  const token = sessionStorage.getItem("token");
-  if (!token) window.location.href = "login.html";
+  <div class="radar" id="radar">
+    <div class="radar-glow"></div>
+  </div>
 
-  fetch(API_BASE + "/me", { headers: { Authorization: "Bearer " + token } })
-    .then(res => res.json())
-    .then(data => { document.getElementById("username").textContent = data.username || "User"; });
+  <div class="control-btns" id="controlBtns" style="display:none;">
+    <button class="control-btn" id="stopBtn">⏸ Stop</button>
+    <button class="control-btn" id="resumeBtn" style="display:none;">▶ Resume</button>
+  </div>
 
-  const text = "You are now inside Dolphin Wallet Finder. Ready to uncover forgotten crypto wallets?";
-  let idx = 0;
-  function typeWriter() {
-    if (idx < text.length) {
-      document.getElementById("typingText").innerHTML += text.charAt(idx);
-      idx++;
-      setTimeout(typeWriter, 35);
+  <script src="../assets/wallets.js"></script>
+  <script>
+    const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+    const token = localStorage.getItem("token");
+
+    if (!token) window.location.href = "login.html";
+
+    document.getElementById("username").textContent = localStorage.getItem("username") || "User";
+
+    // قبل از اسکن چک کنیم کاربر ولت داره یا نه
+    fetch(`${API_BASE}/my-wallet`, { headers: { Authorization: "Bearer " + token } })
+      .then(res => res.json())
+      .then(data => {
+        if (data.wallet) window.location.href = "results.html";
+      });
+
+    let scanTimeout;
+    let isPaused = false;
+
+    function startScan() {
+      document.getElementById("scanBtn").style.display = "none";
+      document.getElementById("loading").style.display = "block";
+      document.getElementById("uiContainer").style.opacity = "0";
+      document.getElementById("radar").style.display = "block";
+      document.getElementById("matrixCanvas").style.display = "block";
+      document.getElementById("controlBtns").style.display = "flex";
+
+      const randomDelay = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
+
+      scanTimeout = setTimeout(() => {
+        const wallet = simulateScan();
+        saveWalletToServer(wallet);
+      }, randomDelay);
     }
-  }
-  window.addEventListener("load", typeWriter);
 
-  let scanTimeout, paused = false;
+    document.getElementById("stopBtn").addEventListener("click", () => {
+      clearTimeout(scanTimeout);
+      isPaused = true;
+      document.getElementById("stopBtn").style.display = "none";
+      document.getElementById("resumeBtn").style.display = "inline-block";
+    });
 
-  function startScan() {
-    document.getElementById("mainUI").style.display = "none";
-    document.getElementById("radar").style.display = "block";
-    document.getElementById("controlBtns").style.display = "flex";
-    resumeMatrix();
-    const delay = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
-    scanTimeout = setTimeout(() => {
-      const wallet = simulateScan(); // assumes simulateScan is loaded from external wallets.js
-      fetch(API_BASE + "/wallets", {
+    document.getElementById("resumeBtn").addEventListener("click", () => {
+      if (isPaused) {
+        isPaused = false;
+        document.getElementById("resumeBtn").style.display = "none";
+        document.getElementById("stopBtn").style.display = "inline-block";
+        startScan();
+      }
+    });
+
+    function saveWalletToServer(wallet) {
+      fetch(`${API_BASE}/wallets`, {
         method: "POST",
-        headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify(wallet)
       })
-      .then(() => window.location.href = "results.html");
-    }, delay);
-  }
-
-  function pauseScan() {
-    clearTimeout(scanTimeout);
-    paused = true;
-    pauseMatrix();
-    document.querySelector("#controlBtns button:first-child").style.display = "none";
-    document.querySelector("#controlBtns button:last-child").style.display = "inline-block";
-  }
-
-  function resumeScan() {
-    if (!paused) return;
-    paused = false;
-    resumeMatrix();
-    startScan();
-  }
-
-  const canvas = document.getElementById("matrixCanvas");
-  const ctx = canvas.getContext("2d");
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  const letters = "0 1 immune flee people initial panic crucial display grace aim copper fashion pelican pulp average wheel pride sketch flag narrow object juice victory swallow refuse goat dune phrase hole boy maid report exhibit ride lecture dynamic burger fork disorder assume table dawn hood office art share later sell paper quick steel acid taste promote robust false hockey employ dinner scene rain".split(" ");
-  const fontSize = 14;
-  const columns = canvas.width / fontSize;
-  const drops = Array(columns).fill(1);
-  let matrixInterval;
-
-  function drawMatrix() {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = "#0ff";
-    ctx.font = fontSize + "px monospace";
-    for (let i = 0; i < drops.length; i++) {
-      const text = letters[Math.floor(Math.random() * letters.length)];
-      ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-      if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) drops[i] = 0;
-      drops[i]++;
+      .then(res => res.json())
+      .then(() => window.location.href = "results.html")
+      .catch(() => alert("Error saving wallet to server."));
     }
-  }
 
-  function pauseMatrix() {
-    clearInterval(matrixInterval);
-  }
+    // ریسپانسیو کردن رادار
+    function resizeRadar() {
+      const radar = document.getElementById("radar");
+      const size = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.6);
+      radar.style.width = `${size}px`;
+      radar.style.height = `${size}px`;
+      radar.style.top = `calc(50% - ${size / 2}px)`;
+      radar.style.left = `calc(50% - ${size / 2}px)`;
+    }
+    window.addEventListener("resize", resizeRadar);
+    resizeRadar();
 
-  function resumeMatrix() {
-    matrixInterval = setInterval(drawMatrix, 50);
-  }
-</script>
-<script src="../assets/wallets.js"></script>
+    // افکت ماتریکس
+    const canvas = document.getElementById("matrixCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.height = window.innerHeight;
+    canvas.width = window.innerWidth;
+    const letters = "0 1 crypto wallet scan blockchain finder".split(" ");
+    const fontSize = 14;
+    const columns = canvas.width / fontSize;
+    const drops = Array(columns).fill(1);
+
+    function drawMatrix() {
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "#0ff";
+      ctx.font = fontSize + "px monospace";
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) drops[i] = 0;
+        drops[i]++;
+      }
+    }
+    setInterval(drawMatrix, 50);
+  </script>
 </body>
 </html>
