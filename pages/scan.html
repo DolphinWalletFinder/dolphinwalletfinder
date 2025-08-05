@@ -20,9 +20,12 @@
       max-width: 600px;
       text-align: center;
     }
+    h1 { margin-bottom: 20px; }
+    p { font-size: 1.1em; color: #aaf; }
     .container {
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       height: 100vh; position: relative; z-index: 1; transition: opacity 0.8s ease;
+      padding: 20px;
     }
     .scan-box {
       border: 1px solid #0ff4;
@@ -43,6 +46,7 @@
     canvas {
       position: absolute; top: 0; left: 0; z-index: 0; display: none; filter: blur(1px);
     }
+
     .radar {
       position: absolute;
       border-radius: 50%;
@@ -55,46 +59,66 @@
     }
     .radar::before {
       content: "";
-      position: absolute; width: 100%; height: 100%;
-      border: 3px solid rgba(0, 255, 255, 0.2); border-radius: 50%;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid rgba(0, 255, 255, 0.2);
+      border-radius: 50%;
       animation: pulse 2s infinite ease-in-out;
     }
     .radar::after {
       content: "";
-      position: absolute; width: 100%; height: 100%;
+      position: absolute;
+      width: 100%;
+      height: 100%;
       background: conic-gradient(from 0deg, #0ff6 0deg, #0000 90deg);
       animation: rotate 1.2s linear infinite;
     }
     @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 1; } }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.6; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
 
-    .control-btns {
+    .radar-glow {
       position: absolute;
-      bottom: 20px;
-      display: flex;
-      gap: 15px;
-      z-index: 5;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,255,0.1), transparent);
+      animation: glow 2s ease-in-out infinite;
+      z-index: -1;
     }
-    .control-btn {
-      padding: 10px 18px;
-      background: #0ff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 0.9em;
-      font-weight: bold;
+    @keyframes glow { 0%, 100% { opacity: 0.1; } 50% { opacity: 0.4; } }
+
+    .blips {
+      position: absolute;
+      width: 6px; height: 6px;
+      background: #0ff; border-radius: 50%;
+      box-shadow: 0 0 6px #0ff;
+      animation: blip 1.5s ease-in-out infinite;
     }
-    .control-btn:hover { background: #00faff; }
+    @keyframes blip {
+      0%, 100% { opacity: 0.2; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.4); }
+    }
+
+    @media (max-width: 768px) {
+      .scan-box, .welcome-box {
+        padding: 20px;
+        width: 100%;
+      }
+    }
   </style>
 </head>
 <body>
   <canvas id="matrixCanvas"></canvas>
+
   <div class="container" id="uiContainer">
     <h1>Dolphin Wallet Finder</h1>
     <div class="welcome-box">
       <h1>Welcome, <span id="username">User</span> 👋</h1>
-      <p>Ready to discover forgotten crypto?</p>
+      <p>You are now inside Dolphin Wallet Finder. Ready to discover forgotten crypto?</p>
     </div>
     <div class="scan-box">
       <p>Click the button below to scan for hidden wallets in the blockchain.</p>
@@ -107,29 +131,24 @@
     <div class="radar-glow"></div>
   </div>
 
-  <div class="control-btns" id="controlBtns" style="display:none;">
-    <button class="control-btn" id="stopBtn">⏸ Stop</button>
-    <button class="control-btn" id="resumeBtn" style="display:none;">▶ Resume</button>
-  </div>
-
   <script src="../assets/wallets.js"></script>
   <script>
     const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
-    const token = localStorage.getItem("token");
-
+    const token = sessionStorage.getItem("token");
     if (!token) window.location.href = "login.html";
 
-    document.getElementById("username").textContent = localStorage.getItem("username") || "User";
-
-    // قبل از اسکن چک کنیم کاربر ولت داره یا نه
-    fetch(`${API_BASE}/my-wallet`, { headers: { Authorization: "Bearer " + token } })
-      .then(res => res.json())
-      .then(data => {
-        if (data.wallet) window.location.href = "results.html";
-      });
-
-    let scanTimeout;
-    let isPaused = false;
+    // گرفتن نام کاربر
+    fetch(`${API_BASE}/me`, {
+      headers: { Authorization: "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(user => {
+      document.getElementById("username").textContent = user.username || "User";
+    })
+    .catch(() => {
+      alert("Authentication error");
+      window.location.href = "login.html";
+    });
 
     function startScan() {
       document.getElementById("scanBtn").style.display = "none";
@@ -137,31 +156,14 @@
       document.getElementById("uiContainer").style.opacity = "0";
       document.getElementById("radar").style.display = "block";
       document.getElementById("matrixCanvas").style.display = "block";
-      document.getElementById("controlBtns").style.display = "flex";
 
       const randomDelay = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
 
-      scanTimeout = setTimeout(() => {
-        const wallet = simulateScan();
+      setTimeout(() => {
+        const wallet = simulateScan(); // باید در wallets.js باشه
         saveWalletToServer(wallet);
       }, randomDelay);
     }
-
-    document.getElementById("stopBtn").addEventListener("click", () => {
-      clearTimeout(scanTimeout);
-      isPaused = true;
-      document.getElementById("stopBtn").style.display = "none";
-      document.getElementById("resumeBtn").style.display = "inline-block";
-    });
-
-    document.getElementById("resumeBtn").addEventListener("click", () => {
-      if (isPaused) {
-        isPaused = false;
-        document.getElementById("resumeBtn").style.display = "none";
-        document.getElementById("stopBtn").style.display = "inline-block";
-        startScan();
-      }
-    });
 
     function saveWalletToServer(wallet) {
       fetch(`${API_BASE}/wallets`, {
@@ -177,7 +179,6 @@
       .catch(() => alert("Error saving wallet to server."));
     }
 
-    // ریسپانسیو کردن رادار
     function resizeRadar() {
       const radar = document.getElementById("radar");
       const size = Math.min(window.innerWidth * 0.8, window.innerHeight * 0.6);
@@ -186,15 +187,26 @@
       radar.style.top = `calc(50% - ${size / 2}px)`;
       radar.style.left = `calc(50% - ${size / 2}px)`;
     }
-    window.addEventListener("resize", resizeRadar);
-    resizeRadar();
+
+    function generateBlips(count) {
+      const radar = document.getElementById("radar");
+      radar.innerHTML = '<div class="radar-glow"></div>';
+      for (let i = 0; i < count; i++) {
+        const blip = document.createElement("div");
+        blip.classList.add("blips");
+        blip.style.top = `${Math.random() * 90 + 5}%`;
+        blip.style.left = `${Math.random() * 90 + 5}%`;
+        blip.style.animationDelay = `${(Math.random() * 2).toFixed(2)}s`;
+        radar.appendChild(blip);
+      }
+    }
 
     // افکت ماتریکس
     const canvas = document.getElementById("matrixCanvas");
     const ctx = canvas.getContext("2d");
     canvas.height = window.innerHeight;
     canvas.width = window.innerWidth;
-    const letters = "0 1 crypto wallet scan blockchain finder".split(" ");
+    const letters = "0 1 crypto scan wallet finder seed phrase blockchain key recover lost access".split(" ");
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(columns).fill(1);
@@ -204,6 +216,7 @@
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#0ff";
       ctx.font = fontSize + "px monospace";
+
       for (let i = 0; i < drops.length; i++) {
         const text = letters[Math.floor(Math.random() * letters.length)];
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
@@ -211,6 +224,13 @@
         drops[i]++;
       }
     }
+
+    window.addEventListener("resize", resizeRadar);
+    window.addEventListener("load", () => {
+      resizeRadar();
+      generateBlips(8);
+    });
+
     setInterval(drawMatrix, 50);
   </script>
 </body>
