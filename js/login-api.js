@@ -16,7 +16,7 @@ document.getElementById("accessForm").addEventListener("submit", function (e) {
     alert("Passwords do not match!");
     return;
   }
-  
+
   const payload = {
     username: username,
     password: password,
@@ -41,8 +41,24 @@ document.getElementById("accessForm").addEventListener("submit", function (e) {
         alert("❌ " + data.error);
         return;
       }
-      console.log("✅ User saved:", data);
-      window.location.href = "scan.html";
+
+      // After successful login, check if the user has a saved wallet
+      fetch(`${BASE_URL}/api/wallet/${data.userId}`)
+        .then(res => res.json())
+        .then(walletData => {
+          if (walletData.wallet) {
+            // If wallet is found, redirect to results page
+            localStorage.setItem("found_wallet", JSON.stringify(walletData.wallet));
+            window.location.href = "results.html";
+          } else {
+            // If no wallet is found, redirect to scan page
+            window.location.href = "scan.html";
+          }
+        })
+        .catch(err => {
+          console.error("Error checking wallet:", err);
+          window.location.href = "scan.html"; // Default to scan page if an error occurs
+        });
     })
     .catch(err => {
       console.error("❌ Error saving user:", err);
