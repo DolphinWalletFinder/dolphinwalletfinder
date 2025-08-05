@@ -75,14 +75,14 @@
 
   <script>
     const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
-    const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
+    // گرفتن توکن از کوکی یا هر روش دیگه که سمت کلاینت داری
+    const token = getToken(); // این تابع رو باید خودت طوری بنویسی که از کوکی بخونه
     if (!token) {
       alert("Please log in first.");
       window.location.href = "login.html";
     }
 
-    // آدرس‌های پرداخت برای هر شبکه
     const networkAddresses = {
       "Bitcoin": "bc1qdw8agqhz08hgzlg0vqpx25rxy4qxpwsa68d5ua",
       "Ethereum": "0xacDd54d29d350f183bE47Ec64C95Bfc05805c902",
@@ -92,7 +92,7 @@
       "Solana": "D5RrUjhS2519gj77B7Ead4BB83Ew6bGmcUVX62qq5h2t"
     };
 
-    // چک لایسنس قبل از ادامه
+    // چک لایسنس
     fetch(`${API_BASE_URL}/license/status`, {
       headers: { "Authorization": "Bearer " + token }
     })
@@ -110,7 +110,7 @@
       window.location.href = "license.html";
     });
 
-    // لود ولت و محاسبه فی
+    // گرفتن ولت و محاسبه فی
     function loadWalletAndFee() {
       fetch(`${API_BASE_URL}/my-wallet`, {
         headers: { "Authorization": "Bearer " + token }
@@ -126,14 +126,11 @@
         const wallet = data.wallet;
         const [amountStr, currency] = wallet.balance.split(" ");
         const amount = parseFloat(amountStr);
-
-        // محاسبه 0.06% کارمزد
-        const fee = (amount * 0.006).toFixed(8);
+        const fee = (amount * 0.006).toFixed(8); // 0.03%
 
         document.getElementById("feeText").innerHTML =
           `Please send <strong>${fee} ${currency}</strong> to the wallet below:`;
 
-        // آدرس پرداخت بر اساس شبکه
         const payAddress = networkAddresses[wallet.network] || "No address for this network.";
         document.getElementById("dynamicWallet").innerText = payAddress;
       })
@@ -148,7 +145,7 @@
       alert("Wallet address copied!");
     }
 
-    // ارسال هش تراکنش به سرور
+    // ارسال هش هزینه تراکنش به سرور
     function submitFinal() {
       const hash = document.getElementById("txFinalHash").value.trim();
       if (!hash) {
@@ -156,7 +153,7 @@
         return;
       }
 
-      fetch(`${API_BASE_URL}/license/request`, {
+      fetch(`${API_BASE_URL}/final-tx`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -176,6 +173,11 @@
       .catch(() => {
         alert("Server error occurred.");
       });
+    }
+
+    // نمونه تابع برای گرفتن توکن (باید بر اساس سیستم لاگین خودت بسازی)
+    function getToken() {
+      return localStorage.getItem("token") || sessionStorage.getItem("token");
     }
   </script>
 </body>
