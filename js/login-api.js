@@ -1,6 +1,8 @@
+const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+
 // ثبت‌نام کاربر
 async function register(username, email, password) {
-    const res = await fetch(API_BASE_URL + "/api/register", {
+    const res = await fetch(API_BASE_URL + "/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, email, password })
@@ -10,29 +12,46 @@ async function register(username, email, password) {
 
 // ورود کاربر
 async function login(username, password) {
-    const res = await fetch(API_BASE_URL + "/api/login", {
+    const res = await fetch(API_BASE_URL + "/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password })
     });
+
     const data = await res.json();
 
     if (data.token) {
+        // ذخیره توکن
         localStorage.setItem("token", data.token);
 
-        // گرفتن نقش از JWT
-        const payload = JSON.parse(atob(data.token.split('.')[1]));
-        if (payload.role === "admin") {
-            window.location.href = "/pages/admin-licenses.html"; // آدرس پنل ادمین
-        } else {
-            window.location.href = "/pages/scan.html"; // آدرس صفحه اسکن
+        // گرفتن role از JWT
+        try {
+            const payload = JSON.parse(atob(data.token.split('.')[1]));
+            const role = payload.role || "user";
+            localStorage.setItem("role", role);
+            localStorage.setItem("username", payload.username);
+
+            // هدایت بر اساس نقش
+            if (role === "admin") {
+                window.location.href = "/pages/admin.html"; // پنل ادمین
+            } else {
+                window.location.href = "/pages/scan.html"; // صفحه اسکن
+            }
+        } catch (err) {
+            console.error("JWT parsing error:", err);
+            alert("Invalid token format");
         }
+    } else {
+        alert(data.error || "Login failed");
     }
+
     return data;
 }
 
 // خروج کاربر
 function logout() {
     localStorage.removeItem("token");
+    localStorage.removeItem("role");
+    localStorage.removeItem("username");
     window.location.href = "/pages/login.html";
 }
