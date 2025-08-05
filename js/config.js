@@ -1,1 +1,14 @@
-const BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+
+// تنظیمات API
+const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
+
+// گرفتن توکن ذخیره‌شده
+function getToken() {
+    return localStorage.getItem("token");
+}
+
+// تنظیم هدر احراز هویت
+function authHeaders() {
+    const token = getToken();
+    return token ? { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' };
+}
