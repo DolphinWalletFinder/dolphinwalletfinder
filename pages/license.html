@@ -6,104 +6,42 @@
   <title>Activate License - Dolphin Wallet</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
-    body {
-      background: radial-gradient(ellipse at center, #000014, #000);
-      font-family: 'Orbitron', sans-serif;
-      color: #0ff;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .license-box {
-      border: 1px solid #0ff4;
-      padding: 40px;
-      border-radius: 18px;
-      background: rgba(0, 10, 20, 0.85);
-      box-shadow: 0 0 25px #0ff4, inset 0 0 20px #0ff3;
-      text-align: center;
-      width: 90%;
-      max-width: 600px;
-    }
-    h1 {
-      margin-bottom: 20px;
-    }
-    .license-desc {
-      font-size: 0.95em;
-      color: #aff;
-      margin-bottom: 20px;
-    }
-    .wallet-address {
-      font-family: monospace;
-      background: #000;
-      padding: 10px;
-      border: 1px dashed #0ff8;
-      border-radius: 8px;
-      margin-bottom: 20px;
-      word-break: break-all;
-    }
-    .copy-btn {
-      margin-bottom: 20px;
-      padding: 8px 20px;
-      font-size: 0.9em;
-      background: #0ff;
-      color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .copy-btn:hover {
-      background: #00faff;
-      box-shadow: 0 0 12px #0ff;
-    }
-    .input-field {
-      padding: 10px;
-      width: 100%;
-      font-family: monospace;
-      border: 1px solid #0ff6;
-      border-radius: 6px;
-      background: #000;
-      color: #0ff;
-    }
-    .btn {
-      margin-top: 25px;
-      padding: 12px 24px;
-      font-size: 1em;
-      color: #000;
-      background: #0ff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-    .btn:hover {
-      background: #00faff;
-      box-shadow: 0 0 12px #0ff;
-    }
+    body { background: radial-gradient(ellipse at center, #000014, #000); font-family: 'Orbitron', sans-serif; color: #0ff; display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+    .license-box { border: 1px solid #0ff4; padding: 40px; border-radius: 18px; background: rgba(0, 10, 20, 0.85); box-shadow: 0 0 25px #0ff4, inset 0 0 20px #0ff3; text-align: center; width: 90%; max-width: 600px; }
+    h1 { margin-bottom: 20px; }
+    .license-desc { font-size: 0.95em; color: #aff; margin-bottom: 20px; }
+    .wallet-address { font-family: monospace; background: #000; padding: 10px; border: 1px dashed #0ff8; border-radius: 8px; margin-bottom: 20px; }
+    .copy-btn, .btn { margin-top: 15px; padding: 10px 20px; font-size: 1em; background: #0ff; color: #000; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+    .copy-btn:hover, .btn:hover { background: #00faff; box-shadow: 0 0 12px #0ff; }
+    .input-field { padding: 10px; width: 100%; font-family: monospace; border: 1px solid #0ff6; border-radius: 6px; background: #000; color: #0ff; }
   </style>
 </head>
 <body>
   <div class="license-box">
     <h1>Activate License</h1>
-    <p class="license-desc">
-      This is a one-time license activation fee required to unlock full access to the Dolphin Wallet Finder features.<br>
-      After sending the transaction, your access will be manually reviewed and approved by the admin.
-    </p>
-    <p>Please send <strong>200 USDT (TRC20)</strong> to the wallet address below:</p>
+    <p class="license-desc">Please send <strong>200 USDT (TRC20)</strong> to the wallet address below and enter your transaction hash.</p>
     <div class="wallet-address" id="targetWallet">TWWKr8K7pZuXTHK6ogVwZ7kAN5mVLHMmpp</div>
     <button class="copy-btn" onclick="copyWallet()">Copy Wallet Address</button>
-    <p>After sending, enter your transaction hash below:</p>
+    <p>Enter your transaction hash:</p>
     <input class="input-field" id="txHash" placeholder="Paste transaction hash here..." />
     <button class="btn" onclick="submitHash()">Submit</button>
   </div>
 
   <script>
+    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
+
+    function authHeaders() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+        return null;
+      }
+      return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+    }
+
     function copyWallet() {
-      const addr = document.getElementById("targetWallet").innerText;
-      navigator.clipboard.writeText(addr);
+      navigator.clipboard.writeText(document.getElementById("targetWallet").innerText);
       alert("Wallet address copied!");
     }
 
@@ -113,39 +51,26 @@
         alert("Please enter transaction hash.");
         return;
       }
-      localStorage.setItem("license_tx", hash);
-      localStorage.setItem("license_status", "pending");
-      window.location.href = "profile.html";
+
+      const headers = authHeaders();
+      if (!headers) return;
+
+      fetch(API_BASE_URL + "/api/license/request", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ tx_hash: hash })
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.success) {
+          alert("✅ Transaction submitted. Awaiting admin approval.");
+          window.location.href = "profile.html";
+        } else {
+          alert("❌ " + (data.error || "Unknown error"));
+        }
+      })
+      .catch(() => alert("Server error occurred."));
     }
   </script>
-
-<script>
-  function submitHash() {
-    const hash = document.getElementById("txHash").value.trim();
-    if (!hash) {
-      alert("Please enter transaction hash.");
-      return;
-    }
-
-    const username = localStorage.getItem("username");
-
-    fetch("https://dolphinwalletfinderbackend-production.up.railway.app/api/license", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, hash })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        alert("✅ Transaction submitted. Awaiting admin approval.");
-        window.location.href = "profile.html";
-      } else {
-        alert("❌ " + data.error);
-      }
-    })
-    .catch(() => alert("Server error occurred."));
-  }
-</script>
-
 </body>
 </html>
