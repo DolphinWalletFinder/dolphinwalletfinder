@@ -43,7 +43,7 @@ const wallets = [
   {
     "address": "0x2a0fe9d2322cfce50d5ee0216fc5e822dd29658c",
     "balance": "149.796 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2020-11-26 20:10"
   },
   {
@@ -67,7 +67,7 @@ const wallets = [
   {
     "address": "0x207838c5f8a93e303b0c9810374f56c9f3f00603",
     "balance": "153.989 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2018-02-27 17:52"
   },
   {
@@ -85,7 +85,7 @@ const wallets = [
   {
     "address": "0xb90d05b9204a077ea10f0580b5c1c01e2a388579",
     "balance": "111.459 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2017-09-05 01:34"
   },
   {
@@ -103,7 +103,7 @@ const wallets = [
   {
     "address": "0xd2e6c4217f6ff7368730b97f1ace10d60c3aeb13",
     "balance": "66.387 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2020-07-07 10:49"
   },
   {
@@ -169,13 +169,13 @@ const wallets = [
   {
     "address": "0x4d24772293c6520be02e7b62e16c147b418d867d",
     "balance": "154.187 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2017-12-23 22:44"
   },
   {
     "address": "0xa807eb8daae534ab70232995bcc068e3c32defd3",
     "balance": "44.786 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2017-12-22 11:11"
   },
   {
@@ -205,7 +205,7 @@ const wallets = [
   {
     "address": "0xbbc7b3dd1158d042941e6ffe4f3d1f3be87f2e12",
     "balance": "64.693 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2021-11-18 11:27"
   },
   {
@@ -217,7 +217,7 @@ const wallets = [
     {
     "address": "0x73e64cd146572716affe952d678f33e10e2ddded",
     "balance": "120.964 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2019-06-26 03:10"
   },
   {
@@ -229,7 +229,7 @@ const wallets = [
   {
     "address": "0xe2b2b6abb9a9d5ca1c6f0a5078294d13e4f75144",
     "balance": "41.37 ETH",
-    "network": "Base",
+    "network": "Ethereum",
     "lastTx": "2018-12-28 08:46"
   },
   {
