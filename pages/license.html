@@ -3,123 +3,112 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Activate License - Dolphin Wallet</title>
+  <title>Activate License - Dolphin Wallet Finder</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     body {
-      background: radial-gradient(ellipse at center, #000014, #000);
+      background: radial-gradient(ellipse at center, #000015, #000);
       font-family: 'Orbitron', sans-serif;
       color: #0ff;
+      margin: 0;
+      padding: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       height: 100vh;
-      margin: 0;
     }
     .license-box {
-      border: 1px solid #0ff4;
+      background: rgba(0, 10, 20, 0.8);
       padding: 40px;
-      border-radius: 18px;
-      background: rgba(0, 10, 20, 0.85);
-      box-shadow: 0 0 25px #0ff4, inset 0 0 20px #0ff3;
+      border-radius: 12px;
       text-align: center;
-      width: 90%;
-      max-width: 600px;
+      width: 95%;
+      max-width: 500px;
+      border: 1px solid #0ff4;
+      box-shadow: 0 0 20px #0ff4, inset 0 0 10px #0ff2;
     }
-    h1 { margin-bottom: 20px; }
-    .license-desc { font-size: 0.95em; color: #aff; margin-bottom: 20px; }
-    .wallet-address {
-      font-family: monospace;
-      background: #000;
-      padding: 10px;
-      border: 1px dashed #0ff8;
-      border-radius: 8px;
+    h1 {
       margin-bottom: 20px;
     }
-    .copy-btn, .btn {
-      margin-top: 15px;
-      padding: 10px 20px;
+    p {
+      color: #aaf;
       font-size: 1em;
+      margin-bottom: 20px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #0ff4;
+      border-radius: 5px;
+      background: transparent;
+      color: #0ff;
+      font-family: monospace;
+      font-size: 16px;
+      text-align: center;
+    }
+    .btn {
+      margin-top: 15px;
+      padding: 12px 20px;
+      font-size: 1.1em;
+      border: 2px solid #0ff;
+      background: transparent;
+      color: #0ff;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
       background: #0ff;
       color: #000;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-    .copy-btn:hover, .btn:hover {
-      background: #00faff;
-      box-shadow: 0 0 12px #0ff;
-    }
-    .input-field {
-      padding: 10px;
-      width: 100%;
-      font-family: monospace;
-      border: 1px solid #0ff6;
-      border-radius: 6px;
-      background: #000;
-      color: #0ff;
+      box-shadow: 0 0 10px #0ff;
     }
   </style>
 </head>
 <body>
   <div class="license-box">
-    <h1>Activate License</h1>
-    <p class="license-desc">Please send <strong>200 USDT (TRC20)</strong> to the wallet address below and enter your transaction hash.</p>
-    <div class="wallet-address" id="targetWallet">TWWKr8K7pZuXTHK6ogVwZ7kAN5mVLHMmpp</div>
-    <button class="copy-btn" onclick="copyWallet()">Copy Wallet Address</button>
-    <p>Enter your transaction hash:</p>
-    <input class="input-field" id="txHash" placeholder="Paste transaction hash here..." />
-    <button class="btn" onclick="submitHash()">Submit</button>
+    <h1>🔑 Activate Your License</h1>
+    <p>Enter your transaction hash below and submit it for admin approval.</p>
+
+    <input type="text" id="txHash" placeholder="Transaction Hash" required />
+    <button class="btn" onclick="submitLicense()">Submit</button>
   </div>
 
   <script>
-    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
+    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
 
-    function authHeaders() {
+    function submitLicense() {
       const token = localStorage.getItem("token");
       if (!token) {
         alert("Please log in first.");
         window.location.href = "login.html";
-        return null;
-      }
-      return {
-        'Authorization': 'Bearer ' + token,
-        'Content-Type': 'application/json'
-      };
-    }
-
-    function copyWallet() {
-      navigator.clipboard.writeText(document.getElementById("targetWallet").innerText);
-      alert("Wallet address copied!");
-    }
-
-    function submitHash() {
-      const hash = document.getElementById("txHash").value.trim();
-      if (!hash) {
-        alert("Please enter transaction hash.");
         return;
       }
 
-      const headers = authHeaders();
-      if (!headers) return;
+      const txHash = document.getElementById("txHash").value.trim();
+      if (!txHash) {
+        alert("Please enter your transaction hash.");
+        return;
+      }
 
-      fetch(API_BASE_URL + "/api/license/request", {
+      fetch(`${API_BASE_URL}/license/request`, {
         method: "POST",
-        headers: headers,
-        body: JSON.stringify({ tx_hash: hash })
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ tx_hash: txHash })
       })
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          alert("✅ Transaction submitted. Awaiting admin approval.");
-          window.location.href = "profile.html";
+          alert("✅ Transaction submitted! Waiting for admin approval.");
+          window.location.href = "profile.html"; // صفحه پروفایل
         } else {
-          alert("❌ " + (data.error || "Unknown error"));
+          alert("❌ " + (data.error || "Something went wrong."));
         }
       })
-      .catch((err) => {
-        console.error("Request error:", err);
+      .catch(() => {
         alert("Server error occurred.");
       });
     }
