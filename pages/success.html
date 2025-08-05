@@ -84,56 +84,99 @@
     </p>
   </div>
 
-  <script>
-    const txHash = localStorage.getItem("final_tx") || "N/A";
-    const status = localStorage.getItem("final_tx_status") || "pending";
-    const wallet = JSON.parse(localStorage.getItem("found_wallet") || "{}");
-
-    document.getElementById("txHash").innerText = txHash;
-
-    const maskedAddress = wallet.address ? wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4) : 'N/A';
-
-    if (status.toLowerCase() === "approved") {
-      document.getElementById("statusText").innerHTML = "✅ Transaction Approved! You can now request withdrawal.";
-      document.getElementById("withdrawBtn").disabled = false;
-    } else {
-      document.getElementById("statusText").innerHTML = "⏳ Awaiting admin confirmation...";
-    }
-
-    document.getElementById("walletInfo").innerHTML = `
-      <strong>Address:</strong> ${maskedAddress}<br>
-      <strong>Balance:</strong> ${wallet.balance || 'N/A'}<br>
-      <strong>Network:</strong> ${wallet.network || 'N/A'}<br>
-      <strong>Last Tx:</strong> ${wallet.lastTx || 'N/A'}
-    `;
-
-    function requestWithdraw() {
-      const userAddr = document.getElementById("userWallet").value.trim();
-      if (!userAddr) {
-        alert("Please enter your personal wallet address.");
-        return;
-      }
-      localStorage.setItem("withdraw_to", userAddr);
-      alert("✅ Withdrawal request submitted!");
-    }
-  </script>
-
 <script>
-  const username = localStorage.getItem("username");
+  const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+  const token = sessionStorage.getItem("token") || localStorage.getItem("token");
 
-  fetch(`https://dolphinwalletfinderbackend-production.up.railway.app/api/status/${username}`)
+  if (!token) {
+    alert("Please log in first.");
+    window.location.href = "login.html";
+  }
+
+  // گرفتن هش تراکنش و اطلاعات ولت
+  function loadTransactionData() {
+    fetch(`${API_BASE_URL}/my-wallet`, {
+      headers: { "Authorization": "Bearer " + token }
+    })
     .then(res => res.json())
     .then(data => {
-      if (data.status !== "approved") {
-        alert("🚫 Final transaction is not yet approved by admin.");
-        window.location.href = "transaction.html";
+      if (!data.wallet) {
+        alert("❌ No wallet found. Please scan first.");
+        window.location.href = "scan.html";
+        return;
+      }
+
+      const wallet = data.wallet;
+      const maskedAddress = wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4);
+      document.getElementById("walletInfo").innerHTML = `
+        <strong>Address:</strong> ${maskedAddress}<br>
+        <strong>Balance:</strong> ${wallet.balance}<br>
+        <strong>Network:</strong> ${wallet.network}<br>
+        <strong>Last Tx:</strong> ${wallet.lastTx || 'N/A'}
+      `;
+
+      // گرفتن آخرین هش تراکنش لایسنس
+      fetch(`${API_BASE_URL}/license/status`, {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(statusData => {
+        document.getElementById("txHash").innerText = statusData.tx_hash || "N/A";
+      });
+    });
+  }
+
+  // چک کردن وضعیت تایید ادمین هر چند ثانیه
+  function checkApprovalStatus() {
+    fetch(`${API_BASE_URL}/license/status`, {
+      headers: { "Authorization": "Bearer " + token }
+    })
+    .then(res => res.json())
+    .then(data => {
+      const withdrawBtn = document.getElementById("withdrawBtn");
+      if (data.license === "active") {
+        document.getElementById("statusText").innerHTML = "✅ Transaction Approved! You can now request withdrawal.";
+        withdrawBtn.disabled = false;
+      } else {
+        document.getElementById("statusText").innerHTML = "⏳ Awaiting admin confirmation...";
+        withdrawBtn.disabled = true;
+      }
+    });
+  }
+
+  // ارسال درخواست برداشت به سرور
+  function requestWithdraw() {
+    const userAddr = document.getElementById("userWallet").value.trim();
+    if (!userAddr) {
+      alert("Please enter your personal wallet address.");
+      return;
+    }
+
+    fetch(`${API_BASE_URL}/withdraw-request`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token
+      },
+      body: JSON.stringify({ withdraw_address: userAddr })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.success) {
+        alert("✅ Withdrawal request submitted successfully!");
+      } else {
+        alert("❌ " + (data.error || "Failed to submit withdrawal request."));
       }
     })
     .catch(() => {
-      alert("Server error");
-      window.location.href = "transaction.html";
+      alert("Server error occurred.");
     });
-</script>
+  }
 
+  // اجرای اولیه
+  loadTransactionData();
+  checkApprovalStatus();
+  setInterval(checkApprovalStatus, 5000);
+</script>
 </body>
 </html>
