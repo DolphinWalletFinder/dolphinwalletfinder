@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>Admin - License Requests</title>
+<link rel="stylesheet" href="../assets/style-neon.css" />
+<style>
+  body { background: radial-gradient(ellipse at center, #000013, #000); font-family: 'Orbitron', sans-serif; color: #0ff; padding: 20px; }
+  table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+  th, td { border: 1px solid #0ff7; padding: 8px; text-align: center; }
+  th { background: rgba(0,255,255,0.2); }
+  button { padding: 6px 12px; border: none; cursor: pointer; }
+  .approve { background: #0f0; color: #000; }
+  .reject { background: #f00; color: #fff; }
+</style>
+</head>
+<body>
+  <h1>🔐 Admin - License Requests</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>TX Hash</th>
+        <th>Status</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody id="licenseRequestsBody"></tbody>
+  </table>
+
+<script>
+  const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
+
+  function authHeaders() {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please log in as admin.");
+      window.location.href = "login.html";
+      return null;
+    }
+    return { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' };
+  }
+
+  async function fetchRequests() {
+    const headers = authHeaders();
+    if (!headers) return;
+
+    const res = await fetch(API_BASE_URL + "/api/admin/license-requests", { headers });
+    const data = await res.json();
+    const body = document.getElementById("licenseRequestsBody");
+    body.innerHTML = "";
+
+    data.forEach(req => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${req.username}</td>
+        <td>${req.tx_hash}</td>
+        <td>${req.status}</td>
+        <td>${req.created_at}</td>
+        <td>
+          <button class="approve" onclick="updateRequest(${req.id}, 'approve')">✅</button>
+          <button class="reject" onclick="updateRequest(${req.id}, 'reject')">❌</button>
+        </td>
+      `;
+      body.appendChild(row);
+    });
+  }
+
+  async function updateRequest(id, action) {
+    const headers = authHeaders();
+    if (!headers) return;
+
+    const res = await fetch(API_BASE_URL + "/api/admin/approve-license", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ request_id: id, action })
+    });
+    const data = await res.json();
+    if (data.success) fetchRequests();
+    else alert("Error: " + (data.error || "Unknown error"));
+  }
+
+  document.addEventListener("DOMContentLoaded", fetchRequests);
+</script>
+</body>
+</html>
