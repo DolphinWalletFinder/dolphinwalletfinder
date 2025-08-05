@@ -33,7 +33,7 @@ async function login(username, password) {
 
             // هدایت بر اساس نقش
             if (role === "admin") {
-                window.location.href = "/pages/admin.html"; // پنل ادمین
+                window.location.href = "/pages/admin-licenses.html"; // پنل ادمین
             } else {
                 window.location.href = "/pages/scan.html"; // صفحه اسکن
             }
