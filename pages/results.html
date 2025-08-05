@@ -90,12 +90,12 @@
     if (wallet) {
       const address = wallet.address;
       const maskedAddress = address.substring(0, 6) + "••••••••" + address.slice(-4);
-      document.getElementById("walletInfo").innerHTML = 
+      document.getElementById("walletInfo").innerHTML = `
         <strong>Address:</strong><br>${maskedAddress}<br><br>
         <strong>Balance:</strong> ${wallet.balance}<br>
         <strong>Network:</strong> ${wallet.network}<br>
         <strong>Last Transaction:</strong> ${wallet.lastTx}
-      ;
+      `;
 
       const allWords = [
         "trouble", "filter", "gallery", "oxygen", "salmon", "silent",
@@ -114,7 +114,7 @@
       const selected = allWords.sort(() => 0.5 - Math.random()).slice(0, 12);
       const maskedIndices = [2, 4, 5, 6, 8, 10];
       const wordInputs = selected.map((word, index) => {
-        return <input type="text" readonly value="${maskedIndices.includes(index) ? '••••••' : word}" />;
+        return `<input type="text" readonly value="${maskedIndices.includes(index) ? '••••••' : word}" />`;
       }).join("");
 
       document.getElementById("mnemonicWords").innerHTML = wordInputs;
