@@ -27,11 +27,7 @@
       max-width: 600px;
     }
     h1 { margin-bottom: 20px; }
-    .license-desc {
-      font-size: 0.95em;
-      color: #aff;
-      margin-bottom: 20px;
-    }
+    .license-desc { font-size: 0.95em; color: #aff; margin-bottom: 20px; }
     .wallet-address {
       font-family: monospace;
       background: #000;
@@ -80,38 +76,33 @@
   <script>
     const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
 
-    function getToken() {
-      return localStorage.getItem("token");
-    }
-
     function authHeaders() {
-      const token = getToken();
-      if (!token) return null;
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+        return null;
+      }
       return {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json"
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json'
       };
     }
 
     function copyWallet() {
-      const address = document.getElementById("targetWallet").innerText;
-      navigator.clipboard.writeText(address);
-      alert("✅ Wallet address copied to clipboard.");
+      navigator.clipboard.writeText(document.getElementById("targetWallet").innerText);
+      alert("Wallet address copied!");
     }
 
     function submitHash() {
       const hash = document.getElementById("txHash").value.trim();
       if (!hash) {
-        alert("❌ Please enter transaction hash.");
+        alert("Please enter transaction hash.");
         return;
       }
 
       const headers = authHeaders();
-      if (!headers) {
-        alert("❌ You must log in first.");
-        window.location.href = "login.html";
-        return;
-      }
+      if (!headers) return;
 
       fetch(API_BASE_URL + "/api/license/request", {
         method: "POST",
@@ -124,11 +115,12 @@
           alert("✅ Transaction submitted. Awaiting admin approval.");
           window.location.href = "profile.html";
         } else {
-          alert("❌ " + (data.error || "Unknown error occurred."));
+          alert("❌ " + (data.error || "Unknown error"));
         }
       })
-      .catch(() => {
-        alert("❌ Server error occurred.");
+      .catch((err) => {
+        console.error("Request error:", err);
+        alert("Server error occurred.");
       });
     }
   </script>
