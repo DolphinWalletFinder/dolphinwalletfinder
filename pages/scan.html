@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     body {
-      background: radial-gradient(ellipse at center, #000010, #000);
+      background: radial-gradient(ellipse at center, #000015, #000);
       font-family: 'Orbitron', sans-serif;
       color: #0ff;
       margin: 0;
@@ -21,24 +21,15 @@
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      text-align: center;
       z-index: 2;
       position: relative;
-      text-align: center;
       padding: 20px;
     }
 
     h1 {
       font-size: 2em;
-      color: #0ff;
-      margin-bottom: 15px;
-    }
-
-    #typingText {
-      font-size: 1.2em;
-      color: #aaf;
-      margin-bottom: 30px;
-      min-height: 60px;
-      white-space: pre-wrap;
+      margin-bottom: 20px;
     }
 
     .glass-card {
@@ -49,7 +40,7 @@
       border-radius: 20px;
       max-width: 600px;
       width: 100%;
-      padding: 40px 30px;
+      padding: 30px;
     }
 
     .scan-btn {
@@ -73,14 +64,17 @@
     }
 
     .radar {
-      position: absolute;
-      border-radius: 50%;
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 30px auto 10px auto;
       display: none;
-      z-index: 2;
+      border-radius: 50%;
       background: radial-gradient(circle, rgba(0,255,255,0.05) 0%, transparent 70%);
       box-shadow: 0 0 80px rgba(0,255,255,0.4), inset 0 0 30px rgba(0,255,255,0.3);
       backdrop-filter: blur(4px);
       overflow: hidden;
+      z-index: 2;
     }
 
     .radar::before {
@@ -107,11 +101,8 @@
       flex-direction: row;
       justify-content: center;
       gap: 12px;
-      position: absolute;
-      z-index: 10;
-      top: calc(50% + 200px);
-      width: 100%;
-      padding: 10px;
+      margin-top: 20px;
+      z-index: 5;
     }
 
     .control-btn {
@@ -139,11 +130,16 @@
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 1; } }
 
     @media (max-width: 600px) {
+      .radar {
+        width: 80vw;
+        height: 80vw;
+      }
+
       .control-btns {
         flex-direction: column;
         align-items: center;
-        top: calc(50% + 160px);
       }
+
       .control-btn {
         width: 70%;
         max-width: 250px;
@@ -153,10 +149,11 @@
 </head>
 <body>
   <canvas id="matrixCanvas"></canvas>
+
   <div class="container" id="mainUI">
     <div class="glass-card">
       <h1>Welcome, <span id="username">User</span> 👋</h1>
-      <div id="typingText"></div>
+      <p>Click the button below to scan for hidden wallets in the blockchain.</p>
       <button class="scan-btn" onclick="startScan()" id="scanBtn">🚀 Start Scan</button>
     </div>
   </div>
@@ -173,19 +170,12 @@
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
 
-    fetch(`${API_BASE}/me`, { headers: { Authorization: "Bearer " + token } })
-      .then(res => res.json())
-      .then(data => { document.getElementById("username").textContent = data.username || "User"; });
-
-    const text = "You are now inside Dolphin Wallet Finder. Ready to uncover forgotten crypto wallets?";
-    let idx = 0;
-    function typeWriter() {
-      if (idx < text.length) {
-        document.getElementById("typingText").innerHTML += text.charAt(idx++);
-        setTimeout(typeWriter, 30);
-      }
-    }
-    window.addEventListener("load", typeWriter);
+    fetch(`${API_BASE}/me`, {
+      headers: { Authorization: "Bearer " + token }
+    }).then(res => res.json())
+      .then(data => {
+        document.getElementById("username").textContent = data.username || "User";
+      });
 
     let scanTimeout, paused = false;
 
@@ -196,6 +186,7 @@
       resumeMatrix();
 
       const delay = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
+
       scanTimeout = setTimeout(() => {
         const wallet = simulateScan();
         fetch(`${API_BASE}/wallets`, {
@@ -233,7 +224,7 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const letters = "crypto wallet private key address blockchain token eth btc bnb solana tron".split(" ");
+    const letters = "crypto wallet private key blockchain token access recovery security ethereum bitcoin seed phrase secure decentralized".split(" ");
     const fontSize = 14;
     const columns = canvas.width / fontSize;
     const drops = Array(Math.floor(columns)).fill(1);
@@ -248,7 +239,9 @@
       for (let i = 0; i < drops.length; i++) {
         const text = letters[Math.floor(Math.random() * letters.length)];
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) drops[i] = 0;
+        if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) {
+          drops[i] = 0;
+        }
         drops[i]++;
       }
     }
@@ -265,6 +258,8 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
+
+    resumeMatrix(); // start matrix on page load
   </script>
   <script src="../assets/wallets.js"></script>
 </body>
