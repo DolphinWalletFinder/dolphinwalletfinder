@@ -124,6 +124,7 @@
       height: 100vh;
       z-index: 0;
       filter: blur(1px);
+      display: none;
     }
 
     @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -183,6 +184,7 @@
       document.getElementById("mainUI").style.display = "none";
       document.getElementById("radar").style.display = "block";
       document.getElementById("controlBtns").style.display = "flex";
+      document.getElementById("matrixCanvas").style.display = "block";
       resumeMatrix();
 
       const delay = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
@@ -224,10 +226,10 @@
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const letters = "crypto wallet private key blockchain token access recovery security ethereum bitcoin seed phrase secure decentralized".split(" ");
+    const letters = "crypto wallet private key blockchain token access recovery ethereum bitcoin seed phrase secure decentralized".split(" ");
     const fontSize = 14;
-    const columns = canvas.width / fontSize;
-    const drops = Array(Math.floor(columns)).fill(1);
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
     let matrixInterval;
 
     function drawMatrix() {
@@ -239,9 +241,7 @@
       for (let i = 0; i < drops.length; i++) {
         const text = letters[Math.floor(Math.random() * letters.length)];
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) {
-          drops[i] = 0;
-        }
+        if (drops[i] * fontSize > canvas.height || Math.random() > 0.975) drops[i] = 0;
         drops[i]++;
       }
     }
@@ -258,8 +258,6 @@
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     });
-
-    resumeMatrix(); // start matrix on page load
   </script>
   <script src="../assets/wallets.js"></script>
 </body>
