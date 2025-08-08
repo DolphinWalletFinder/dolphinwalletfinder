@@ -7,111 +7,174 @@
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     body {
-      margin: 0; padding: 0;
       background: radial-gradient(ellipse at center, #000015, #000);
       font-family: 'Orbitron', sans-serif;
-      color: #0ff; overflow: hidden;
-      min-height: 100vh; position: relative;
+      color: #0ff;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
     }
     .container {
-      min-height: 100vh; display: flex; flex-direction: column;
-      justify-content: center; align-items: center; text-align: center;
-      z-index: 2; position: relative; padding: 20px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 2;
+      position: relative;
+      padding: 20px;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
     }
     .glass-card {
-      background: rgba(0, 30, 60, 0.33);
-      border: 1px solid #0ff3; box-shadow: 0 8px 30px #0ff1;
-      backdrop-filter: blur(13px); border-radius: 20px;
-      max-width: 600px; width: 100%; padding: 36px 30px 30px 30px;
-      z-index: 3; position: relative;
-      animation: cardIn .8s; margin-top: 45px;
+      background: rgba(0, 30, 60, 0.3);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      box-shadow: 0 8px 30px rgba(0, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      max-width: 600px;
+      width: 100%;
+      padding: 30px;
+      z-index: 3;
+      position: relative;
+      margin-top: 60px;
     }
-    @keyframes cardIn {from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
     .scan-btn {
-      margin-top: 20px; padding: 18px 46px; font-size: 1.22em; font-weight: bold;
-      border: none; border-radius: 13px; cursor: pointer; color: #000;
-      background: linear-gradient(135deg, #0ff, #08f 80%);
-      box-shadow: 0 0 14px #0ff; transition: all 0.2s;
+      margin-top: 20px;
+      padding: 16px 38px;
+      font-size: 1.2em;
+      font-weight: bold;
+      border: none;
+      border-radius: 14px;
+      cursor: pointer;
+      color: #000;
+      background: linear-gradient(135deg, #0ff, #08f);
+      box-shadow: 0 0 12px #0ff;
+      transition: all 0.3s ease;
     }
     .scan-btn:hover {
-      background: linear-gradient(135deg, #09f, #0ff 90%);
-      box-shadow: 0 0 27px #0ff; transform: scale(1.06);
+      background: linear-gradient(135deg, #09f, #0ff);
+      box-shadow: 0 0 25px #0ff;
+      transform: scale(1.05);
     }
     .radar {
-      position: relative; width: 330px; height: 330px;
-      margin: 35px auto 10px auto; display: none; border-radius: 50%;
-      background: radial-gradient(circle, rgba(0,255,255,0.07) 0%, transparent 70%);
-      box-shadow: 0 0 80px #0ff4, inset 0 0 30px #0ff2;
-      backdrop-filter: blur(4px); overflow: hidden; z-index: 5;
+      position: relative;
+      width: 320px;
+      height: 320px;
+      margin: 30px auto 10px auto;
+      display: none;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,255,0.05) 0%, transparent 70%);
+      box-shadow: 0 0 80px rgba(0,255,255,0.4), inset 0 0 30px rgba(0,255,255,0.3);
+      backdrop-filter: blur(4px);
+      overflow: hidden;
+      z-index: 5;
+      min-width: 220px;
+      min-height: 220px;
+      max-width: 96vw;
+      max-height: 70vw;
+      transition: opacity 0.5s;
     }
-    .radar-rotating::before {
+    .radar::before {
       content: "";
-      position: absolute; width: 100%; height: 100%;
-      border: 3px solid rgba(0, 255, 255, 0.14); border-radius: 50%;
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 3px solid rgba(0, 255, 255, 0.2);
+      border-radius: 50%;
       animation: pulse 2s infinite ease-in-out;
     }
-    .radar-rotating::after {
+    .radar::after {
       content: "";
-      position: absolute; width: 100%; height: 100%;
+      position: absolute;
+      width: 100%;
+      height: 100%;
       background: conic-gradient(from 0deg, #0ff6 0deg, #0000 90deg);
       animation: rotate 1.2s linear infinite;
     }
-    .radar-paused::before, .radar-paused::after { /* Static, no animation */ }
-    .pause-message {
-      display: none;
+    .control-btns {
       position: fixed;
-      left: 50%; top: 25%;
-      transform: translate(-50%, -10%);
-      color: #0ff;
-      font-size: 1.22em;
-      background: rgba(0,22,30,0.88);
-      border: 2px solid #0ff7;
-      border-radius: 16px;
-      padding: 22px 30px 18px 30px;
-      box-shadow: 0 0 25px #0ff7;
-      z-index: 25;
-      max-width: 80vw; min-width: 220px;
-      font-family: monospace;
-      font-weight: bold;
-      letter-spacing: .8px;
-      text-shadow: 0 1px 8px #000,0 0 16px #0ff7;
-      opacity: 1;
-      transition: all 0.4s;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 34px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      z-index: 100;
+      width: 100vw;
       pointer-events: none;
     }
-    .pause-message.active { display: block; }
-    .control-btns {
-      width: 100vw; display: flex; flex-direction: column;
-      align-items: center; position: fixed; left: 0; bottom: 18px;
-      z-index: 30; gap: 0; pointer-events: none;
-    }
     .control-btn {
-      pointer-events: all;
+      pointer-events: auto;
+      width: 85vw;
+      max-width: 380px;
       padding: 19px 0;
-      width: 95vw; max-width: 410px;
-      font-size: 1.19em;
-      background: linear-gradient(135deg,#0ff,#08f 80%);
-      color: #001d24; border-radius: 15px; border: none; font-weight: bold;
-      margin-top: 0; margin-bottom: 2px; box-shadow: 0 0 22px #0ff7;
-      cursor: pointer; transition: all 0.19s; letter-spacing: .6px; display: none;
+      background: #0ff;
+      color: #000;
+      border: none;
+      border-radius: 15px;
+      cursor: pointer;
+      font-size: 1.25em;
+      font-weight: bold;
+      margin: 0 auto 0 auto;
+      box-shadow: 0 0 18px #0ffb;
+      letter-spacing: 0.03em;
+      display: block;
     }
-    .control-btn.active { display: block; }
-    .control-btn:hover { background: linear-gradient(135deg,#23ffe7 60%,#2ac7ff 100%); color:#011d20;}
-    @media (max-width: 700px) {
-      .radar { width: 85vw; height: 85vw; min-width: 170px; min-height: 170px;}
-      .pause-message { font-size: 1.07em; }
+    .control-btn:not(:last-child) {
+      margin-bottom: 10px;
     }
-    @media (max-width: 450px) {
-      .glass-card { padding: 7vw 2vw 10vw 2vw; margin-top: 11vw;}
-      .pause-message { font-size: 0.98em;}
+    .control-btn:active { filter: brightness(0.95);}
+    #pauseMsg {
+      margin-top: 22px;
+      font-size: 1.1em;
+      color: #000;
+      background: #0ffaaee0;
+      padding: 12px 24px;
+      border-radius: 12px;
+      font-family: inherit;
+      z-index: 120;
+      font-weight: bold;
+      box-shadow: 0 0 15px #0ffb;
+      display: none;
+      transition: all .2s;
+      pointer-events: none;
+      position: fixed;
+      left: 50%;
+      bottom: 110px;
+      transform: translateX(-50%);
+      min-width: 210px;
+      text-align: center;
     }
     canvas {
       position: fixed;
-      top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0;
-      filter: blur(1px); display: none; pointer-events: none;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+      filter: blur(1px);
+      display: none;
+      pointer-events: none;
     }
     @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 1; } }
+    @media (max-width: 600px) {
+      .glass-card { padding: 18px; }
+      .radar {
+        width: 90vw;
+        height: 90vw;
+        min-width: 170px;
+        min-height: 170px;
+      }
+      .control-btns {
+        bottom: 18px;
+      }
+      #pauseMsg { font-size: 1em; padding: 10px 5vw;}
+    }
   </style>
 </head>
 <body>
@@ -119,53 +182,56 @@
   <div class="container" id="mainUI">
     <div class="glass-card">
       <h1>Welcome, <span id="username">User</span> 👋</h1>
-      <p style="margin-bottom:24px;">Find abandoned wallets across the blockchain.<br>Tap below to begin scanning and maybe you’ll uncover something valuable.</p>
+      <p>Click the button below to scan for hidden wallets in the blockchain.</p>
       <button class="scan-btn" onclick="startScan()" id="scanBtn">🚀 Start Scan</button>
     </div>
   </div>
   <div class="radar" id="radar"></div>
-  <div class="pause-message" id="pauseMsg">⏸️ <span>Search paused!</span> <br>Tap <b>Resume</b> to continue scanning.</div>
   <div class="control-btns" id="controlBtns">
-    <button class="control-btn" onclick="pauseScan()" id="pauseBtn">⏸️ Pause Scan</button>
-    <button class="control-btn" onclick="resumeScan()" id="resumeBtn">▶ Resume Scan</button>
+    <button class="control-btn" onclick="pauseScan()" id="pauseBtn">⏸ Pause</button>
+    <button class="control-btn" onclick="resumeScan()" id="resumeBtn" style="display: none;">▶ Resume</button>
+    <div id="pauseMsg"></div>
   </div>
   <script>
     const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
-    fetch(`${API_BASE}/me`, {headers: { Authorization: "Bearer " + token }}).then(res => res.json()).then(data => {
-      document.getElementById("username").textContent = data.username || "User";
-    });
 
-    let scanTimeout = null, paused = false, matrixInterval = null, scanning = false, remainingTime = null, startTimestamp = null;
-    let wallet = null;
+    fetch(`${API_BASE}/me`, {
+      headers: { Authorization: "Bearer " + token }
+    }).then(res => res.json())
+      .then(data => {
+        document.getElementById("username").textContent = data.username || "User";
+      });
+
+    let scanTimeout, paused = false, scanning = false, matrixInterval;
+    let remainingTime = null, startTimestamp = null, delay = null;
 
     function startScan() {
       document.getElementById("mainUI").style.display = "none";
       document.getElementById("radar").style.display = "block";
-      document.getElementById("matrixCanvas").style.display = "block";
-      document.getElementById("pauseBtn").classList.add("active");
-      document.getElementById("resumeBtn").classList.remove("active");
-      document.getElementById("pauseMsg").classList.remove("active");
       document.getElementById("controlBtns").style.display = "flex";
-      switchRadarState(true);
+      document.getElementById("matrixCanvas").style.display = "block";
+      document.getElementById("pauseBtn").style.display = "block";
+      document.getElementById("resumeBtn").style.display = "none";
+      document.getElementById("pauseMsg").style.display = "none";
+
+      // فقط وقتی اسکن شروع شد ماتریکس و رادار فعال میشن
       resumeMatrix();
       scanning = true;
-      wallet = null;
-      let delay;
-      if (remainingTime !== null) {
-        delay = remainingTime;
-      } else {
-        delay = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
-      }
+      paused = false;
+      delay = (remainingTime !== null) ? remainingTime : Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
       startTimestamp = Date.now();
+
       scanTimeout = setTimeout(() => {
         if (!paused && scanning) {
           scanning = false;
-          switchRadarState(false);
           pauseMatrix();
-          // حتماً اول کیف پول رو بساز و بفرست
-          wallet = simulateScan();
+          document.getElementById("radar").style.display = "none";
+          document.getElementById("controlBtns").style.display = "none";
+          document.getElementById("matrixCanvas").style.display = "none";
+          // simulateScan باید در wallets.js تعریف شده باشد
+          const wallet = simulateScan();
           fetch(`${API_BASE}/wallets`, {
             method: "POST",
             headers: {
@@ -177,69 +243,47 @@
           .then(() => window.location.href = "results.html");
         }
       }, delay);
+      remainingTime = null;
     }
 
     function pauseScan() {
-      if (!scanning) return;
+      if (!scanning || paused) return;
       paused = true;
-      scanning = false;
       clearTimeout(scanTimeout);
-      remainingTime = Math.max(1, startTimestamp + (remainingTime !== null ? remainingTime : 0) - Date.now());
+      let elapsed = Date.now() - startTimestamp;
+      remainingTime = Math.max(700, delay - elapsed); // حداقل 700ms که منفی نشه
       pauseMatrix();
-      switchRadarState(false);
-      document.getElementById("pauseBtn").classList.remove("active");
-      document.getElementById("resumeBtn").classList.add("active");
-      document.getElementById("pauseMsg").classList.add("active");
+      document.getElementById("pauseBtn").style.display = "none";
+      document.getElementById("resumeBtn").style.display = "block";
+      document.getElementById("pauseMsg").innerText = "⏸ Search paused. Tap Resume to continue scanning...";
+      document.getElementById("pauseMsg").style.display = "block";
+      // رادار رو محو کن
+      document.getElementById("radar").style.opacity = "0.25";
     }
 
     function resumeScan() {
       if (!paused) return;
       paused = false;
-      scanning = true;
-      document.getElementById("resumeBtn").classList.remove("active");
-      document.getElementById("pauseBtn").classList.add("active");
-      document.getElementById("pauseMsg").classList.remove("active");
-      switchRadarState(true);
-      resumeMatrix();
-      startTimestamp = Date.now();
-      scanTimeout = setTimeout(() => {
-        if (!paused && scanning) {
-          scanning = false;
-          switchRadarState(false);
-          pauseMatrix();
-          wallet = simulateScan();
-          fetch(`${API_BASE}/wallets`, {
-            method: "POST",
-            headers: {
-              "Authorization": "Bearer " + token,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(wallet)
-          })
-          .then(() => window.location.href = "results.html");
-        }
-      }, remainingTime);
-      remainingTime = null;
+      document.getElementById("pauseBtn").style.display = "block";
+      document.getElementById("resumeBtn").style.display = "none";
+      document.getElementById("pauseMsg").style.display = "none";
+      document.getElementById("radar").style.opacity = "1";
+      startScan();
     }
 
-    // Matrix effect (only active during scan)
+    // Matrix effect
     const canvas = document.getElementById("matrixCanvas");
     const ctx = canvas.getContext("2d");
-    function resizeMatrix() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    }
-    window.addEventListener("resize", resizeMatrix);
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
 
     const letters = "crypto wallet private key blockchain token access recovery ethereum bitcoin seed phrase secure decentralized".split(" ");
     const fontSize = 14;
-    let columns, drops;
-    function setupMatrix() {
-      columns = Math.floor(canvas.width / fontSize);
-      drops = Array(columns).fill(1);
-    }
+    let columns = Math.floor(canvas.width / fontSize);
+    let drops = Array(columns).fill(1);
+
     function drawMatrix() {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.06)";
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       ctx.fillStyle = "#0ff";
       ctx.font = fontSize + "px monospace";
@@ -250,26 +294,17 @@
         drops[i]++;
       }
     }
-    function resumeMatrix() { resizeMatrix(); setupMatrix(); matrixInterval = setInterval(drawMatrix, 50);}
-    function pauseMatrix() { clearInterval(matrixInterval); }
-
-    // Radar animation (on/off by class)
-    function switchRadarState(isRotating) {
-      const radar = document.getElementById("radar");
-      radar.classList.remove("radar-rotating", "radar-paused");
-      radar.innerHTML = ""; // remove all children
-      if (isRotating) {
-        radar.classList.add("radar-rotating");
-      } else {
-        radar.classList.add("radar-paused");
-      }
+    function resumeMatrix() {
+      matrixInterval = setInterval(drawMatrix, 50);
     }
-
-    // Prevent accidental double scanning
-    window.addEventListener('beforeunload', function (e) {
-      clearTimeout(scanTimeout); pauseMatrix();
-      scanning = false; paused = false;
-      remainingTime = null;
+    function pauseMatrix() {
+      clearInterval(matrixInterval);
+    }
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      columns = Math.floor(canvas.width / fontSize);
+      drops = Array(columns).fill(1);
     });
   </script>
   <script src="../assets/wallets.js"></script>
