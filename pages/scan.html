@@ -3,418 +3,354 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dolphin Wallet Finder - Scan</title>
+  <title>Scan Wallets - Dolphin Finder</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     body {
-      background: radial-gradient(ellipse at center, #000016, #000);
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(ellipse at center, #000015, #000);
       font-family: 'Orbitron', sans-serif;
       color: #0ff;
-      margin: 0; padding: 0;
       overflow: hidden;
     }
+
     .container {
-      min-height: 100vh;
-      display: flex; flex-direction: column;
-      justify-content: center; align-items: center;
-      text-align: center; z-index: 2;
-      position: relative; padding: 20px;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      z-index: 2;
+      position: relative;
+      padding: 20px;
     }
-    h1 { font-size: 2em; margin-bottom: 18px; }
+
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+
     .glass-card {
-      background: rgba(0, 30, 60, 0.28);
-      border: 1.5px solid rgba(0,255,255,0.19);
-      box-shadow: 0 8px 30px rgba(0,255,255,0.15);
-      backdrop-filter: blur(18px);
-      border-radius: 22px;
-      max-width: 550px; width: 100%;
-      padding: 36px 20px 24px 20px;
-      z-index: 3; margin-top: 56px; position: relative;
-      animation: glassIn 1.1s cubic-bezier(.77,0,.175,1);
+      background: rgba(0, 30, 60, 0.3);
+      border: 1px solid rgba(0, 255, 255, 0.2);
+      box-shadow: 0 8px 30px rgba(0, 255, 255, 0.1);
+      backdrop-filter: blur(15px);
+      border-radius: 20px;
+      max-width: 600px;
+      width: 100%;
+      padding: 30px;
+      z-index: 3;
+      position: relative;
     }
-    @keyframes glassIn {
-      0% {opacity:0; transform: scale(.96) translateY(27px);}
-      100% {opacity:1; transform: none;}
-    }
+
     .scan-btn {
-      margin-top: 30px; padding: 18px 38px;
-      font-size: 1.18em; font-weight: bold;
-      border: none; border-radius: 15px;
-      cursor: pointer; color: #000;
-      background: linear-gradient(135deg, #0ff, #08f 90%);
-      box-shadow: 0 0 17px #0ffb;
-      transition: all 0.22s; letter-spacing: .05em;
-    }
-    .scan-btn:hover {
-      background: linear-gradient(135deg, #09f 10%, #0ff 80%);
-      box-shadow: 0 0 36px #0ffb;
-      transform: scale(1.06);
-    }
-    .radar-3d-shell {
-      margin: 32px auto 12px auto;
-      width: 350px; max-width: 95vw;
-      height: 350px; max-height: 76vw;
-      display: none; z-index: 5; position: relative;
-      perspective: 700px;
-    }
-    .radar-3d {
-      width: 100%; height: 100%;
-      position: absolute; left: 0; top: 0;
-      border-radius: 50%; overflow: hidden;
-      background: radial-gradient(circle, rgba(0,255,255,0.07) 0%, transparent 73%);
-      box-shadow: 0 0 80px 7px #0ff2, inset 0 0 30px #0ff1;
-      animation: spinTilt 7s infinite linear alternate;
-      transform-style: preserve-3d;
-      z-index: 6;
-      transition: opacity .3s;
-    }
-    @keyframes spinTilt {
-      0% { transform: rotateX(20deg) rotateZ(0deg);}
-      100% { transform: rotateX(-16deg) rotateZ(360deg);}
-    }
-    .radar-layers {
-      position: absolute;
-      width: 100%; height: 100%;
-      left: 0; top: 0; border-radius: 50%;
-      z-index: 8; pointer-events: none;
-    }
-    .radar-layer {
-      position: absolute;
-      border-radius: 50%;
-      pointer-events: none;
-      left: 50%; top: 50%;
-      transform: translate(-50%,-50%);
-      border: 2px solid #0ff2;
-      opacity: .19;
-      animation: layerPulse 2.4s infinite;
-    }
-    .radar-layer.layer1 { width: 100%; height: 100%; border-width: 2.5px; animation-delay: 0s;}
-    .radar-layer.layer2 { width: 77%; height: 77%; border-width: 2px; animation-delay: 1s;}
-    .radar-layer.layer3 { width: 54%; height: 54%; border-width: 1.5px; animation-delay: 2s;}
-    @keyframes layerPulse {
-      0%,100% { opacity:.21;}
-      50% { opacity:.5;}
-    }
-    .radar-sweep {
-      position: absolute; width: 100%; height: 100%;
-      left: 0; top: 0; border-radius: 50%;
-      background: conic-gradient(from 0deg, #0ff7 0deg 50deg, #0ff1 70deg 80deg, #0000 100deg 360deg);
-      animation: rotateRadar 2.4s linear infinite;
-      z-index: 9;
-      opacity: 0.7;
-      mix-blend-mode: lighten;
-    }
-    @keyframes rotateRadar {
-      0% { transform: rotateZ(0deg);}
-      100% { transform: rotateZ(360deg);}
-    }
-    .radar-3d.paused, .radar-sweep.paused, .radar-layers.paused { animation-play-state: paused; opacity: 0.35; }
-    .radar-blip3d {
-      position: absolute;
-      width: 22px; height: 22px;
-      left: 50%; top: 50%;
-      margin: -11px 0 0 -11px;
-      background: radial-gradient(circle, #0ff 0%, #0ff8 40%, #0000 100%);
-      border-radius: 50%; opacity: .65;
-      animation: blipFade3d 2s infinite;
-      pointer-events: none;
-      filter: blur(.5px) brightness(1.25);
-    }
-    @keyframes blipFade3d {
-      0%,100% { opacity:.15;}
-      50% { opacity:.95;}
-    }
-    .scan-msg {
-      margin-top: 19px;
-      font-size: 1.15em; font-weight: 500;
-      color: #0ff; text-shadow: 0 0 8px #000, 0 0 2.5px #0ff;
-      min-height: 36px;
-      animation: fadeMsg 2s;
-    }
-    @keyframes fadeMsg {
-      0% {opacity:0; transform: translateY(18px);}
-      100% {opacity:1; transform: none;}
-    }
-    .scan-log {
-      margin-top: 16px;
-      font-size: 1em;
-      color: #aaf;
-      background: rgba(0, 8, 32, 0.36);
+      margin-top: 20px;
+      padding: 14px 36px;
+      font-size: 1.1em;
+      font-weight: bold;
+      border: none;
       border-radius: 12px;
-      max-width: 340px;
-      min-height: 38px;
-      display: inline-block;
-      padding: 8px 20px 8px 20px;
-      font-family: 'Fira Mono', monospace;
-      box-shadow: 0 0 6px #0ff3;
-      line-height: 1.7;
-      white-space: pre-line;
-      text-align: left;
-      z-index: 100;
-      letter-spacing: 0.02em;
+      cursor: pointer;
+      color: #000;
+      background: linear-gradient(135deg, #0ff, #08f);
+      box-shadow: 0 0 12px #0ff;
+      transition: all 0.3s ease;
     }
-    .control-btns {
-      position: fixed;
-      left: 50%; transform: translateX(-50%);
-      bottom: 20px;
+
+    .scan-btn:hover {
+      background: linear-gradient(135deg, #09f, #0ff);
+      box-shadow: 0 0 25px #0ff;
+      transform: scale(1.05);
+    }
+
+    /* رادار سه‌بعدی */
+    .radar {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 32px auto 16px auto;
       display: none;
-      flex-direction: column; align-items: center;
-      z-index: 120; width: 100vw;
+      border-radius: 50%;
+      background: radial-gradient(circle at 65% 35%, #0ff2 0%, #0000 80%),
+                  radial-gradient(circle at 35% 65%, #099 5%, #0000 60%),
+                  radial-gradient(circle, rgba(0,255,255,0.08) 0%, transparent 70%);
+      box-shadow: 0 0 80px #0ff6, 0 0 60px 10px #0ff3 inset, 0 0 24px #06f8 inset;
+      overflow: hidden;
+      z-index: 8;
+      transition: filter .2s;
+    }
+    .radar::before, .radar::after {
+      content: "";
+      position: absolute;
+      width: 100%; height: 100%; left: 0; top: 0;
+      pointer-events: none;
+    }
+    .radar::before {
+      border: 3px solid rgba(0, 255, 255, 0.19);
+      border-radius: 50%;
+      animation: pulse 2s infinite ease-in-out;
+      z-index: 10;
+    }
+    .radar::after {
+      background: conic-gradient(from 0deg, #0ff8 0deg, #0000 60deg, #0ff3 130deg, #0000 360deg);
+      filter: blur(2px);
+      animation: rotate 1.6s linear infinite;
+      z-index: 6;
+    }
+
+    /* Neon Loader (وسط رادار) */
+    .dolphin-loader {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 92px; height: 92px;
+      border-radius: 50%;
+      border: 8px solid rgba(0,255,255,0.18);
+      border-top: 8px solid #0ff;
+      border-right: 8px solid #39f;
+      border-bottom: 8px solid #0cf;
+      border-left: 8px solid #007;
+      box-shadow: 0 0 32px #0ff9, 0 0 8px #fff1 inset;
+      background: rgba(0,0,0,0.0);
+      z-index: 22;
+      animation: loader-spin 1.1s cubic-bezier(.68,-0.55,.27,1.55) infinite;
+      transition: filter .2s, opacity .2s;
+      will-change: transform, filter, opacity;
+    }
+
+    /* کنترل دکمه‌ها پایین صفحه */
+    .control-btns {
+      display: none;
+      flex-direction: row;
+      justify-content: center;
+      gap: 14px;
+      margin-top: 32px;
+      z-index: 100;
+      position: fixed;
+      left: 0; right: 0; bottom: 28px;
       pointer-events: none;
     }
     .control-btn {
-      pointer-events: auto;
-      width: 90vw; max-width: 340px;
-      padding: 22px 0;
-      background: #0ff; color: #000;
-      border: none; border-radius: 15px;
-      cursor: pointer; font-size: 1.2em;
-      font-weight: bold; margin: 0 auto 0 auto;
-      box-shadow: 0 0 20px #0ffb;
-      letter-spacing: 0.03em;
-      display: block; margin-bottom: 8px;
-      transition: background .2s;
-    }
-    .control-btn:active { filter: brightness(0.97);}
-    #pauseMsg {
-      font-size: 1.12em;
+      padding: 18px 28px;
+      background: linear-gradient(135deg, #0ff, #08f);
       color: #000;
-      background: #0ffaaee0;
-      padding: 13px 16px;
-      border-radius: 13px;
-      font-family: inherit;
-      z-index: 120;
+      border: none;
+      border-radius: 14px;
+      font-size: 1.25em;
       font-weight: bold;
-      box-shadow: 0 0 15px #0ffb;
-      display: none;
-      pointer-events: none;
-      text-align: center;
-      min-width: 220px;
-      margin: 0 auto;
+      cursor: pointer;
+      min-width: 140px;
+      box-shadow: 0 0 12px #0ff8;
+      pointer-events: all;
+      transition: all .18s;
     }
-    canvas {
+    .control-btn:active { filter: brightness(0.9); }
+
+    #pauseMsg {
+      display:none;
       position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      z-index: 1;
-      filter: blur(1.2px) brightness(1.06);
-      display: none; pointer-events: none; opacity: 0.89;
-      mix-blend-mode: lighten;
+      left: 50%; bottom: 94px; transform: translateX(-50%);
+      background: rgba(0,8,32,0.91);
+      color: #fff;
+      font-size: 1.18em;
+      padding: 18px 32px 14px 32px;
+      border-radius: 11px;
+      border: 2px solid #0ff7;
+      box-shadow: 0 0 28px #0ff7;
+      z-index: 500;
+      font-family: inherit;
+      text-align:center;
+      font-weight: 500;
+      max-width: 94vw;
+      line-height: 1.6;
+      user-select: none;
+      pointer-events: none;
     }
-    @media (max-width: 650px) {
-      .glass-card { padding: 12px 2vw;}
-      .radar-3d-shell { width: 96vw; height: 96vw; min-width: 140px; min-height: 140px; }
-      .control-btns { bottom: 11vw; }
-      .control-btn { font-size: 1.02em; padding: 14px 0;}
-      #pauseMsg { font-size: .99em; padding: 9px 4vw;}
+
+    /* Animation */
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.7; } 50% { transform: scale(1.06); opacity: 1; } }
+    @keyframes loader-spin {
+      0%   { filter: brightness(1.1); }
+      90%  { filter: brightness(1.25); }
+      100% { transform: translate(-50%,-50%) rotate(360deg); filter: brightness(1.1);}
+    }
+
+    /* Mobile responsiveness */
+    @media (max-width: 600px) {
+      .radar { width: 84vw; height: 84vw; min-width: 160px; min-height: 160px; }
+      .dolphin-loader { width: 50vw; height: 50vw; min-width: 54px; min-height: 54px; }
+      .glass-card { padding: 16px; }
+      .control-btns { gap: 10px; bottom: 20px; }
+      .control-btn { min-width: 90px; padding: 14px 10vw; font-size: 1em;}
+      #pauseMsg { font-size: 1em; padding: 10px 12vw 8px 12vw;}
     }
   </style>
 </head>
 <body>
-<canvas id="matrixCanvas"></canvas>
-<div class="container" id="mainUI">
-  <div class="glass-card">
-    <h1>Welcome, <span id="username">User</span> 👋</h1>
-    <div class="scan-msg" id="scanMotivate">Scouring the depths of blockchain for lost treasures. <br><b>Are you ready to join the hunt?</b></div>
-    <button class="scan-btn" onclick="startScan()" id="scanBtn">🔎 Start Scan</button>
-  </div>
-</div>
-<div class="radar-3d-shell" id="radarShell">
-  <div class="radar-3d" id="radar3d">
-    <div class="radar-layers">
-      <div class="radar-layer layer1"></div>
-      <div class="radar-layer layer2"></div>
-      <div class="radar-layer layer3"></div>
+  <!-- ماتریکس افکت -->
+  <canvas id="matrixCanvas"></canvas>
+
+  <!-- UI اولیه اسکن -->
+  <div class="container" id="mainUI">
+    <div class="glass-card">
+      <h1>Welcome, <span id="username">User</span> 👋</h1>
+      <p>Click the button below to scan the blockchain for forgotten wallets.<br>
+      <span style="font-size:1.07em;color:#fff9;letter-spacing:0.04em;">Dolphin Finder brings you the most advanced crypto discovery technology on earth.</span></p>
+      <button class="scan-btn" onclick="startScan()" id="scanBtn">🚀 Start Scan</button>
     </div>
-    <div class="radar-sweep" id="radarSweep"></div>
   </div>
-</div>
-<div id="scanLog" class="scan-log" style="display:none"></div>
-<div class="control-btns" id="controlBtns">
-  <button class="control-btn" onclick="pauseScan()" id="pauseBtn">⏸ Pause</button>
-  <button class="control-btn" onclick="resumeScan()" id="resumeBtn" style="display: none;">▶ Resume</button>
-  <div id="pauseMsg"></div>
-</div>
-<script>
-const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
-const token = localStorage.getItem("token");
-if (!token) window.location.href = "login.html";
-fetch(`${API_BASE}/me`, { headers: { Authorization: "Bearer " + token } })
-  .then(res => res.json()).then(data => {
-    document.getElementById("username").textContent = data.username || "User";
-  });
 
-let scanTimeout, paused = false, scanning = false, matrixInterval;
-let remainingTime = null, startTimestamp = null, delay = null;
-let radarBlipInterval;
-let currentLogIndex = 0;
+  <!-- رادار سه‌بعدی با لودر -->
+  <div class="radar" id="radar" style="display:none;">
+    <div class="dolphin-loader" id="dolphinLoader"></div>
+  </div>
 
-const radarShell = document.getElementById("radarShell");
-const radar3d = document.getElementById("radar3d");
-const radarSweep = document.getElementById("radarSweep");
-const scanLog = document.getElementById("scanLog");
+  <!-- دکمه‌های کنترل پایین صفحه -->
+  <div class="control-btns" id="controlBtns">
+    <button class="control-btn" onclick="pauseScan()" id="pauseBtn">⏸ Pause</button>
+    <button class="control-btn" onclick="resumeScan()" id="resumeBtn" style="display: none;">▶ Resume</button>
+  </div>
 
-// فانتزی لاگ سرچ شبکه
-const logMessages = [
-  "⏳ Connecting to distributed blockchain nodes…",
-  "🔐 Authenticating deep scan access…",
-  "🛰️ Synchronizing with global ledgers…",
-  "🧠 Applying AI heuristics to entropy fields…",
-  "🌐 Analyzing dormant address clusters…",
-  "📡 Scanning deep-mempool patterns…",
-  "💠 Identifying unclaimed cryptographic assets…",
-  "🚦 Filtering false positives…",
-  "🚀 Approaching a potential lost wallet signature…",
-  "✨ Finalizing network-wide analysis…",
-];
+  <!-- پیام توقف سرچ -->
+  <div id="pauseMsg">
+    <b>Search Paused</b><br>
+    Scanning is temporarily stopped.<br>
+    Tap <span style="color:#0ff;font-weight:bold;">Resume</span> to continue searching the blockchain for lost wallets.
+  </div>
 
-function showRadarBlip3d() {
-  const blip = document.createElement("div");
-  blip.className = "radar-blip3d";
-  const angle = Math.random() * 2 * Math.PI;
-  const radius = 0.19 + Math.random() * 0.37; // rings
-  const shell = radar3d;
-  const r = shell.offsetWidth * radius;
-  const x = Math.cos(angle) * r + shell.offsetWidth / 2;
-  const y = Math.sin(angle) * r + shell.offsetHeight / 2;
-  blip.style.left = `${x}px`;
-  blip.style.top = `${y}px`;
-  shell.appendChild(blip);
-  setTimeout(() => shell.removeChild(blip), 1900);
-}
-function startRadarBlips3d() {
-  radarBlipInterval = setInterval(showRadarBlip3d, 450);
-}
-function stopRadarBlips3d() { clearInterval(radarBlipInterval); }
+  <script>
+    const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+    const token = localStorage.getItem("token");
+    if (!token) window.location.href = "login.html";
 
-function showScanLog() {
-  scanLog.style.display = "inline-block";
-  currentLogIndex = 0;
-  scanLog.innerText = logMessages[0];
-  let logInterval = setInterval(() => {
-    if (paused || !scanning) return;
-    currentLogIndex = (currentLogIndex + 1) % logMessages.length;
-    scanLog.innerText = logMessages[currentLogIndex];
-  }, 1500);
-  scanLog.dataset.interval = logInterval;
-}
-function hideScanLog() {
-  scanLog.style.display = "none";
-  if (scanLog.dataset.interval) clearInterval(scanLog.dataset.interval);
-}
+    fetch(`${API_BASE}/me`, {
+      headers: { Authorization: "Bearer " + token }
+    }).then(res => res.json())
+      .then(data => {
+        document.getElementById("username").textContent = data.username || "User";
+      });
 
-function startScan() {
-  document.getElementById("mainUI").style.display = "none";
-  radarShell.style.display = "block";
-  document.getElementById("controlBtns").style.display = "flex";
-  document.getElementById("matrixCanvas").style.display = "block";
-  document.getElementById("pauseBtn").style.display = "block";
-  document.getElementById("resumeBtn").style.display = "none";
-  document.getElementById("pauseMsg").style.display = "none";
-  document.getElementById("scanMotivate").style.display = "none";
-  radar3d.classList.remove("paused");
-  radarSweep.classList.remove("paused");
-  document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
-  scanning = true; paused = false;
-  showScanLog();
-  resumeMatrix();
-  startRadarBlips3d();
-  delay = (remainingTime !== null) ? remainingTime : Math.floor(Math.random() * (9000 - 6500 + 1)) + 6500;
-  startTimestamp = Date.now();
+    let scanTimeout, paused = false, matrixInterval, scanRunning = false;
 
-  scanTimeout = setTimeout(() => {
-    if (!paused && scanning) {
-      scanning = false;
-      pauseMatrix();
-      stopRadarBlips3d();
-      hideScanLog();
-      radarShell.style.display = "none";
-      document.getElementById("controlBtns").style.display = "none";
-      document.getElementById("matrixCanvas").style.display = "none";
-      const wallet = simulateScan(); // باید در wallets.js باشه
-      fetch(`${API_BASE}/wallets`, {
-        method: "POST",
-        headers: {
-          "Authorization": "Bearer " + token,
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify(wallet)
-      })
-      .then(() => window.location.href = "results.html");
+    function startScan() {
+      scanRunning = true;
+      document.getElementById("mainUI").style.display = "none";
+      document.getElementById("radar").style.display = "block";
+      document.getElementById("controlBtns").style.display = "flex";
+      document.getElementById("matrixCanvas").style.display = "block";
+      document.getElementById("dolphinLoader").style.animationPlayState = "running";
+      document.getElementById("dolphinLoader").style.opacity = 1;
+      resumeMatrix();
+
+      // رادار افکت ۳بعدی نور متحرک
+      document.getElementById("radar").style.filter = "brightness(1.1) drop-shadow(0 0 20px #0ff6)";
+
+      const delay = Math.floor(Math.random() * (10000 - 4000 + 1)) + 4000;
+      scanTimeout = setTimeout(() => {
+        if (!paused) {
+          const wallet = simulateScan();
+          fetch(`${API_BASE}/wallets`, {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(wallet)
+          })
+          .then(() => window.location.href = "results.html");
+        }
+      }, delay);
     }
-  }, delay);
-  remainingTime = null;
-}
-function pauseScan() {
-  if (!scanning || paused) return;
-  paused = true;
-  clearTimeout(scanTimeout);
-  pauseMatrix();
-  stopRadarBlips3d();
-  radar3d.classList.add("paused");
-  radarSweep.classList.add("paused");
-  document.querySelectorAll(".radar-layer").forEach(l => l.classList.add("paused"));
-  document.getElementById("pauseBtn").style.display = "none";
-  document.getElementById("resumeBtn").style.display = "block";
-  document.getElementById("pauseMsg").innerText = "⏸ Search paused. Tap Resume to continue deep blockchain scan…";
-  document.getElementById("pauseMsg").style.display = "block";
-  if (scanLog.dataset.interval) clearInterval(scanLog.dataset.interval);
-}
-function resumeScan() {
-  if (!paused) return;
-  paused = false;
-  document.getElementById("pauseBtn").style.display = "block";
-  document.getElementById("resumeBtn").style.display = "none";
-  document.getElementById("pauseMsg").style.display = "none";
-  radar3d.classList.remove("paused");
-  radarSweep.classList.remove("paused");
-  document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
-  showScanLog();
-  startScan();
-}
 
-// Matrix effect (قوی تر)
-const canvas = document.getElementById("matrixCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-const letters = "crypto wallet private key blockchain token access recovery ethereum bitcoin seed phrase secure decentralized node scan dolphin explorer lost".split(" ");
-const fontSize = 15;
-const columns = Math.floor(canvas.width / fontSize);
-const drops = Array(columns).fill(1);
+    function pauseScan() {
+      if (!scanRunning || paused) return;
+      paused = true;
+      clearTimeout(scanTimeout);
+      pauseMatrix();
+      document.getElementById("dolphinLoader").style.animationPlayState = "paused";
+      document.getElementById("dolphinLoader").style.opacity = 0.5;
+      document.getElementById("pauseBtn").style.display = "none";
+      document.getElementById("resumeBtn").style.display = "inline-block";
+      document.getElementById("pauseMsg").style.display = "block";
+      document.getElementById("radar").style.filter = "brightness(.7) grayscale(.7)";
+    }
 
-function drawMatrix() {
-  ctx.globalAlpha = 0.83;
-  ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-  ctx.globalAlpha = 1.0;
-  ctx.shadowColor = "#0ff";
-  ctx.shadowBlur = 18;
-  ctx.font = fontSize + "px monospace";
-  ctx.fillStyle = "#0ff";
-  for (let i = 0; i < drops.length; i++) {
-    const text = letters[Math.floor(Math.random() * letters.length)];
-    ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-    if (drops[i] * fontSize > canvas.height || Math.random() > 0.976) drops[i] = 0;
-    drops[i]++;
-  }
-  ctx.shadowBlur = 0;
-}
+    function resumeScan() {
+      if (!scanRunning || !paused) return;
+      paused = false;
+      document.getElementById("dolphinLoader").style.animationPlayState = "running";
+      document.getElementById("dolphinLoader").style.opacity = 1;
+      document.getElementById("resumeBtn").style.display = "none";
+      document.getElementById("pauseBtn").style.display = "inline-block";
+      document.getElementById("pauseMsg").style.display = "none";
+      document.getElementById("radar").style.filter = "brightness(1.08)";
+      resumeMatrix();
 
-function resumeMatrix() {
-  if (matrixInterval) clearInterval(matrixInterval);
-  matrixInterval = setInterval(drawMatrix, 44);
-  document.getElementById("matrixCanvas").style.display = "block";
-}
-function pauseMatrix() {
-  if (matrixInterval) clearInterval(matrixInterval);
-  document.getElementById("matrixCanvas").style.display = "none";
-}
-window.addEventListener("resize", () => {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-});
-</script>
-<script src="../assets/wallets.js"></script>
+      // ری‌استارت تایمر تا پیدا شدن ولت (همون تایم قبلی رو مجدد نمی‌گیره، رندوم جدید می‌گیره)
+      const delay = Math.floor(Math.random() * (10000 - 4000 + 1)) + 4000;
+      scanTimeout = setTimeout(() => {
+        if (!paused) {
+          const wallet = simulateScan();
+          fetch(`${API_BASE}/wallets`, {
+            method: "POST",
+            headers: {
+              "Authorization": "Bearer " + token,
+              "Content-Type": "application/json"
+            },
+            body: JSON.stringify(wallet)
+          })
+          .then(() => window.location.href = "results.html");
+        }
+      }, delay);
+    }
+
+    // Matrix effect
+    const canvas = document.getElementById("matrixCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const letters = "crypto wallet private key blockchain token access recovery ethereum bitcoin seed phrase secure decentralized dolphin finder search scanning AI lost asset sweep scan flash cyber spectrum".split(" ");
+    const fontSize = 14;
+    const columns = Math.floor(canvas.width / fontSize);
+    const drops = Array(columns).fill(1);
+
+    function drawMatrix() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "rgba(0, 0, 0, 0.07)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.shadowColor = "#0ff";
+      ctx.shadowBlur = 10;
+      ctx.fillStyle = "#0ff";
+      ctx.font = fontSize + "px monospace";
+
+      for (let i = 0; i < drops.length; i++) {
+        const text = letters[Math.floor(Math.random() * letters.length)];
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+        if (drops[i] * fontSize > canvas.height || Math.random() > 0.98) {
+          drops[i] = 0;
+        }
+        drops[i]++;
+      }
+    }
+
+    function resumeMatrix() {
+      if (matrixInterval) clearInterval(matrixInterval);
+      matrixInterval = setInterval(drawMatrix, 40);
+    }
+
+    function pauseMatrix() {
+      clearInterval(matrixInterval);
+    }
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+  <script src="../assets/wallets.js"></script>
 </body>
 </html>
