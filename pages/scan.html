@@ -16,7 +16,6 @@
       min-height: 100vh;
       position: relative;
     }
-
     .container {
       min-height: 100vh;
       display: flex; flex-direction: column;
@@ -24,7 +23,6 @@
       text-align: center;
       z-index: 2; position: relative; padding: 20px;
     }
-
     .glass-card {
       background: rgba(0, 30, 60, 0.33);
       border: 1px solid #0ff3;
@@ -38,9 +36,7 @@
       animation: cardIn .8s;
       margin-top: 45px;
     }
-
     @keyframes cardIn {from{opacity:0;transform:translateY(40px);}to{opacity:1;transform:translateY(0);}}
-
     .scan-btn {
       margin-top: 20px;
       padding: 18px 46px;
@@ -59,11 +55,9 @@
       box-shadow: 0 0 27px #0ff;
       transform: scale(1.06);
     }
-
     .radar {
       position: relative;
-      width: 330px;
-      height: 330px;
+      width: 330px; height: 330px;
       margin: 35px auto 10px auto;
       display: none;
       border-radius: 50%;
@@ -72,21 +66,36 @@
       backdrop-filter: blur(4px);
       overflow: hidden;
       z-index: 5;
-      animation: radarPop .7s;
     }
-    @keyframes radarPop {from{opacity:0;transform:scale(.92);}to{opacity:1;transform:scale(1);}}
-    .radar::before {
+    .radar-rotating::before {
       content: "";
-      position: absolute; width: 100%; height: 100%;
+      position: absolute;
+      width: 100%; height: 100%;
       border: 3px solid rgba(0, 255, 255, 0.14);
       border-radius: 50%;
       animation: pulse 2s infinite ease-in-out;
     }
-    .radar::after {
+    .radar-rotating::after {
       content: "";
-      position: absolute; width: 100%; height: 100%;
+      position: absolute;
+      width: 100%; height: 100%;
       background: conic-gradient(from 0deg, #0ff6 0deg, #0000 90deg);
       animation: rotate 1.2s linear infinite;
+    }
+    .radar-paused::before {
+      content: "";
+      position: absolute;
+      width: 100%; height: 100%;
+      border: 3px solid rgba(0, 255, 255, 0.14);
+      border-radius: 50%;
+      /* no animation */
+    }
+    .radar-paused::after {
+      content: "";
+      position: absolute;
+      width: 100%; height: 100%;
+      background: conic-gradient(from 0deg, #0ff6 0deg, #0000 90deg);
+      /* no animation */
     }
 
     .pause-message {
@@ -106,7 +115,6 @@
       animation: fadeIn .6s;
     }
     @keyframes fadeIn {from{opacity:0;} to{opacity:1;}}
-
     .control-btns {
       width: 100vw;
       display: flex;
@@ -156,11 +164,12 @@
       display: none;
       pointer-events: none;
     }
+    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.05); opacity: 1; } }
   </style>
 </head>
 <body>
   <canvas id="matrixCanvas"></canvas>
-
   <div class="container" id="mainUI">
     <div class="glass-card">
       <h1>Welcome, <span id="username">User</span> 👋</h1>
@@ -168,28 +177,22 @@
       <button class="scan-btn" onclick="startScan()" id="scanBtn">🚀 Start Scan</button>
     </div>
   </div>
-
   <div class="radar" id="radar"></div>
   <div class="pause-message" id="pauseMsg">⏸️ Search paused! Tap Resume to continue scanning.</div>
-
   <div class="control-btns" id="controlBtns">
     <button class="control-btn" onclick="pauseScan()" id="pauseBtn">⏸️ Pause Scan</button>
-    <button class="control-btn" onclick="resumeScan()" id="resumeBtn">▶ Resume Scan</button>
+    <button class="control-btn" onclick="resumeScan()" id="resumeBtn" style="display: none;">▶ Resume Scan</button>
   </div>
-
   <script>
     const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
+    fetch(`${API_BASE}/me`, {headers: { Authorization: "Bearer " + token }}).then(res => res.json()).then(data => {
+      document.getElementById("username").textContent = data.username || "User";
+    });
 
-    fetch(`${API_BASE}/me`, {
-      headers: { Authorization: "Bearer " + token }
-    }).then(res => res.json())
-      .then(data => {
-        document.getElementById("username").textContent = data.username || "User";
-      });
-
-    let scanTimeout, paused = false, matrixInterval;
+    let scanTimeout = null, paused = false, matrixInterval = null, scanning = false;
+    let remainingTime = null, startTimestamp = null;
 
     function startScan() {
       document.getElementById("mainUI").style.display = "none";
@@ -199,29 +202,36 @@
       document.getElementById("resumeBtn").classList.remove("active");
       document.getElementById("pauseMsg").style.display = "none";
       document.getElementById("controlBtns").style.display = "flex";
+      switchRadarState(true);
       resumeMatrix();
-      resumeRadar();
+      scanning = true;
 
-      const delay = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
+      // فقط اگر سرچ تازه شروع شده یا قبلا Pause شده، تایمر بساز
+      let delay;
+      if (remainingTime !== null) {
+        delay = remainingTime;
+      } else {
+        delay = Math.floor(Math.random() * (10000 - 3000 + 1)) + 3000;
+      }
+      startTimestamp = Date.now();
       scanTimeout = setTimeout(() => {
-        const wallet = simulateScan();
-        fetch(`${API_BASE}/wallets`, {
-          method: "POST",
-          headers: {
-            "Authorization": "Bearer " + token,
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(wallet)
-        })
-        .then(() => window.location.href = "results.html");
+        if (!paused) { // فقط اگر pause نیست
+          scanning = false;
+          switchRadarState(false);
+          pauseMatrix();
+          window.location.href = "results.html";
+        }
       }, delay);
     }
 
     function pauseScan() {
-      clearTimeout(scanTimeout);
+      if (!scanning) return;
       paused = true;
+      scanning = false;
+      clearTimeout(scanTimeout);
+      remainingTime = Math.max(1, startTimestamp + (remainingTime !== null ? remainingTime : 0) + (scanTimeout ? 0 : 0) - Date.now());
       pauseMatrix();
-      pauseRadar();
+      switchRadarState(false);
       document.getElementById("pauseBtn").classList.remove("active");
       document.getElementById("resumeBtn").classList.add("active");
       document.getElementById("pauseMsg").style.display = "block";
@@ -230,12 +240,22 @@
     function resumeScan() {
       if (!paused) return;
       paused = false;
+      scanning = true;
       document.getElementById("resumeBtn").classList.remove("active");
       document.getElementById("pauseBtn").classList.add("active");
       document.getElementById("pauseMsg").style.display = "none";
+      switchRadarState(true);
       resumeMatrix();
-      resumeRadar();
-      startScan();
+      startTimestamp = Date.now();
+      scanTimeout = setTimeout(() => {
+        if (!paused) {
+          scanning = false;
+          switchRadarState(false);
+          pauseMatrix();
+          window.location.href = "results.html";
+        }
+      }, remainingTime);
+      remainingTime = null;
     }
 
     // Matrix effect (only active during scan)
@@ -274,29 +294,22 @@
       clearInterval(matrixInterval);
     }
 
-    // Radar animation
-    let radarInt, radarActive = false;
-    function resumeRadar() {
+    // Radar animation (on/off by class)
+    function switchRadarState(isRotating) {
       const radar = document.getElementById("radar");
-      if (radarActive) return;
-      radarActive = true;
-      radar.style.animationPlayState = "running";
-      radarInt = setInterval(() => {
-        radar.style.filter = `drop-shadow(0 0 ${10 + Math.random()*15}px #0ff8)`;
-      }, 100);
-    }
-    function pauseRadar() {
-      clearInterval(radarInt);
-      radarActive = false;
-      document.getElementById("radar").style.filter = "drop-shadow(0 0 0px #0ff)";
+      radar.classList.remove("radar-rotating", "radar-paused");
+      radar.innerHTML = ""; // remove all children
+      if (isRotating) {
+        radar.classList.add("radar-rotating");
+      } else {
+        radar.classList.add("radar-paused");
+      }
     }
 
     // Prevent accidental double scanning
     window.addEventListener('beforeunload', function (e) {
-      clearTimeout(scanTimeout); pauseMatrix(); pauseRadar();
+      clearTimeout(scanTimeout); pauseMatrix();
     });
-
-    // The wallets.js script must be loaded for simulateScan()
   </script>
   <script src="../assets/wallets.js"></script>
 </body>
