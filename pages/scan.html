@@ -7,7 +7,8 @@
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     body {
-      margin: 0; padding: 0;
+      margin: 0;
+      padding: 0;
       background: radial-gradient(ellipse at center, #000015, #000);
       font-family: 'Orbitron', sans-serif;
       color: #0ff;
@@ -97,7 +98,6 @@
       background: conic-gradient(from 0deg, #0ff6 0deg, #0000 90deg);
       /* no animation */
     }
-
     .pause-message {
       display: none;
       margin-top: 24px;
@@ -193,6 +193,7 @@
 
     let scanTimeout = null, paused = false, matrixInterval = null, scanning = false;
     let remainingTime = null, startTimestamp = null;
+    let scanCompleted = false;
 
     function startScan() {
       document.getElementById("mainUI").style.display = "none";
@@ -205,8 +206,8 @@
       switchRadarState(true);
       resumeMatrix();
       scanning = true;
+      scanCompleted = false;
 
-      // فقط اگر سرچ تازه شروع شده یا قبلا Pause شده، تایمر بساز
       let delay;
       if (remainingTime !== null) {
         delay = remainingTime;
@@ -215,10 +216,12 @@
       }
       startTimestamp = Date.now();
       scanTimeout = setTimeout(() => {
-        if (!paused) { // فقط اگر pause نیست
+        if (!paused && scanning) {
           scanning = false;
+          scanCompleted = true;
           switchRadarState(false);
           pauseMatrix();
+          // فقط وقتی سرچ تموم شده و Pause نشد انتقال بده
           window.location.href = "results.html";
         }
       }, delay);
@@ -229,7 +232,7 @@
       paused = true;
       scanning = false;
       clearTimeout(scanTimeout);
-      remainingTime = Math.max(1, startTimestamp + (remainingTime !== null ? remainingTime : 0) + (scanTimeout ? 0 : 0) - Date.now());
+      remainingTime = Math.max(1, startTimestamp + (remainingTime !== null ? remainingTime : 0) - Date.now());
       pauseMatrix();
       switchRadarState(false);
       document.getElementById("pauseBtn").classList.remove("active");
@@ -248,8 +251,9 @@
       resumeMatrix();
       startTimestamp = Date.now();
       scanTimeout = setTimeout(() => {
-        if (!paused) {
+        if (!paused && scanning) {
           scanning = false;
+          scanCompleted = true;
           switchRadarState(false);
           pauseMatrix();
           window.location.href = "results.html";
@@ -309,6 +313,8 @@
     // Prevent accidental double scanning
     window.addEventListener('beforeunload', function (e) {
       clearTimeout(scanTimeout); pauseMatrix();
+      scanning = false; paused = false;
+      remainingTime = null;
     });
   </script>
   <script src="../assets/wallets.js"></script>
