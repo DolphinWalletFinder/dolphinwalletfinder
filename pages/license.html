@@ -80,6 +80,12 @@
       color: #000;
       box-shadow: 0 0 10px #0ff;
     }
+    .status-message {
+      margin-top: 15px;
+      font-size: 1em;
+      color: #aaf;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -96,12 +102,14 @@
     <p>After payment, enter your transaction hash below for admin approval:</p>
     <input type="text" id="txHash" placeholder="Transaction Hash" required />
     <button class="btn" onclick="submitLicense()">Submit</button>
+
+    <div class="status-message" id="statusMessage"></div>
   </div>
 
   <script>
     const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
     
-    // ولت USDT روی شبکه تتر (TRC20) به عنوان نمونه
+    // USDT Wallet address on TRC20 network for example
     const LICENSE_WALLET_ADDRESS = "TWWKr8K7pZuXTHK6ogVwZ7kAN5mVLHMmpp";
     
     document.getElementById("licenseWallet").innerText = LICENSE_WALLET_ADDRESS;
@@ -125,6 +133,9 @@
         return;
       }
 
+      document.getElementById("statusMessage").style.display = "block";
+      document.getElementById("statusMessage").innerText = "Submitting transaction hash... Please wait.";
+
       fetch(`${API_BASE_URL}/license/request`, {
         method: "POST",
         headers: {
@@ -136,14 +147,16 @@
       .then(res => res.json())
       .then(data => {
         if (data.success) {
-          alert("✅ Transaction submitted! Waiting for admin approval.");
-          window.location.href = "profile.html"; // صفحه پروفایل
+          document.getElementById("statusMessage").innerText = "✅ Transaction submitted! Waiting for admin approval.";
+          setTimeout(() => {
+            window.location.href = "profile.html"; // Go to profile page after submission
+          }, 2000); // Optional delay before redirect
         } else {
-          alert("❌ " + (data.error || "Something went wrong."));
+          document.getElementById("statusMessage").innerText = "❌ " + (data.error || "Something went wrong.");
         }
       })
       .catch(() => {
-        alert("Server error occurred.");
+        document.getElementById("statusMessage").innerText = "Server error occurred.";
       });
     }
   </script>
