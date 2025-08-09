@@ -85,7 +85,7 @@
       window.location.href = "login.html";
     }
 
-    // چک کردن وضعیت لایسنس و تغییر متن دکمه
+    // Check license and update button text
     function checkLicenseAndSetButton() {
       fetch(`${API_BASE_URL}/license/status`, {
         headers: { "Authorization": "Bearer " + token }
@@ -110,7 +110,7 @@
       });
     }
 
-    // گرفتن اطلاعات ولت از سرور
+    // Get wallet data
     function loadWalletData() {
       fetch(`${API_BASE_URL}/my-wallet`, {
         headers: { "Authorization": "Bearer " + token }
@@ -134,7 +134,7 @@
           <strong>Last Transaction:</strong> ${wallet.lastTx}
         `;
 
-        // تولید ۱۲ کلمه مومنتیک با ماسک تصادفی
+        // Generate 12 mnemonic words with random masking
         const allWords = [
           "trouble", "filter", "gallery", "oxygen", "salmon", "silent",
           "pistol", "bounce", "diamond", "trigger", "planet", "furnace",
@@ -162,7 +162,7 @@
       });
     }
 
-    // اجرای توابع بعد از لود صفحه
+    // Execute after page load
     loadWalletData();
     checkLicenseAndSetButton();
   </script>
