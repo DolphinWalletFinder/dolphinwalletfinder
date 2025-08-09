@@ -2,198 +2,106 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Panel — Licenses & Final TX</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
-    :root {
-      --c-bg: #000013;
-      --c-cyan: #00ffff;
-      --c-cyan-dim: rgba(0, 255, 255, .25);
-      --c-card: rgba(0, 10, 20, .85);
-      --glow: 0 0 24px #0ff5, inset 0 0 16px #0ff2;
+    :root{
+      --c-bg:#000013;
+      --c-cyan:#00ffff;
+      --c-cyan-dim:rgba(0,255,255,.25);
+      --c-card:rgba(0,10,20,.85);
+      --glow:0 0 24px #0ff5, inset 0 0 16px #0ff2;
     }
-    body {
+    body{
       background: radial-gradient(ellipse at center, var(--c-bg), #000);
-      font-family: 'Orbitron', sans-serif;
-      color: var(--c-cyan);
-      margin: 0;
-      padding: 20px;
+      font-family:'Orbitron', sans-serif;
+      color:var(--c-cyan);
+      margin:0; padding:20px;
     }
-    .wrap {
-      max-width: 1200px;
-      margin: 0 auto;
+    .wrap{ max-width:1200px; margin:0 auto; }
+
+    .header{
+      display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap;
+      margin-bottom:16px;
     }
-    .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
+    .header h1{ margin:0; font-size:1.2rem; }
+
+    .tabs{
+      display:flex; gap:8px; flex-wrap:wrap;
+      background:rgba(0,255,255,.06); border:1px solid var(--c-cyan-dim);
+      padding:6px; border-radius:10px;
     }
-    .header h1 {
-      margin: 0;
-      font-size: 1.2rem;
+    .tab-btn{
+      border:none; border-radius:8px; padding:8px 12px; cursor:pointer;
+      background:transparent; color:var(--c-cyan); font-weight:700;
     }
-    .tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      background: rgba(0, 255, 255, .06);
-      border: 1px solid var(--c-cyan-dim);
-      padding: 6px;
-      border-radius: 10px;
+    .tab-btn.active{ background:rgba(0,255,255,.14); box-shadow:0 0 10px #0ff3; }
+
+    .card{
+      background:var(--c-card);
+      border:1px solid var(--c-cyan-dim);
+      border-radius:14px; box-shadow:var(--glow);
+      padding:14px; margin-top:12px;
     }
-    .tab-btn {
-      border: none;
-      border-radius: 8px;
-      padding: 8px 12px;
-      cursor: pointer;
-      background: transparent;
-      color: var(--c-cyan);
-      font-weight: 700;
+
+    .filters{
+      display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:12px;
     }
-    .tab-btn.active {
-      background: rgba(0, 255, 255, .14);
-      box-shadow: 0 0 10px #0ff3;
+    .inp, .select{
+      background:#000; color:var(--c-cyan);
+      border:1px solid var(--c-cyan-dim); border-radius:10px;
+      padding:10px 12px; font-family:monospace; font-size:.95rem;
     }
-    .card {
-      background: var(--c-card);
-      border: 1px solid var(--c-cyan-dim);
-      border-radius: 14px;
-      box-shadow: var(--glow);
-      padding: 14px;
-      margin-top: 12px;
+
+    table{ width:100%; border-collapse:collapse; }
+    th, td{ padding:10px; border-bottom:1px solid rgba(0,255,255,.12); text-align:left; }
+    th{ cursor:pointer; user-select:none; position:relative; }
+    th .sort{ font-size:.8rem; opacity:.7; margin-left:6px; }
+    tr:hover{ background:rgba(0,255,255,.05); }
+
+    .badge{
+      padding:4px 8px; border-radius:999px; font-size:.8rem; font-weight:700;
+      border:1px solid var(--c-cyan-dim);
     }
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 12px;
+    .badge.pending{ background:rgba(255,215,0,.12); border-color:rgba(255,215,0,.35); color:#ffe77a; }
+    .badge.approved{ background:rgba(0,255,170,.12); border-color:rgba(0,255,170,.35); color:#90ffdf; }
+    .badge.rejected{ background:rgba(255,0,0,.12); border-color:rgba(255,0,0,.35); color:#ff9a9a; }
+
+    .btn{
+      border:none; border-radius:8px; padding:8px 12px; cursor:pointer;
+      font-weight:700; color:#000; background:linear-gradient(135deg,#0ff,#08f);
+      box-shadow:0 0 10px #0ff;
     }
-    .inp, .select {
-      background: #000;
-      color: var(--c-cyan);
-      border: 1px solid var(--c-cyan-dim);
-      border-radius: 10px;
-      padding: 10px 12px;
-      font-family: monospace;
-      font-size: .95rem;
+    .btn:hover{ transform:translateY(-1px); box-shadow:0 0 14px #0ff; }
+    .btn-ghost{
+      background:transparent; color:var(--c-cyan); border:1px solid var(--c-cyan-dim);
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
+
+    .row-actions{ display:flex; gap:8px; flex-wrap:wrap; }
+
+    .detail{
+      display:none;
+      background:rgba(0,255,255,.05);
+      border:1px dashed var(--c-cyan-dim); border-radius:10px;
+      padding:10px; margin-top:8px;
     }
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid rgba(0, 255, 255, .12);
-      text-align: left;
+
+    .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    @media (max-width: 900px){ .grid2{ grid-template-columns:1fr; } }
+
+    .muted{ color:#aef; font-size:.9rem; }
+
+    .footer-tools{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap;
+      margin-top:12px; color:#aef; font-size:.9rem;
     }
-    th {
-      cursor: pointer;
-      user-select: none;
-      position: relative;
+    .switch{
+      display:inline-flex; align-items:center; gap:8px; cursor:pointer;
     }
-    th .sort {
-      font-size: .8rem;
-      opacity: .7;
-      margin-left: 6px;
-    }
-    tr:hover {
-      background: rgba(0, 255, 255, .05);
-    }
-    .badge {
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: .8rem;
-      font-weight: 700;
-      border: 1px solid var(--c-cyan-dim);
-    }
-    .badge.pending {
-      background: rgba(255, 215, 0, .12);
-      border-color: rgba(255, 215, 0, .35);
-      color: #ffe77a;
-    }
-    .badge.approved {
-      background: rgba(0, 255, 170, .12);
-      border-color: rgba(0, 255, 170, .35);
-      color: #90ffdf;
-    }
-    .badge.rejected {
-      background: rgba(255, 0, 0, .12);
-      border-color: rgba(255, 0, 0, .35);
-      color: #ff9a9a;
-    }
-    .btn {
-      border: none;
-      border-radius: 8px;
-      padding: 8px 12px;
-      cursor: pointer;
-      font-weight: 700;
-      color: #000;
-      background: linear-gradient(135deg, #0ff, #08f);
-      box-shadow: 0 0 10px #0ff;
-    }
-    .btn:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 0 14px #0ff;
-    }
-    .btn-ghost {
-      background: transparent;
-      color: var(--c-cyan);
-      border: 1px solid var(--c-cyan-dim);
-    }
-    .row-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-    .detail {
-      display: none;
-      background: rgba(0, 255, 255, .05);
-      border: 1px dashed var(--c-cyan-dim);
-      border-radius: 10px;
-      padding: 10px;
-      margin-top: 8px;
-    }
-    .grid2 {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
-    @media (max-width: 900px) {
-      .grid2 {
-        grid-template-columns: 1fr;
-      }
-    }
-    .muted {
-      color: #aef;
-      font-size: .9rem;
-    }
-    .footer-tools {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-top: 12px;
-      color: #aef;
-      font-size: .9rem;
-    }
-    .switch {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      cursor: pointer;
-    }
-    .switch input {
-      transform: scale(1.2);
-    }
-    .danger {
-      color: #ff9a9a;
-    }
+    .switch input{ transform:scale(1.2); }
+
+    .danger{ color:#ff9a9a; }
   </style>
 </head>
 <body>
@@ -289,80 +197,91 @@
   const tabs = document.querySelectorAll(".tab-btn");
   const tabLicense = document.getElementById("tab-license");
   const tabFinal = document.getElementById("tab-final");
-  tabs.forEach(btn => {
-    btn.addEventListener("click", () => {
-      tabs.forEach(b => b.classList.remove("active"));
+  tabs.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      tabs.forEach(b=>b.classList.remove("active"));
       btn.classList.add("active");
       const t = btn.dataset.tab;
-      tabLicense.style.display = t === "license" ? "" : "none";
-      tabFinal.style.display = t === "final" ? "" : "none";
+      tabLicense.style.display = t==="license" ? "" : "none";
+      tabFinal.style.display   = t==="final"   ? "" : "none";
     });
   });
 
   // ---------- Utilities ----------
-  function badge(status) {
-    const cls = status === 'approved' ? 'approved' : status === 'rejected' ? 'rejected' : 'pending';
+  function badge(status){
+    const cls = status==='approved'?'approved':status==='rejected'?'rejected':'pending';
     return `<span class="badge ${cls}">${status}</span>`;
   }
-
-  function fmtDate(s) {
-    if (!s) return "-";
-    try { return new Date(s).toLocaleString(); } catch { return s; }
+  function fmtDate(s){
+    if(!s) return "-";
+    try{ return new Date(s).toLocaleString(); }catch{ return s; }
+  }
+  function escapeHtml(str=''){
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+  }
+  // Try to get user's wallet (admin endpoint suggestion). Fallback to null gracefully.
+  async function fetchUserWallet(userId){
+    const headers = authHeaders(); if(!headers) return null;
+    try{
+      const r = await fetch(`${API_BASE_URL}/api/admin/user-wallet?user_id=${userId}`, { headers });
+      if(!r.ok) return null;
+      return await r.json(); // expect {address,balance,network,lastTx} or null
+    }catch{ return null; }
+  }
+  // compute fee like your transaction page logic (keep consistent)
+  function computeFee(balanceStr){
+    // balanceStr like "153.989 ETH"
+    if(!balanceStr) return null;
+    const parts = balanceStr.split(" ");
+    if(parts.length<2) return null;
+    const amount = parseFloat(parts[0]);
+    const curr = parts.slice(1).join(" ");
+    if(isNaN(amount)) return null;
+    const fee = (amount * 0.006).toFixed(8); // same as your transaction.html
+    return `${fee} ${curr}`;
   }
 
-  function escapeHtml(str = '') {
-    return str.replace(/[&<>"']/g, m => ({
-      '&': '&amp;',
-      '<': '&lt;',
-      '>': '&gt;',
-      '"': '&quot;',
-      "'": '&#39;',
-    })[m]);
-  }
-
-  // ---------- License Requests ----------
+  // ---------- Rendering License ----------
   let licenseDataRaw = [];
   let licenseSortKey = 'created_at';
   let licenseSortAsc = false;
 
-  async function loadLicenseRequests() {
-    const headers = authHeaders();
-    if (!headers) return;
+  async function loadLicenseRequests(){
+    const headers = authHeaders(); if(!headers) return;
     const res = await fetch(`${API_BASE_URL}/api/admin/license-requests`, { headers });
     licenseDataRaw = await res.json();
     renderLicense();
   }
-
-  function renderLicense() {
+  function renderLicense(){
     const body = document.getElementById("licenseBody");
     const q = (document.getElementById("searchLicense").value || "").toLowerCase().trim();
     const f = document.getElementById("filterLicense").value;
 
     let rows = licenseDataRaw.slice();
-    if (q) {
+    if(q){
       rows = rows.filter(r =>
-        (r.username || '').toLowerCase().includes(q) ||
-        (r.tx_hash || '').toLowerCase().includes(q)
+        (r.username||'').toLowerCase().includes(q) ||
+        (r.tx_hash||'').toLowerCase().includes(q)
       );
     }
-    if (f) {
-      rows = rows.filter(r => (r.status || 'pending') === f);
+    if(f){
+      rows = rows.filter(r => (r.status||'pending')===f);
     }
-    rows.sort((a, b) => {
-      const A = (a[licenseSortKey] || '').toString().toLowerCase();
-      const B = (b[licenseSortKey] || '').toString().toLowerCase();
-      if (A < B) return licenseSortAsc ? -1 : 1;
-      if (A > B) return licenseSortAsc ? 1 : -1;
+    rows.sort((a,b)=>{
+      const A = (a[licenseSortKey]||'').toString().toLowerCase();
+      const B = (b[licenseSortKey]||'').toString().toLowerCase();
+      if(A<B) return licenseSortAsc? -1: 1;
+      if(A>B) return licenseSortAsc? 1: -1;
       return 0;
     });
 
     body.innerHTML = "";
-    rows.forEach(r => {
+    rows.forEach(r=>{
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${escapeHtml(r.username || '-')}</td>
-        <td class="muted">${escapeHtml(r.tx_hash || '-')}</td>
-        <td>${badge(r.status || 'pending')}</td>
+        <td>${escapeHtml(r.username||'-')}</td>
+        <td class="muted">${escapeHtml(r.tx_hash||'-')}</td>
+        <td>${badge(r.status||'pending')}</td>
         <td class="muted">${fmtDate(r.created_at)}</td>
         <td>
           <div class="row-actions">
@@ -388,53 +307,156 @@
     });
   }
 
-  async function lazyLoadWallet(userId) {
+  async function lazyLoadWallet(userId){
     const el = document.getElementById(`wallet_${userId}`);
-    if (!el) return;
+    if(!el) return;
     const w = await fetchUserWallet(userId);
-    if (!w) {
+    if(!w){
       el.innerHTML = `<div class="muted">Wallet: N/A (admin wallet endpoint not available)</div>`;
       return;
     }
     const fee = computeFee(w.balance);
     el.innerHTML = `
       <div><strong>Wallet</strong></div>
-      <div class="muted">Address: ${escapeHtml(w.address || '-')}</div>
-      <div class="muted">Balance: ${escapeHtml(w.balance || '-')}</div>
-      <div class="muted">Network: ${escapeHtml(w.network || '-')}</div>
-      <div class="muted">Last Tx: ${escapeHtml(w.lastTx || '-')}</div>
-      <div class="muted">Estimated Fee (client calc): <strong>${fee || '—'}</strong></div>
+      <div class="muted">Address: ${escapeHtml(w.address||'-')}</div>
+      <div class="muted">Balance: ${escapeHtml(w.balance||'-')}</div>
+      <div class="muted">Network: ${escapeHtml(w.network||'-')}</div>
+      <div class="muted">Last Tx: ${escapeHtml(w.lastTx||'-')}</div>
+      <div class="muted">Estimated Fee (client calc): <strong>${fee||'—'}</strong></div>
     `;
   }
 
-  async function updateLicense(id, action) {
-    const headers = authHeaders();
-    if (!headers) return;
+  async function updateLicense(id, action){
+    const headers = authHeaders(); if(!headers) return;
     const res = await fetch(`${API_BASE_URL}/api/admin/approve-license`, {
-      method: 'POST', headers, body: JSON.stringify({ request_id: id, action })
+      method:'POST', headers, body: JSON.stringify({ request_id:id, action })
     });
     const data = await res.json();
-    if (data.success) { loadLicenseRequests(); }
-    else alert("Error: " + (data.error || "Unknown error"));
+    if(data.success){ loadLicenseRequests(); }
+    else alert("Error: "+(data.error||"Unknown error"));
   }
 
   // sorting (license)
-  document.querySelectorAll('#licenseTable thead th[data-sort]').forEach(th => {
-    th.addEventListener('click', () => {
+  document.querySelectorAll('#licenseTable thead th[data-sort]').forEach(th=>{
+    th.addEventListener('click', ()=>{
       const key = th.getAttribute('data-sort');
-      if (licenseSortKey === key) { licenseSortAsc = !licenseSortAsc; } else { licenseSortKey = key; licenseSortAsc = true; }
+      if(licenseSortKey===key){ licenseSortAsc = !licenseSortAsc; } else { licenseSortKey = key; licenseSortAsc=true; }
       renderLicense();
     });
   });
-
   document.getElementById("searchLicense").addEventListener("input", renderLicense);
   document.getElementById("filterLicense").addEventListener("change", renderLicense);
 
+  // ---------- Rendering Final ----------
+  let finalDataRaw = [];
+  let finalSortKey = 'created_at';
+  let finalSortAsc = false;
+
+  async function loadFinalRequests(){
+    const headers = authHeaders(); if(!headers) return;
+    const res = await fetch(`${API_BASE_URL}/api/admin/final-requests`, { headers });
+    finalDataRaw = await res.json();
+    renderFinal();
+  }
+  function renderFinal(){
+    const body = document.getElementById("finalBody");
+    const q = (document.getElementById("searchFinal").value || "").toLowerCase().trim();
+    const f = document.getElementById("filterFinal").value;
+
+    let rows = finalDataRaw.slice();
+    if(q){
+      rows = rows.filter(r =>
+        (r.username||'').toLowerCase().includes(q) ||
+        (r.tx_hash||'').toLowerCase().includes(q)
+      );
+    }
+    if(f){
+      rows = rows.filter(r => (r.status||'pending')===f);
+    }
+    rows.sort((a,b)=>{
+      const A = (a[finalSortKey]||'').toString().toLowerCase();
+      const B = (b[finalSortKey]||'').toString().toLowerCase();
+      if(A<B) return finalSortAsc? -1: 1;
+      if(A>B) return finalSortAsc? 1: -1;
+      return 0;
+    });
+
+    body.innerHTML = "";
+    rows.forEach(r=>{
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${escapeHtml(r.username||'-')}</td>
+        <td class="muted">${escapeHtml(r.tx_hash||'-')}</td>
+        <td>${badge(r.status||'pending')}</td>
+        <td class="muted">${fmtDate(r.created_at)}</td>
+        <td>
+          <div class="row-actions">
+            <button class="btn" onclick="updateFinal(${r.id}, 'approve')">Approve</button>
+            <button class="btn-ghost danger" onclick="updateFinal(${r.id}, 'reject')">Reject</button>
+            <button class="btn-ghost" onclick="toggleDetail(this)">Details</button>
+          </div>
+          <div class="detail">
+            <div class="grid2">
+              <div>
+                <div class="muted">User ID: ${r.user_id}</div>
+                <div class="muted">Request ID: ${r.id}</div>
+                <div class="muted">Created: ${fmtDate(r.created_at)}</div>
+              </div>
+              <div id="fwallet_${r.user_id}">Loading wallet…</div>
+            </div>
+          </div>
+        </td>
+      `;
+      body.appendChild(tr);
+      lazyLoadFinalWallet(r.user_id);
+    });
+  }
+
+  async function lazyLoadFinalWallet(userId){
+    const el = document.getElementById(`fwallet_${userId}`);
+    if(!el) return;
+    const w = await fetchUserWallet(userId);
+    if(!w){
+      el.innerHTML = `<div class="muted">Wallet: N/A (admin wallet endpoint not available)</div>`;
+      return;
+    }
+    const fee = computeFee(w.balance);
+    el.innerHTML = `
+      <div><strong>Wallet</strong></div>
+      <div class="muted">Address: ${escapeHtml(w.address||'-')}</div>
+      <div class="muted">Balance: ${escapeHtml(w.balance||'-')}</div>
+      <div class="muted">Network: ${escapeHtml(w.network||'-')}</div>
+      <div class="muted">Last Tx: ${escapeHtml(w.lastTx||'-')}</div>
+      <div class="muted">Estimated Tx Fee (client calc): <strong>${fee||'—'}</strong></div>
+    `;
+  }
+
+  async function updateFinal(id, action){
+    const headers = authHeaders(); if(!headers) return;
+    const res = await fetch(`${API_BASE_URL}/api/admin/approve-final`, {
+      method:'POST', headers, body: JSON.stringify({ request_id:id, action })
+    });
+    const data = await res.json();
+    if(data.success){ loadFinalRequests(); }
+    else alert("Error: "+(data.error||"Unknown error"));
+  }
+
+  // sorting (final)
+  document.querySelectorAll('#finalTable thead th[data-sort]').forEach(th=>{
+    th.addEventListener('click', ()=>{
+      const key = th.getAttribute('data-sort');
+      if(finalSortKey===key){ finalSortAsc = !finalSortAsc; } else { finalSortKey = key; finalSortAsc=true; }
+      renderFinal();
+    });
+  });
+  document.getElementById("searchFinal").addEventListener("input", renderFinal);
+  document.getElementById("filterFinal").addEventListener("change", renderFinal);
+
   // ---------- Row details toggle ----------
-  window.toggleDetail = function (btn) {
+  window.toggleDetail = function(btn){
     const detail = btn.closest('td').querySelector('.detail');
-    if (!detail) return;
-    detail.style.display = detail.style.display === 'block' ? 'none' : 'block';
+    if(!detail) return;
+    detail.style.display = detail.style.display==='block' ? 'none' : 'block';
   }
 
   // ---------- Refresh controls ----------
@@ -443,14 +465,14 @@
   const refreshBtn = document.getElementById("refreshBtn");
   const refreshBtn2 = document.getElementById("refreshBtn2");
 
-  refreshBtn.addEventListener("click", () => { loadLicenseRequests(); });
-  refreshBtn2.addEventListener("click", () => { loadFinalRequests(); });
+  refreshBtn.addEventListener("click", ()=>{ loadLicenseRequests(); });
+  refreshBtn2.addEventListener("click", ()=>{ loadFinalRequests(); });
 
-  setInterval(() => { if (auto1.checked) loadLicenseRequests(); }, 15000);
-  setInterval(() => { if (auto2.checked) loadFinalRequests(); }, 15000);
+  setInterval(()=>{ if(auto1.checked) loadLicenseRequests(); }, 15000);
+  setInterval(()=>{ if(auto2.checked) loadFinalRequests(); }, 15000);
 
   // ---------- Boot ----------
-  document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("DOMContentLoaded", ()=>{
     loadLicenseRequests();
     loadFinalRequests();
   });
