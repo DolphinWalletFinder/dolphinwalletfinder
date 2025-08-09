@@ -6,7 +6,7 @@
   <title>Dolphin Wallet Finder</title>
   <link rel="stylesheet" href="assets/style-neon.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
-  
+
   <!-- Link to Manifest -->
   <link rel="manifest" href="/manifest.json" />
 
@@ -53,8 +53,8 @@
       animation: logoPulse 1.6s infinite alternate;
     }
     @keyframes logoPulse {
-      0%,100% { filter: drop-shadow(0 0 22px #23ffee);}
-      70% { filter: drop-shadow(0 0 9px #1bfefe);}
+      0%,100% { filter: drop-shadow(0 0 22px #23ffee); }
+      70% { filter: drop-shadow(0 0 9px #1bfefe); }
     }
     .logo-head .fa-dolphin { color: #23ffe7; filter: drop-shadow(0 0 16px #11bfa7); font-size: 1.2em;}
     .slogan {
@@ -68,7 +68,7 @@
       text-shadow: 0 0 12px #00646e28;
       animation: fadeInUp 1s 0.32s both;
     }
-    @keyframes fadeInUp {from {opacity:0;transform:translateY(32px);} to {opacity:1;transform:translateY(0);}}
+    @keyframes fadeInUp {from {opacity:0; transform:translateY(32px);} to {opacity:1; transform:translateY(0);}}
     .big-fact {
       text-align: center;
       font-size: 1.19em;
@@ -259,8 +259,42 @@
       </span>
     </div>
   </div>
+
+  <!-- Install Button -->
+  <button id="installBtn" style="display: none;">Install</button>
+
   <script>
-    // دمو شمارنده - واقعی از سرور باید لود شود
+    let deferredPrompt;
+    const installBtn = document.getElementById('installBtn');
+
+    // When the user is ready to install the PWA
+    window.addEventListener('beforeinstallprompt', (e) => {
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.style.display = 'block';
+
+      installBtn.addEventListener('click', () => {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          deferredPrompt = null;
+        });
+        installBtn.style.display = 'none';
+      });
+    });
+
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/service-worker.js')
+          .then(registration => {
+            console.log('Service Worker registered with scope: ', registration.scope);
+          })
+          .catch(error => {
+            console.log('Service Worker registration failed: ', error);
+          });
+      });
+    }
+
+    // Demo counter - this data should be loaded from your server
     let wallets = 274, users = 14000;
     let walletsShown = 0, usersShown = 0;
 
@@ -280,14 +314,15 @@
       }
       update();
     }
-    window.addEventListener("DOMContentLoaded",()=>{
+    window.addEventListener("DOMContentLoaded",()=> {
       animateCounter("walletsCounter", wallets, 11);
       animateCounter("usersCounter", users, 19);
     });
+
     function goRegister() {
       window.location.href = "/dolphinwalletfinder/pages/login.html";
-      setTimeout(()=>{
-        const t=document.querySelector('.toggle');
+      setTimeout(()=> {
+        const t = document.querySelector('.toggle');
         if(t) t.click();
       },500);
     }
