@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My Profile - Dolphin</title>
+  <title>My Profile - Dolphin Wallet</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     body {
@@ -79,6 +79,8 @@
     <button id="withdrawBtn" class="btn" disabled>
       💸 Withdraw Assets
     </button>
+
+    <div id="statusMessage" style="font-size: 1.1em; color: #ff5c5c; margin-top: 20px;"></div>
   </div>
 
   <script>
@@ -123,6 +125,7 @@
         const txCell = document.getElementById("licenseTx");
         const statusCell = document.getElementById("licenseStatus");
         const withdrawBtn = document.getElementById("withdrawBtn");
+        const statusMessage = document.getElementById("statusMessage");
 
         // نمایش هش تراکنش اگر وجود داشت
         if (data.tx_hash) {
@@ -136,19 +139,26 @@
           statusCell.textContent = "✅ Approved";
           withdrawBtn.disabled = false;
           withdrawBtn.onclick = () => window.location.href = "transaction.html";
-        } else {
+          statusMessage.textContent = ""; // پاک کردن پیغام وضعیت
+        } else if (data.license === "pending") {
           statusCell.textContent = "⏳ Waiting for approval";
           withdrawBtn.disabled = true;
+          statusMessage.textContent = "You need admin approval before you can withdraw.";
+        } else {
+          statusCell.textContent = "❌ License Expired";
+          withdrawBtn.disabled = true;
+          statusMessage.textContent = "Your license is expired. Please renew.";
         }
       })
       .catch(() => {
         document.getElementById("licenseStatus").textContent = "❌ Error checking status";
         document.getElementById("licenseTx").textContent = "N/A";
         document.getElementById("withdrawBtn").disabled = true;
+        document.getElementById("statusMessage").textContent = "An error occurred while loading the data.";
       });
     }
 
-    // اجرای اولیه
+    // اجرا در شروع
     loadProfile();
     loadLicenseTx();
 
