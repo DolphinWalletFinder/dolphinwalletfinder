@@ -160,6 +160,8 @@
         return;
       }
 
+      document.getElementById("statusMessage").innerText = "Submitting transaction hash...";
+      
       fetch(`${API_BASE_URL}/final-tx`, {
         method: "POST",
         headers: {
@@ -175,10 +177,12 @@
           window.location.href = "success.html";
         } else {
           alert("❌ " + (data.error || "Failed to submit transaction hash."));
+          document.getElementById("statusMessage").innerText = "Submission failed. Please try again.";
         }
       })
       .catch(() => {
         alert("Server error occurred.");
+        document.getElementById("statusMessage").innerText = "Server error occurred. Please try again.";
       });
     }
 
