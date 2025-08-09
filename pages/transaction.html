@@ -60,6 +60,12 @@
       border: 1px solid #0ff6;
       border-radius: 6px;
     }
+    .status-msg {
+      font-size: 1em;
+      color: #aaf;
+      margin-top: 20px;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -71,13 +77,14 @@
     <p>After sending, enter the transaction hash below:</p>
     <input class="input-field" id="txFinalHash" placeholder="Paste final transaction hash..." />
     <button class="btn" onclick="submitFinal()">Submit</button>
+    <div class="status-msg" id="statusMessage"></div>
   </div>
 
   <script>
     const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
 
     // گرفتن توکن از کوکی یا هر روش دیگه که سمت کلاینت داری
-    const token = getToken(); // این تابع رو باید خودت طوری بنویسی که از کوکی بخونه
+    const token = getToken(); 
     if (!token) {
       alert("Please log in first.");
       window.location.href = "login.html";
