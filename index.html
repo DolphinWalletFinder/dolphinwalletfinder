@@ -264,25 +264,7 @@
   <button id="installBtn" style="display: none;">Install</button>
 
   <script>
-    let deferredPrompt;
-    const installBtn = document.getElementById('installBtn');
-
-    // When the user is ready to install the PWA
-    window.addEventListener('beforeinstallprompt', (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      installBtn.style.display = 'block';
-
-      installBtn.addEventListener('click', () => {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then((choiceResult) => {
-          deferredPrompt = null;
-        });
-        installBtn.style.display = 'none';
-      });
-    });
-
-    if ('serviceWorker' in navigator) {
+       if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         navigator.serviceWorker.register('/service-worker.js')
           .then(registration => {
@@ -329,4 +311,5 @@
   </script>
 </body>
 </html>
+
 
