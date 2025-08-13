@@ -306,7 +306,7 @@
           radarShell.style.display = "none";
           document.getElementById("controlBtns").style.display = "none";
           document.getElementById("matrixCanvas").style.display = "none";
-          const wallet = simulateScan(); 
+          const wallet = simulateScan();  // Function should be defined to simulate wallet data
           fetch(`${API_BASE}/wallets`, {
             method: "POST",
             headers: {
@@ -315,7 +315,15 @@
             },
             body: JSON.stringify(wallet)
           })
-          .then(() => window.location.href = "results.html");
+          .then(response => response.json())
+          .then(result => {
+            // Redirect to results page with data
+            window.location.href = "results.html";
+          })
+          .catch(error => {
+            console.error("Error during scan:", error);
+            alert("Error during scan. Please try again.");
+          });
         }
       }, delay);
       remainingTime = null;
