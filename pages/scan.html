@@ -58,6 +58,7 @@
       transform: scale(1.06);
     }
 
+    /* Radar Styles */
     .radar-3d-shell {
       margin: 32px auto 12px auto;
       width: 350px; max-width: 95vw;
@@ -79,8 +80,8 @@
     }
 
     @keyframes spinTilt {
-      0% { transform: rotateX(20deg) rotateZ(0deg);}
-      100% { transform: rotateX(-16deg) rotateZ(360deg);}
+      0% { transform: rotateX(20deg) rotateZ(0deg); }
+      100% { transform: rotateX(-16deg) rotateZ(360deg); }
     }
 
     .radar-layers {
@@ -127,6 +128,7 @@
 
     .radar-3d.paused, .radar-sweep.paused, .radar-layers.paused { animation-play-state: paused; opacity: 0.35; }
 
+    /* Scan Msg & Log */
     .scan-msg {
       margin-top: 19px;
       font-size: 1.15em; font-weight: 500;
@@ -159,6 +161,7 @@
       letter-spacing: 0.02em;
     }
 
+    /* Control Buttons */
     .control-btns {
       position: fixed;
       left: 50%; transform: translateX(-50%);
