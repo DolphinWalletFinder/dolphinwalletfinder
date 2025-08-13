@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     body {
-      background: linear-gradient(135deg, #000046, #1cb5e0);
+      background: radial-gradient(ellipse at center, #000016, #000);
       font-family: 'Orbitron', sans-serif;
       color: #0ff;
       margin: 0;
@@ -17,29 +17,32 @@
 
     .container {
       min-height: 100vh;
-      display: flex; flex-direction: column;
-      justify-content: center; align-items: center;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      position: relative; padding: 20px;
+      position: relative;
+      padding: 20px;
     }
 
     h1 {
-      font-size: 2.5em;
+      font-size: 3em;
       margin-bottom: 20px;
-      color: #00ff99;
-      text-shadow: 0 0 20px #00ff99;
+      color: #fff;
+      text-shadow: 0 0 10px #0ff, 0 0 20px #0ff, 0 0 30px #0ff;
     }
 
     .glass-card {
-      background: rgba(0, 0, 30, 0.4);
-      border-radius: 15px;
+      background: rgba(0, 30, 60, 0.28);
+      border-radius: 25px;
       padding: 30px;
-      max-width: 500px;
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.3);
-      backdrop-filter: blur(15px);
+      max-width: 600px;
+      box-shadow: 0 0 40px rgba(0, 255, 255, 0.5);
+      backdrop-filter: blur(20px);
       position: relative;
       z-index: 2;
-      animation: fadeIn 1.5s ease-in-out;
+      animation: fadeIn 1s ease-in-out;
     }
 
     @keyframes fadeIn {
@@ -48,31 +51,31 @@
     }
 
     .scan-btn {
-      margin-top: 20px;
-      padding: 18px 35px;
-      font-size: 1.3em;
+      margin-top: 25px;
+      padding: 20px 45px;
+      font-size: 1.4em;
       font-weight: bold;
       border: none;
-      border-radius: 25px;
+      border-radius: 30px;
       cursor: pointer;
-      background: radial-gradient(circle, #00ff99, #00b3b3);
-      box-shadow: 0 0 15px rgba(0, 255, 255, 0.5);
+      background: radial-gradient(circle, #0ff, #08f 90%);
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.5);
       transition: all 0.3s ease;
     }
 
     .scan-btn:hover {
       transform: scale(1.1);
-      box-shadow: 0 0 25px rgba(0, 255, 255, 0.8);
+      box-shadow: 0 0 35px rgba(0, 255, 255, 0.7);
     }
 
     .radar-3d-shell {
       margin: 32px auto 12px auto;
-      width: 350px;
-      height: 350px;
+      width: 400px;
+      height: 400px;
       display: none;
       z-index: 5;
       position: relative;
-      perspective: 700px;
+      perspective: 1000px;
     }
 
     .radar-3d {
@@ -83,17 +86,17 @@
       top: 0;
       border-radius: 50%;
       overflow: hidden;
-      background: radial-gradient(circle, rgba(0, 255, 255, 0.07) 0%, transparent 73%);
-      box-shadow: 0 0 80px 7px #0ff2, inset 0 0 30px #0ff1;
-      animation: spinTilt 7s infinite linear alternate;
+      background: radial-gradient(circle, rgba(0, 255, 255, 0.07) 0%, transparent 75%);
+      box-shadow: 0 0 90px 10px rgba(0, 255, 255, 0.5), inset 0 0 40px rgba(0, 255, 255, 0.4);
+      animation: spinTilt 6s infinite linear alternate;
       transform-style: preserve-3d;
       z-index: 6;
-      transition: opacity .3s;
+      transition: opacity 0.3s;
     }
 
     @keyframes spinTilt {
       0% { transform: rotateX(20deg) rotateZ(0deg); }
-      100% { transform: rotateX(-16deg) rotateZ(360deg); }
+      100% { transform: rotateX(-20deg) rotateZ(360deg); }
     }
 
     .radar-layers {
@@ -114,18 +117,18 @@
       left: 50%;
       top: 50%;
       transform: translate(-50%, -50%);
-      border: 2px solid #0ff2;
-      opacity: .19;
+      border: 2px solid #0ff;
+      opacity: 0.15;
       animation: layerPulse 2.4s infinite;
     }
 
-    .radar-layer.layer1 { width: 100%; height: 100%; border-width: 2.5px; animation-delay: 0s; }
-    .radar-layer.layer2 { width: 77%; height: 77%; border-width: 2px; animation-delay: 1s; }
-    .radar-layer.layer3 { width: 54%; height: 54%; border-width: 1.5px; animation-delay: 2s; }
+    .radar-layer.layer1 { width: 100%; height: 100%; border-width: 3px; animation-delay: 0s; }
+    .radar-layer.layer2 { width: 75%; height: 75%; border-width: 2px; animation-delay: 1s; }
+    .radar-layer.layer3 { width: 50%; height: 50%; border-width: 1.5px; animation-delay: 2s; }
 
     @keyframes layerPulse {
-      0%, 100% { opacity: .21; }
-      50% { opacity: .5; }
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.5; }
     }
 
     .radar-sweep {
@@ -135,8 +138,8 @@
       left: 0;
       top: 0;
       border-radius: 50%;
-      background: conic-gradient(from 0deg, #0ff7 0deg 50deg, #0ff1 70deg 80deg, #0000 100deg 360deg);
-      animation: rotateRadar 2.4s linear infinite;
+      background: conic-gradient(from 0deg, #0ff 0deg 50deg, #00f 70deg 80deg, transparent 100deg);
+      animation: rotateRadar 2s linear infinite;
       z-index: 9;
       opacity: 0.7;
       mix-blend-mode: lighten;
@@ -148,22 +151,21 @@
     }
 
     .scan-log {
-      margin-top: 16px;
-      font-size: 1em;
-      color: #aaf;
-      background: rgba(0, 8, 32, 0.36);
-      border-radius: 12px;
-      max-width: 340px;
-      min-height: 38px;
-      display: inline-block;
-      padding: 8px 20px 8px 20px;
+      margin-top: 20px;
+      font-size: 1.1em;
+      color: #aaffff;
+      background: rgba(0, 0, 30, 0.36);
+      border-radius: 15px;
+      max-width: 400px;
+      min-height: 40px;
+      padding: 12px;
       font-family: 'Fira Mono', monospace;
-      box-shadow: 0 0 6px #0ff3;
+      box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
       line-height: 1.7;
       white-space: pre-line;
       text-align: left;
+      display: none;
       z-index: 100;
-      letter-spacing: 0.02em;
     }
 
     .control-btns {
@@ -176,31 +178,27 @@
       align-items: center;
       z-index: 120;
       width: 100vw;
-      pointer-events: none;
     }
 
     .control-btn {
       pointer-events: auto;
       width: 90vw;
       max-width: 340px;
-      padding: 22px 0;
+      padding: 20px 0;
       background: #0ff;
       color: #000;
       border: none;
-      border-radius: 15px;
+      border-radius: 20px;
       cursor: pointer;
-      font-size: 1.2em;
+      font-size: 1.3em;
       font-weight: bold;
-      margin: 0 auto 0 auto;
-      box-shadow: 0 0 20px #0ffb;
-      letter-spacing: 0.03em;
-      display: block;
-      margin-bottom: 8px;
-      transition: background .2s;
+      margin: 0 auto;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.7);
+      transition: background 0.3s ease;
     }
 
     .control-btn:active {
-      filter: brightness(0.97);
+      filter: brightness(0.9);
     }
 
     canvas {
@@ -210,31 +208,13 @@
       width: 100vw;
       height: 100vh;
       z-index: 1;
-      filter: blur(1.2px) brightness(1.06);
       display: none;
+      opacity: 0.8;
+      filter: blur(1px);
       pointer-events: none;
-      opacity: 0.89;
       mix-blend-mode: lighten;
     }
 
-    @media (max-width: 650px) {
-      .glass-card {
-        padding: 12px 2vw;
-      }
-      .radar-3d-shell {
-        width: 96vw;
-        height: 96vw;
-        min-width: 140px;
-        min-height: 140px;
-      }
-      .control-btns {
-        bottom: 11vw;
-      }
-      .control-btn {
-        font-size: 1.02em;
-        padding: 14px 0;
-      }
-    }
   </style>
 </head>
 <body>
@@ -242,7 +222,7 @@
   <div class="container" id="mainUI">
     <div class="glass-card">
       <h1>Welcome, <span id="username">User</span> 👋</h1>
-      <div class="scan-msg" id="scanMotivate">Scouring the depths of blockchain for lost treasures. <br><b>Are you ready to join the hunt?</b></div>
+      <div class="scan-msg" id="scanMotivate">Searching for lost wallets in the blockchain...</div>
       <button class="scan-btn" onclick="startScan()" id="scanBtn">🔎 Start Scan</button>
     </div>
   </div>
@@ -259,10 +239,10 @@
   </div>
 
   <div id="scanLog" class="scan-log" style="display:none"></div>
+
   <div class="control-btns" id="controlBtns">
     <button class="control-btn" onclick="pauseScan()" id="pauseBtn">⏸ Pause</button>
     <button class="control-btn" onclick="resumeScan()" id="resumeBtn" style="display: none;">▶ Resume</button>
-    <div id="pauseMsg"></div>
   </div>
 
   <script>
@@ -275,7 +255,7 @@
         document.getElementById("username").textContent = data.username || "User";
       });
 
-    let scanTimeout, paused = false, scanning = false, matrixInterval;
+    let scanTimeout, paused = false, scanning = false;
     let remainingTime = null, startTimestamp = null, delay = null;
     let radarBlipInterval;
     let currentLogIndex = 0;
@@ -369,6 +349,7 @@
       showScanLog();
       startScan();
     }
+
   </script>
   <script src="../assets/wallets.js"></script>
 </body>
