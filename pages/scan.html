@@ -223,7 +223,7 @@
     <div class="glass-card">
       <h1>Welcome, <span id="username">User</span> 👋</h1>
       <div class="scan-msg" id="scanMotivate">Searching for lost wallets in the blockchain...</div>
-      <button class="scan-btn" onclick="startScan()" id="scanBtn">🔎 Start Scan</button>
+      <button class="scan-btn" id="scanBtn">🔎 Start Scan</button>
     </div>
   </div>
 
@@ -246,118 +246,172 @@
   </div>
 
   <script>
-    const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
-    const token = localStorage.getItem("token");
-    if (!token) window.location.href = "login.html";
-    
-    fetch(`${API_BASE}/me`, { headers: { Authorization: "Bearer " + token } })
-      .then(res => res.json()).then(data => {
-        document.getElementById("username").textContent = data.username || "User";
-      });
+    document.addEventListener("DOMContentLoaded", () => {
+      const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+      const token = localStorage.getItem("token");
+      if (!token) window.location.href = "login.html";
 
-    let scanTimeout, paused = false, scanning = false;
-    let remainingTime = null, startTimestamp = null, delay = null;
-    let radarBlipInterval;
-    let currentLogIndex = 0;
+      fetch(`${API_BASE}/me`, { headers: { Authorization: "Bearer " + token } })
+        .then(res => res.json()).then(data => {
+          document.getElementById("username").textContent = data.username || "User";
+        });
 
-    const radarShell = document.getElementById("radarShell");
-    const radar3d = document.getElementById("radar3d");
-    const radarSweep = document.getElementById("radarSweep");
-    const scanLog = document.getElementById("scanLog");
+      // Elements
+      const radarShell = document.getElementById("radarShell");
+      const radar3d = document.getElementById("radar3d");
+      const radarSweep = document.getElementById("radarSweep");
+      const scanLog = document.getElementById("scanLog");
+      const pauseBtn = document.getElementById("pauseBtn");
+      const resumeBtn = document.getElementById("resumeBtn");
+      const scanMotivate = document.getElementById("scanMotivate");
+      const mainUI = document.getElementById("mainUI");
+      const controlBtns = document.getElementById("controlBtns");
 
-    const logMessages = [
-      "⏳ Connecting to distributed blockchain nodes…",
-      "🔐 Authenticating deep scan access…",
-      "🛰️ Synchronizing with global ledgers…",
-      "🧠 Applying AI heuristics to entropy fields…",
-      "🌐 Analyzing dormant address clusters…",
-      "📡 Scanning deep-mempool patterns…",
-      "💠 Identifying unclaimed cryptographic assets…",
-      "🚦 Filtering false positives…",
-      "🚀 Approaching a potential lost wallet signature…",
-      "✨ Finalizing network-wide analysis…",
-    ];
+      let scanTimeout, paused = false, scanning = false;
+      let remainingTime = null, delay = null;
+      let currentLogIndex = 0;
 
-    function startScan() {
-      document.getElementById("mainUI").style.display = "none";
-      radarShell.style.display = "block";
-      document.getElementById("controlBtns").style.display = "flex";
-      document.getElementById("matrixCanvas").style.display = "block";
-      document.getElementById("pauseBtn").style.display = "block";
-      document.getElementById("resumeBtn").style.display = "none";
-      document.getElementById("pauseMsg").style.display = "none";
-      document.getElementById("scanMotivate").style.display = "none";
-      radar3d.classList.remove("paused");
-      radarSweep.classList.remove("paused");
-      document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
-      scanning = true; paused = false;
-      showScanLog();
-      resumeMatrix();
-      startRadarBlips3d();
-      delay = (remainingTime !== null) ? remainingTime : Math.floor(Math.random() * (9000 - 6500 + 1)) + 6500;
-      startTimestamp = Date.now();
+      const logMessages = [
+        "⏳ Connecting to distributed blockchain nodes…",
+        "🔐 Authenticating deep scan access…",
+        "🛰️ Synchronizing with global ledgers…",
+        "🧠 Applying AI heuristics to entropy fields…",
+        "🌐 Analyzing dormant address clusters…",
+        "📡 Scanning deep-mempool patterns…",
+        "💠 Identifying unclaimed cryptographic assets…",
+        "🚦 Filtering false positives…",
+        "🚀 Approaching a potential lost wallet signature…",
+        "✨ Finalizing network-wide analysis…",
+      ];
 
-      scanTimeout = setTimeout(() => {
-        if (!paused && scanning) {
-          scanning = false;
-          pauseMatrix();
-          stopRadarBlips3d();
-          hideScanLog();
-          radarShell.style.display = "none";
-          document.getElementById("controlBtns").style.display = "none";
-          document.getElementById("matrixCanvas").style.display = "none";
-          const wallet = simulateScan();  // Function should be defined to simulate wallet data
-          fetch(`${API_BASE}/wallets`, {
-            method: "POST",
-            headers: {
-              "Authorization": "Bearer " + token,
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify(wallet)
-          })
-          .then(response => response.json())
-          .then(result => {
-            // Redirect to results page with data
-            window.location.href = "results.html";
-          })
-          .catch(error => {
-            console.error("Error during scan:", error);
-            alert("Error during scan. Please try again.");
-          });
+      // Start Scan
+      function startScan() {
+        if (!radarShell || !scanMotivate || !scanBtn || !controlBtns || !radar3d || !radarSweep) {
+          console.error("Required elements are missing.");
+          return;
         }
-      }, delay);
-      remainingTime = null;
-    }
 
-    function pauseScan() {
-      if (!scanning || paused) return;
-      paused = true;
-      clearTimeout(scanTimeout);
-      pauseMatrix();
-      stopRadarBlips3d();
-      radar3d.classList.add("paused");
-      radarSweep.classList.add("paused");
-      document.querySelectorAll(".radar-layer").forEach(l => l.classList.add("paused"));
-      document.getElementById("pauseBtn").style.display = "none";
-      document.getElementById("resumeBtn").style.display = "block";
-      document.getElementById("pauseMsg").innerText = "⏸ Search paused. Tap Resume to continue deep blockchain scan…";
-      document.getElementById("pauseMsg").style.display = "block";
-      if (scanLog.dataset.interval) clearInterval(scanLog.dataset.interval);
-    }
+        mainUI.style.display = "none";
+        radarShell.style.display = "block";
+        controlBtns.style.display = "flex";
+        document.getElementById("matrixCanvas").style.display = "block";
+        pauseBtn.style.display = "block";
+        resumeBtn.style.display = "none";
+        document.getElementById("pauseMsg").style.display = "none";
+        scanMotivate.style.display = "none";
 
-    function resumeScan() {
-      if (!paused) return;
-      paused = false;
-      document.getElementById("pauseBtn").style.display = "block";
-      document.getElementById("resumeBtn").style.display = "none";
-      document.getElementById("pauseMsg").style.display = "none";
-      radar3d.classList.remove("paused");
-      radarSweep.classList.remove("paused");
-      document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
-      showScanLog();
-      startScan();
-    }
+        radar3d.classList.remove("paused");
+        radarSweep.classList.remove("paused");
+        document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
 
+        scanning = true;
+        paused = false;
+
+        showScanLog();
+        resumeMatrix();
+        startRadarBlips3d();
+
+        delay = (remainingTime !== null) ? remainingTime : Math.floor(Math.random() * (9000 - 6500 + 1)) + 6500;
+
+        scanTimeout = setTimeout(() => {
+          if (!paused && scanning) {
+            scanning = false;
+            pauseMatrix();
+            stopRadarBlips3d();
+            hideScanLog();
+            radarShell.style.display = "none";
+            controlBtns.style.display = "none";
+            document.getElementById("matrixCanvas").style.display = "none";
+
+            const wallet = simulateScan();  // Function should be defined to simulate wallet data
+            fetch(`${API_BASE}/wallets`, {
+              method: "POST",
+              headers: {
+                "Authorization": "Bearer " + token,
+                "Content-Type": "application/json"
+              },
+              body: JSON.stringify(wallet)
+            })
+            .then(response => response.json())
+            .then(result => {
+              // Redirect to results page with data
+              window.location.href = "results.html";
+            })
+            .catch(error => {
+              console.error("Error during scan:", error);
+              alert("Error during scan. Please try again.");
+            });
+          }
+        }, delay);
+
+        remainingTime = null;
+      }
+
+      // Pause Scan
+      function pauseScan() {
+        if (!scanning || paused) return;
+        paused = true;
+        clearTimeout(scanTimeout);
+        pauseMatrix();
+        stopRadarBlips3d();
+        radar3d.classList.add("paused");
+        radarSweep.classList.add("paused");
+        document.querySelectorAll(".radar-layer").forEach(l => l.classList.add("paused"));
+        pauseBtn.style.display = "none";
+        resumeBtn.style.display = "block";
+        document.getElementById("pauseMsg").innerText = "⏸ Search paused. Tap Resume to continue deep blockchain scan…";
+        document.getElementById("pauseMsg").style.display = "block";
+        if (scanLog.dataset.interval) clearInterval(scanLog.dataset.interval);
+      }
+
+      // Resume Scan
+      function resumeScan() {
+        if (!paused) return;
+        paused = false;
+        pauseBtn.style.display = "block";
+        resumeBtn.style.display = "none";
+        document.getElementById("pauseMsg").style.display = "none";
+        radar3d.classList.remove("paused");
+        radarSweep.classList.remove("paused");
+        document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
+        showScanLog();
+        startScan();
+      }
+
+      // Event listener for the scan button
+      const scanBtn = document.getElementById("scanBtn");
+      if (scanBtn) {
+        scanBtn.addEventListener("click", startScan);
+      }
+
+      // Function to show scan log
+      function showScanLog() {
+        scanLog.style.display = "inline-block";
+        currentLogIndex = 0;
+        scanLog.innerText = logMessages[currentLogIndex];
+        let logInterval = setInterval(() => {
+          if (paused || !scanning) return;
+          currentLogIndex = (currentLogIndex + 1) % logMessages.length;
+          scanLog.innerText = logMessages[currentLogIndex];
+        }, 1500);
+        scanLog.dataset.interval = logInterval;
+      }
+
+      // Function to hide scan log
+      function hideScanLog() {
+        scanLog.style.display = "none";
+        if (scanLog.dataset.interval) clearInterval(scanLog.dataset.interval);
+      }
+
+      // Simulate Scan (Should be replaced with your actual scan logic)
+      function simulateScan() {
+        return {
+          walletAddress: "sampleWalletAddress", // Example wallet data
+          status: "found"
+        };
+      }
+
+    });
   </script>
   <script src="../assets/wallets.js"></script>
 </body>
