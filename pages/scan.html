@@ -30,6 +30,7 @@
     h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
+      text-align: center;
       color: #0ff;
       text-shadow: 0 0 15px #0ff;
     }
@@ -388,11 +389,11 @@
     let scanTimeout, paused = false, scanning = false, matrixInterval;
     let remainingTime = null, startTimestamp = null, delay = null;
     let radarBlipInterval;
-    let currentLogIndex = 0;
 
     const radarShell = document.getElementById("radarShell");
     const radar3d = document.getElementById("radar3d");
     const radarSweep = document.getElementById("radarSweep");
+
 
     function showRadarBlip3d() {
       const blip = document.createElement("div");
@@ -412,7 +413,7 @@
       radarBlipInterval = setInterval(showRadarBlip3d, 450);
     }
     function stopRadarBlips3d() { clearInterval(radarBlipInterval); }
-    
+
     function startScan() {
       document.getElementById("mainUI").style.display = "none";
       radarShell.style.display = "block";
@@ -437,6 +438,7 @@
           scanning = false;
           pauseMatrix();
           stopRadarBlips3d();
+          hideScanLog();
           radarShell.style.display = "none";
           document.getElementById("controlBtns").style.display = "none";
           document.getElementById("matrixCanvas").style.display = "none";
