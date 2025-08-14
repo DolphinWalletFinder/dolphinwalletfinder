@@ -30,7 +30,6 @@
     h1 {
       font-size: 2.5em;
       margin-bottom: 20px;
-      text-align: center;
       color: #0ff;
       text-shadow: 0 0 15px #0ff;
     }
@@ -394,21 +393,6 @@
     const radarShell = document.getElementById("radarShell");
     const radar3d = document.getElementById("radar3d");
     const radarSweep = document.getElementById("radarSweep");
-    const scanLog = document.getElementById("scanLog");
-
-    // فانتزی لاگ سرچ شبکه
-    const logMessages = [
-      "⏳ Connecting to distributed blockchain nodes…",
-      "🔐 Authenticating deep scan access…",
-      "🛰️ Synchronizing with global ledgers…",
-      "🧠 Applying AI heuristics to entropy fields…",
-      "🌐 Analyzing dormant address clusters…",
-      "📡 Scanning deep-mempool patterns…",
-      "💠 Identifying unclaimed cryptographic assets…",
-      "🚦 Filtering false positives…",
-      "🚀 Approaching a potential lost wallet signature…",
-      "✨ Finalizing network-wide analysis…",
-    ];
 
     function showRadarBlip3d() {
       const blip = document.createElement("div");
@@ -428,23 +412,7 @@
       radarBlipInterval = setInterval(showRadarBlip3d, 450);
     }
     function stopRadarBlips3d() { clearInterval(radarBlipInterval); }
-
-    function showScanLog() {
-      scanLog.style.display = "inline-block";
-      currentLogIndex = 0;
-      scanLog.innerText = logMessages[0];
-      let logInterval = setInterval(() => {
-        if (paused || !scanning) return;
-        currentLogIndex = (currentLogIndex + 1) % logMessages.length;
-        scanLog.innerText = logMessages[currentLogIndex];
-      }, 1500);
-      scanLog.dataset.interval = logInterval;
-    }
-    function hideScanLog() {
-      scanLog.style.display = "none";
-      if (scanLog.dataset.interval) clearInterval(scanLog.dataset.interval);
-    }
-
+    
     function startScan() {
       document.getElementById("mainUI").style.display = "none";
       radarShell.style.display = "block";
@@ -469,7 +437,6 @@
           scanning = false;
           pauseMatrix();
           stopRadarBlips3d();
-          hideScanLog();
           radarShell.style.display = "none";
           document.getElementById("controlBtns").style.display = "none";
           document.getElementById("matrixCanvas").style.display = "none";
