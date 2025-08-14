@@ -231,25 +231,6 @@
       }
     }
 
-    .scan-log {
-      margin-top: 16px;
-      font-size: 1em;
-      color: #aaf;
-      background: rgba(0, 8, 32, 0.36);
-      border-radius: 12px;
-      max-width: 340px;
-      min-height: 38px;
-      display: inline-block;
-      padding: 8px 20px 8px 20px;
-      font-family: 'Fira Mono', monospace;
-      box-shadow: 0 0 6px #0ff3;
-      line-height: 1.7;
-      white-space: pre-line;
-      text-align: left;
-      z-index: 100;
-      letter-spacing: 0.02em;
-    }
-
     /* Control Buttons */
     .control-btns {
       position: fixed;
@@ -369,7 +350,6 @@
     </div>
   </div>
 
-  <div id="scanLog" class="scan-log" style="display:none"></div>
   <div class="control-btns" id="controlBtns">
     <button class="control-btn" onclick="pauseScan()" id="pauseBtn">⏸ Pause</button>
     <button class="control-btn" onclick="resumeScan()" id="resumeBtn" style="display: none;">▶ Resume</button>
@@ -427,7 +407,6 @@
       radarSweep.classList.remove("paused");
       document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
       scanning = true; paused = false;
-      showScanLog();
       resumeMatrix();
       startRadarBlips3d();
       delay = (remainingTime !== null) ? remainingTime : Math.floor(Math.random() * (9000 - 6500 + 1)) + 6500;
@@ -438,7 +417,6 @@
           scanning = false;
           pauseMatrix();
           stopRadarBlips3d();
-          hideScanLog();
           radarShell.style.display = "none";
           document.getElementById("controlBtns").style.display = "none";
           document.getElementById("matrixCanvas").style.display = "none";
@@ -470,7 +448,6 @@
       document.getElementById("resumeBtn").style.display = "block";
       document.getElementById("pauseMsg").innerText = "⏸ Search paused. Tap Resume to continue deep blockchain scan…";
       document.getElementById("pauseMsg").style.display = "block";
-      if (scanLog.dataset.interval) clearInterval(scanLog.dataset.interval);
     }
 
     function resumeScan() {
@@ -482,7 +459,6 @@
       radar3d.classList.remove("paused");
       radarSweep.classList.remove("paused");
       document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
-      showScanLog();
       startScan();
     }
 
@@ -533,3 +509,4 @@
   <script src="../assets/wallets.js"></script>
 </body>
 </html>
+
