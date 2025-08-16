@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
-  <title>DOLPHIN WALLET FINDER </title>
+  <title>DOLPHIN WALLET FINDER — Royal Cyber</title>
   <style>
     :root {
       /* Deep luxury palette (no brown) */
@@ -190,34 +190,7 @@
       background: repeating-linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.03) 1px, transparent 2px, transparent 4px);
       opacity: .07;
     }
-    
-.stage {
-  position: relative; /* ensure absolute children are relative to .stage */
-}
 
-/* sizes */
-.radar-large { width: 100%; height: 100%; }
-.radar-small { 
-  position: absolute; 
-  width: 140px; height: 140px; 
-  border-radius: 50%; 
-  pointer-events: none; 
-}
-
-/* five corners around central */
-#radar-btc  { top:  8%;  left: 50%; transform: translate(-50%, -50%); }
-#radar-eth  { top: 30%;  left: 92%; transform: translate(-50%, -50%); }
-#radar-bnb  { top: 68%;  left: 92%; transform: translate(-50%, -50%); }
-#radar-sol  { top: 92%;  left: 50%; transform: translate(-50%, -50%); }
-#radar-trx  { top: 68%;  left:  8%; transform: translate(-50%, -50%); }
-
-/* optional glow on selected chain */
-.chain.btc  { color: var(--gold);   }
-.chain.eth  { color: var(--crystal); }
-.chain.bnb  { color: var(--orange); }
-.chain.sol  { color: var(--aqua);   }
-.chain.trx  { color: var(--neon);   }
-    
     /* HUD bottom */
     .hud {
       position: absolute;
@@ -339,12 +312,7 @@
   <section class="wrap">
     <div class="stage" id="stage">
       <canvas id="matrix"></canvas>
-      <canvas id="radar-central" class="radar-large"></canvas>
-<canvas id="radar-btc" class="radar-small"></canvas>
-<canvas id="radar-eth" class="radar-small"></canvas>
-<canvas id="radar-bnb" class="radar-small"></canvas>
-<canvas id="radar-sol" class="radar-small"></canvas>
-<canvas id="radar-trx" class="radar-small"></canvas>
+      <canvas id="radar"></canvas>
       <div class="hud">
         <canvas class="scope" id="scope"></canvas>
         <div class="progress"><div class="bar" id="pbar"></div></div>
@@ -434,7 +402,6 @@
       setInterval(() => running && updateOverview(), 3500);
       updateOverview();
 
-      /* --- اینجا حل شده: بستن بلوک else و setInterval --- */
       setInterval(() => {
         if (!running) return;
 
@@ -508,7 +475,6 @@
           }, 1100);
         }
       }, 2000);
-      /* --- پایان اصلاح setInterval دوم --- */
 
       /* HUD scope + progress */
       const scope=document.getElementById("scope"); let scPhase=0;
@@ -568,110 +534,193 @@
         }
       }
 
-     // 1. Collect all six radars
-  const radarIds = [
-    { id: 'radar-central', scale: 1   },  // full-size
-    { id: 'radar-btc',     scale: 0.25 },
-    { id: 'radar-eth',     scale: 0.25 },
-    { id: 'radar-bnb',     scale: 0.25 },
-    { id: 'radar-sol',     scale: 0.25 },
-    { id: 'radar-trx',     scale: 0.25 }
-  ];
+      /* Radar */
+      const cvR=document.getElementById('radar'), rctx=cvR.getContext('2d');
+      let sweepA=0, animT=0, lockFade=0, lockX=0, lockY=0;
+      const SWEEP_W=Math.PI/5.0;
+      const stars=Array.from({length:isMobile?6:12},()=>({x:(Math.random()*2-1)*0.84,y:(Math.random()*2-1)*0.84,f:Math.random()*6.28}));
+      const blips=[]; let R=0,cx=0,cy=0;
 
-  // Each instance carries its own sweepA, animT, lock info, stars & blips
-  const radars = radarIds.map(cfg => {
-    const cvs = document.getElementById(cfg.id);
-    const ctx = cvs.getContext('2d');
-    return Object.assign(cfg, {
-      cvs, ctx,
-      sweepA: 0,
-      animT: 0,
-      lockFade: 0,
-      lockX: 0,
-      lockY: 0,
-      stars: Array.from({length: isMobile?6:12},()=>({
-        x:(Math.random()*2-1)*0.84,
-        y:(Math.random()*2-1)*0.84,
-        f:Math.random()*Math.PI*2
-      })),
-      blips: []
-    });
-  });
+      function resizeRadar(){
+        fitCanvas(stage,cvR);
+        const w=stage.clientWidth, h=stage.clientHeight;
+        cx = w/2; cy = h/2;
+        R = Math.min(w,h)/2.02;
+      }
+      function addBlip(nx,ny){ blips.push({x:nx,y:ny,life:1}); if(blips.length>(isMobile?26:48)) blips.shift(); }
+      function spawnNearSweep(a){
+        const r = 0.25 + Math.random()*0.65;
+        const j = (Math.random()-0.5)*0.18;
+        addBlip(Math.cos(a+j)*r, Math.sin(a+j)*r);
+        lockX = Math.cos(a)*0.5;
+        lockY = Math.sin(a)*0.5;
+        lockFade = 1;
+      }
 
-  // 2. Resize all radars on window resize
-  function resizeAll(){
-    radars.forEach(r => {
-      // for small radars we keep their CSS size (140×140)
-      // fitCanvas will match canvas pixel size to its CSS
-      fitCanvas(stage, r.cvs);
-      const { w, h } = r.cvs.getBoundingClientRect();
-      r.cx = w/2; 
-      r.cy = h/2;
-      r.R  = Math.min(w, h)/2.02 * r.scale;
-    });
-  }
+      function drawRadar(dt){
+        const w=stage.clientWidth, h=stage.clientHeight;
+        rctx.clearRect(0,0,cvR.width,cvR.height);
+        rctx.save(); rctx.translate(cx,cy);
 
-  window.addEventListener('resize', resizeAll);
-  resizeAll();
+        // dish shadow
+        const dish=rctx.createRadialGradient(-R*0.12,-R*0.16,R*0.1,0,0,R*1.06);
+        dish.addColorStop(0,"rgba(0,0,0,.28)");
+        dish.addColorStop(1,css("--dish"));
+        rctx.fillStyle=dish;
+        rctx.beginPath(); rctx.arc(0,0,R*1.05,0,Math.PI*2); rctx.fill();
 
-  // 3. One draw loop for everything
-  let last = performance.now();
-  function loop(){
-    const now = performance.now();
-    const dt  = (now - last)/1000;
-    last = now;
+        // depth rings
+        rctx.strokeStyle=css("--depth-ring"); rctx.lineWidth=14;
+        for(let i=1;i<=3;i++){ rctx.beginPath(); rctx.arc(0,0,R*(0.25*i),0,Math.PI*2); rctx.stroke(); }
 
-    stepMatrix();       // unchanged
-    drawScope(dt);      // unchanged
-    stepProgress(dt);   // unchanged
-    stepCounter(dt);    // unchanged
+        // heat sectors
+        const segs=4;
+        for(let s=0;s<segs;s++){
+          const a0=(s*2+0.6)*Math.PI/segs,
+                a1=a0+Math.PI/10,
+                grd=rctx.createLinearGradient(
+                  Math.cos(a0)*R*0.5, Math.sin(a0)*R*0.5,
+                  Math.cos(a1)*R*0.8, Math.sin(a1)*R*0.8
+                );
+          grd.addColorStop(0,css("--heatA"));
+          grd.addColorStop(1,css("--heatB"));
+          rctx.fillStyle=grd;
+          rctx.beginPath();
+          rctx.moveTo(0,0);
+          rctx.arc(0,0,R*0.92,a0,a1);
+          rctx.closePath();
+          rctx.fill();
+        }
 
-    // draw each radar
-    radars.forEach(r => drawRadar(dt, r));
+        // grid
+        rctx.lineWidth=1; rctx.strokeStyle=css("--grid1");
+        for(let i=1;i<=6;i++){ rctx.beginPath(); rctx.arc(0,0,R*i/6,0,Math.PI*2); rctx.stroke(); }
+        rctx.strokeStyle=css("--grid2");
+        for(let i=0;i<24;i++){
+          const a=i*(Math.PI/12);
+          rctx.beginPath();
+          rctx.moveTo(0,0);
+          rctx.lineTo(Math.cos(a)*R,Math.sin(a)*R);
+          rctx.stroke();
+        }
 
-    requestAnimationFrame(loop);
-  }
-  loop();
+        // sweeps
+        rctx.globalCompositeOperation="lighter";
+        const a0=sweepA, a1=sweepA+SWEEP_W, a2=a0+SWEEP_W*0.45;
+        let g1=rctx.createRadialGradient(0,0,0,0,0,R);
+        g1.addColorStop(0,css("--sweep1"));
+        g1.addColorStop(1,"rgba(0,0,0,0)");
+        rctx.fillStyle=g1;
+        rctx.beginPath(); rctx.moveTo(0,0); rctx.arc(0,0,R,a0,a1); rctx.closePath(); rctx.fill();
+        let g2=rctx.createRadialGradient(0,0,0,0,0,R);
+        g2.addColorStop(0,css("--sweep2"));
+        g2.addColorStop(1,"rgba(0,0,0,0)");
+        rctx.fillStyle=g2;
+        rctx.beginPath(); rctx.moveTo(0,0); rctx.arc(0,0,R,a2,a2+SWEEP_W*0.9); rctx.closePath(); rctx.fill();
 
-  // 4. Modified drawRadar to accept an instance
-  function drawRadar(dt, r){
-    const { ctx, cvs, R, cx, cy, sweepA, animT, stars, blips } = r;
-    // clear & translate just like your existing function, but use r.R, r.cx, r.cy
-    ctx.clearRect(0,0,cvs.width, cvs.height);
-    ctx.save();
-    ctx.translate(cx, cy);
+        // tip flare
+        const tipX=Math.cos(a1)*R, tipY=Math.sin(a1)*R;
+        const flare=rctx.createRadialGradient(tipX,tipY,0,tipX,tipY,R*0.18);
+        flare.addColorStop(0,css("--tip"));
+        flare.addColorStop(1,"rgba(245,252,255,0)");
+        rctx.fillStyle=flare;
+        rctx.beginPath(); rctx.arc(tipX,tipY,R*0.18,0,Math.PI*2); rctx.fill();
 
-    // … all your existing dish, rings, heat sectors, grid, sweeps, blips, lock rings, rim …
-    // just swap references of R→r.R, animT→r.animT, sweepA→r.sweepA, etc.
+        // stars
+        rctx.fillStyle="rgba(180,230,255,1)";
+        for(const s of stars){
+          const f=Math.sin(s.f+animT*0.85)*(isMobile?0.35:0.6)+0.6;
+          rctx.globalAlpha=0.22+0.30*f;
+          rctx.beginPath();
+          rctx.arc(s.x*R,s.y*R,2,0,Math.PI*2);
+          rctx.fill();
+        }
+        rctx.globalAlpha=1;
 
-    // advance state
-    if (running){
-      r.sweepA += dt * 0.9;
-      r.animT  += dt;
-      // fade out any lock rings
-      if (r.lockFade > 0) r.lockFade = Math.max(0, r.lockFade - dt*0.8);
-      blips.forEach(b=> b.life = Math.max(0,b.life - dt*0.52));
-      for(let i=blips.length-1; i>=0; i--) if(blips[i].life<=0) blips.splice(i,1);
-    }
+        // blips
+        for(const b of Array.from(blips)){
+          const x=b.x*R, y=b.y*R;
+          rctx.fillStyle=css("--blip-core");
+          rctx.beginPath(); rctx.arc(x,y,2.4,0,Math.PI*2); rctx.fill();
+          const aura=rctx.createRadialGradient(x,y,0,x,y,18);
+          aura.addColorStop(0,css("--blip-aura"));
+          aura.addColorStop(1,"rgba(0,0,0,0)");
+          rctx.fillStyle=aura;
+          rctx.beginPath(); rctx.arc(x,y,18,0,Math.PI*2); rctx.fill();
+          const a = Math.atan2(y,x);
+          const da = Math.abs(Math.atan2(Math.sin(a-(a1)), Math.cos(a-(a1))));
+          const beam = Math.max(0,1-da/0.16)*b.life*0.36;
+          if(beam>0){
+            rctx.globalAlpha=beam;
+            rctx.strokeStyle="rgba(0,245,212,.92)";
+            rctx.lineWidth=1.6;
+            rctx.beginPath();
+            rctx.moveTo(0,0);
+            rctx.lineTo(x,y);
+            rctx.stroke();
+            rctx.globalAlpha=1;
+          }
+          if(running) b.life = Math.max(0,b.life - dt*0.52);
+        }
+        for(let i=blips.length-1;i>=0;i--) if(blips[i].life<=0) blips.splice(i,1);
 
-    ctx.restore();
-  }
+        // lock rings
+        if (lockFade > 0) {
+          const lx = lockX*R, ly = lockY*R;
+          rctx.globalAlpha = Math.min(0.9, lockFade);
+          rctx.strokeStyle = "rgba(224,193,90,.88)";
+          rctx.lineWidth = 2;
+          rctx.beginPath();
+          rctx.arc(lx,ly,16 + (1-lockFade)*24,0,Math.PI*2);
+          rctx.stroke();
+          rctx.beginPath();
+          rctx.arc(lx,ly,28 + (1-lockFade)*28,0,Math.PI*2);
+          rctx.stroke();
+          rctx.globalAlpha = 1;
+          if (running) lockFade = Math.max(0, lockFade - dt*0.8);
+        }
 
-  // 5. When you spawn a blip for the big radar, you might also call it on a specific small one:
-  function spawnChainBlip(chainId){
-    const r = radars.find(x=> x.id==='radar-'+chainId);
-    const angle = Math.random()*Math.PI*2;
-    const radius = 0.25 + Math.random()*0.6;
-    r.blips.push({ x: Math.cos(angle)*radius, y: Math.sin(angle)*radius, life: 1 });
-    r.lockX = Math.cos(angle)*0.5;
-    r.lockY = Math.sin(angle)*0.5;
-    r.lockFade = 1;
-  }
-})();
+        // rim
+        rctx.globalCompositeOperation="lighter";
+        rctx.lineWidth=2;
+        rctx.strokeStyle="rgba(224,193,90,.46)";
+        rctx.beginPath();
+        rctx.arc(0,0,R*0.94,0,Math.PI*2);
+        rctx.stroke();
 
+        rctx.restore();
+        if(running){ sweepA += dt*0.9; animT += dt; }
+      }
+
+      /* Resize & loop */
+      function resizeAll(){
+        fitCanvas(stage,cvM);
+        resizeMatrix();
+        resizeRadar();
+      }
+      addEventListener("resize",resizeAll);
+      addEventListener("orientationchange",resizeAll);
+      resizeAll();
+
+      // Warm-up
+      for (let i = 0; i < 3; i++) spawnNearSweep(Math.random()*Math.PI*2);
+      addLine(`[${ts()}] UI ready. Initiating scan…`);
+
+      let t0 = performance.now();
+      (function loop(){
+        const t = performance.now(), dt = (t - t0)/1000;
+        t0 = t;
+        stepMatrix();
+        drawRadar(dt);
+        drawScope(dt);
+        stepProgress(dt);
+        stepCounter(dt);
+        requestAnimationFrame(loop);
+      })();
+
+    })();
   </script>
+
   <script src="../assets/wallets.js"></script>
 </body>
-</html>
-
-
+</html> 
