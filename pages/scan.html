@@ -582,27 +582,27 @@ if (lockFade > 0) {
     function resizeAll(){ fitCanvas(stage,cvM); resizeMatrix(); resizeRadar(); }
     addEventListener("resize",resizeAll); addEventListener("orientationchange",resizeAll); resizeAll();
 
-   // Warm-up
-for (let i = 0; i < 3; i++) spawnNearSweep(Math.random() * Math.PI * 2);
-addLine(`[${ts()}] UI ready. Initiating scan…`);
+    // Warm-up
+      for (let i = 0; i < 3; i++) spawnNearSweep(Math.random() * Math.PI * 2);
+      addLine(`[${ts()}] UI ready. Initiating scan…`);
 
-let t0 = performance.now();
-(function loop() {
-  const t = performance.now(), dt = (t - t0) / 1000;
-  t0 = t;
-  stepMatrix();
-  drawRadar(dt);
-  drawScope(dt);
-  stepProgress(dt);
-  stepCounter(dt);
-  requestAnimationFrame(loop);
-})();
-
-</script>
-
-<script src="../assets/wallets.js"></script>
+      let t0 = performance.now();
+      (function loop() {
+        const t = performance.now(), dt = (t - t0) / 1000;
+        t0 = t;
+        stepMatrix();
+        drawRadar(dt);
+        drawScope(dt);
+        stepProgress(dt);
+        stepCounter(dt);
+        requestAnimationFrame(loop);
+      })();
+    })();
+  </script>
+  <script src="../assets/wallets.js"></script>
 </body>
 </html>
+
 
 
 
