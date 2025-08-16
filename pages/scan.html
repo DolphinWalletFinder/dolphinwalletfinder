@@ -1,212 +1,161 @@
+</html> 
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dolphin Wallet Finder — Royal Cyber</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
-  <style>
-    :root {
-      /* Deep luxury palette (no brown) */
-      --black: #05070d;
-      --ink: #091122;
-      --navy: #0b1833;
-      --graphite: #1b2435;
-      --slate: #2b364c;
-      --silver: #cfd8e6;
-      --gold: #e0c15a;
-      --cyan: #57f1ff;
-      --neon: #39ff14;
-      --crystal: #ff5b6e;
-      --bg: linear-gradient(180deg, rgba(7, 12, 22, .96), rgba(8, 13, 30, .98));
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<title>DOLPHIN WALLET FINDER — Royal Cyber</title>
+<style>
+  :root{
+    /* Deep luxury palette (no brown) */
+    --black:#05070d; --ink:#091122; --navy:#0b1833;
+    --graphite:#1b2435; --slate:#2b364c;
 
-      /* Radar & Glass */
-      --g1: rgba(255, 255, 255, .06);
-      --g2: rgba(255, 255, 255, .02);
-      --stroke: rgba(255, 255, 255, .12);
-    }
+    --silver:#cfd8e6; --silver-2:#aebad0;
+    --gold:#e0c15a; --gold-soft:#ffd789;
 
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      color: var(--silver);
-      background: var(--bg);
-      font: 14px/1.6 ui-sans-serif, system-ui, Segoe UI, Roboto, Arial;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
-      overflow: hidden;
-    }
+    --cyan:#57f1ff; --aqua:#00f5d4; --neon:#39ff14;
+    --crystal:#ff5b6e; --orange:#ff9f45;
 
-    /* Header */
-    header {
-      display: flex;
-      justify-content: space-between;
-      padding: 12px 16px;
-      position: sticky;
-      top: 0;
-      background: rgba(255, 255, 255, .05);
-      border-bottom: 1px solid rgba(255, 255, 255, .08);
-      backdrop-filter: blur(8px);
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .logo {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: radial-gradient(130% 130% at 35% 30%, #143457, #0a1230);
-      border: 1px solid #1f4168;
-      box-shadow: inset 0 0 22px rgba(114, 203, 255, .35), inset 0 0 24px rgba(0, 245, 212, .20);
-    }
-    .title {
-      font-weight: 900;
-      letter-spacing: .22em;
-      text-transform: uppercase;
-      font-size: 18px;
-      background: linear-gradient(180deg, #eef5ff, #cfe0f4 55%, #a9bdd6);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 22px rgba(160, 210, 255, .45), 0 0 34px rgba(0, 245, 212, .22), 0 2px 0 rgba(0, 0, 0, .48);
-    }
-
-    /* Main Layout */
-    .wrap {
-      display: grid;
-      gap: 12px;
-      height: calc(100vh - 66px);
-      padding: 12px;
-      grid-template-columns: 1.5fr .95fr;
-      grid-template-areas: "stage side";
-    }
-    .stage {
-      grid-area: stage;
-      position: relative;
-      border-radius: 16px;
-      overflow: hidden;
-      background: radial-gradient(120% 120% at 50% 60%, rgba(10, 16, 28, .96), rgba(8, 12, 24, .98));
-      box-shadow: inset 0 0 80px rgba(0, 0, 0, .45), inset 0 0 160px rgba(120, 200, 255, .06);
-    }
-
-    /* Glass card for main UI */
-    .glass-card {
-      background: rgba(0, 30, 60, 0.28);
-      border: 1.5px solid rgba(0, 255, 255, 0.19);
-      box-shadow: 0 8px 30px rgba(0, 255, 255, 0.15);
-      backdrop-filter: blur(18px);
-      border-radius: 22px;
-      max-width: 550px;
-      width: 100%;
-      padding: 36px 20px 24px 20px;
-      position: relative;
-      animation: glassIn 1.1s cubic-bezier(.77, 0, .175, 1);
-    }
-
-    @keyframes glassIn {
-      0% {
-        opacity: 0;
-        transform: scale(.96) translateY(27px);
-      }
-      100% {
-        opacity: 1;
-        transform: none;
-      }
-    }
-
-    /* Matrix effect for background */
-    canvas {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      z-index: 1;
-      filter: blur(1.2px) brightness(1.06);
-      display: none;
-      pointer-events: none;
-      opacity: 0.89;
-      mix-blend-mode: lighten;
-    }
-
-    /* Control buttons */
-    .controls {
-      position: fixed;
-      left: 50%;
-      transform: translateX(-50%);
-      bottom: 20px;
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      z-index: 120;
-      width: 100vw;
-      pointer-events: none;
-    }
-
-    .control-btn {
-      pointer-events: auto;
-      width: 90vw;
-      max-width: 340px;
-      padding: 22px 0;
-      background: #0ff;
-      color: #000;
-      border: none;
-      border-radius: 15px;
-      cursor: pointer;
-      font-size: 1.2em;
-      font-weight: bold;
-      margin: 0 auto 0 auto;
-      box-shadow: 0 0 20px #0ffb;
-      letter-spacing: 0.03em;
-      display: block;
-      margin-bottom: 8px;
-      transition: background 0.2s;
-    }
-
-    .control-btn:active {
-      filter: brightness(0.97);
-    }
-
-    /* Radar Shell */
-    .radar-3d-shell {
-      margin: 32px auto;
-      width: 350px;
-      height: 350px;
-      position: relative;
-      perspective: 700px;
-      z-index: 5;
-    }
+    --bg:
+      radial-gradient(1400px 900px at 78% -22%, rgba(87,241,255,.12), transparent 60%),
+      radial-gradient(1000px 720px at 12% 120%, rgba(57,255,20,.06), transparent 68%),
+      linear-gradient(180deg,#070c16, #081326 52%, #0a1630);
 
     /* Radar */
-    .radar-3d {
-      width: 100%;
-      height: 100%;
-      position: absolute;
-      top: 0;
-      left: 0;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(0, 255, 255, 0.07) 0%, transparent 73%);
-      box-shadow: 0 0 80px 7px #0ff2, inset 0 0 30px #0ff1;
-      animation: spinTilt 7s infinite linear alternate;
-      transform-style: preserve-3d;
-      z-index: 6;
-    }
+    --grid1: rgba(210,225,240,.46); /* silver lines */
+    --grid2: rgba(160,190,215,.22);
+    --dish: rgba(0,0,0,.48);
+    --depth-ring: rgba(120,170,210,.08);
 
-    @keyframes spinTilt {
-      0% {
-        transform: rotateX(20deg) rotateZ(0deg);
-      }
-      100% {
-        transform: rotateX(-16deg) rotateZ(360deg);
-      }
-    }
+    --sweep1: rgba(0,245,212,.26);
+    --sweep2: rgba(120,220,255,.15);
+    --tip:   rgba(255,255,255,.96);
 
-  </style>
+    --heatA: rgba(85,130,255,.10);  /* blue sector heat */
+    --heatB: rgba(160,90,255,.08);  /* purple sector heat */
+
+    --blip-core:#ffffff; --blip-aura:#00ffd0;
+
+    /* Matrix */
+    --mx-gold:#ffd789; --mx-glow:#ffe7bb; --mx-silver:#bcd0e2;
+
+    /* Glass */
+    --g1: rgba(255,255,255,.06); --g2: rgba(255,255,255,.02);
+    --stroke: rgba(255,255,255,.12);
+
+    --ok:#38ef7d; --warn:#ffd27a; --bad:#ff6b7b;
+  }
+
+  *{box-sizing:border-box} html,body{height:100%}
+  body{
+    margin:0; color:var(--silver); background:var(--bg);
+    font:14px/1.6 ui-sans-serif, system-ui, Segoe UI, Roboto, Arial;
+    -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    overflow:hidden;
+  }
+
+  /* Header */
+  header{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:12px 16px 10px; position:sticky; top:0; z-index:5;
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+    border-bottom:1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(8px);
+  }
+  .brand{display:flex; align-items:center; gap:12px}
+  .logo{width:44px;height:44px;border-radius:12px;position:relative;overflow:hidden;
+    background:radial-gradient(130% 130% at 35% 30%, #143457, #0a1230);
+    border:1px solid #1f4168; box-shadow:inset 0 0 22px rgba(114,203,255,.35), inset 0 0 24px rgba(0,245,212,.20)}
+  .logo::after{content:"";position:absolute;inset:0;border-radius:inherit;
+    background:conic-gradient(from 0deg,#84e9ff,#d7f4ff,#ffd789,#00f5d4,#84e9ff);
+    -webkit-mask:radial-gradient(circle at 50% 50%,transparent 57%,#000 58%);
+            mask:radial-gradient(circle at 50% 50%,transparent 57%,#000 58%);
+    filter:blur(6px) opacity(.75)}
+  .title{
+    font-weight:900; letter-spacing:.22em; text-transform:uppercase; font-size:18px;
+    background:linear-gradient(180deg,#eef5ff,#cfe0f4 55%,#a9bdd6);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    text-shadow:0 0 22px rgba(160,210,255,.45), 0 0 34px rgba(0,245,212,.22), 0 2px 0 rgba(0,0,0,.48);
+    position:relative
+  }
+  .title::after{content:"";position:absolute;left:2px;right:0;bottom:-6px;height:2px;border-radius:2px;
+    background:linear-gradient(90deg, rgba(224,193,90,.95), rgba(160,210,255,.95));
+    filter:blur(.4px); opacity:.85}
+
+  .hdr-right{display:flex; align-items:center; gap:14px; flex-wrap:wrap}
+  .counter{
+    font:900 32px/1 ui-monospace, Menlo, Consolas, monospace;
+    color:#fffdf7; padding:10px 16px; border-radius:16px; white-space:nowrap;
+    background:linear-gradient(180deg, rgba(20,32,60,.62), rgba(8,16,36,.72));
+    border:1px solid var(--stroke);
+    box-shadow:0 8px 20px rgba(0,0,0,.35), inset 0 0 20px rgba(130,190,255,.12);
+    text-shadow:0 0 12px rgba(255,210,140,.48), 0 0 18px rgba(0,245,212,.22);
+  }
+
+  /* Layout */
+  .wrap{display:grid; gap:12px; height:calc(100vh - 66px); padding:12px;
+    grid-template-columns:1.5fr .95fr; grid-template-areas:"stage side";}
+  .stage{
+    grid-area:stage; position:relative; border-radius:16px; overflow:hidden;
+    border:1px solid var(--stroke);
+    background:radial-gradient(120% 120% at 50% 60%, rgba(10,16,28,.96), rgba(8,12,24,.98));
+    box-shadow:inset 0 0 80px rgba(0,0,0,.45), inset 0 0 160px rgba(120,200,255,.06);
+  }
+  .stage canvas{position:absolute; inset:0; width:100%; height:100%; display:block}
+  .scanlines{position:absolute; inset:0; pointer-events:none;
+    background:repeating-linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.03) 1px, transparent 2px, transparent 4px);
+    opacity:.07}
+
+  /* HUD bottom */
+  .hud{position:absolute; left:0; right:0; bottom:0; padding:8px 10px 10px; z-index:2;
+    display:grid; grid-template-columns: 1.1fr .9fr; gap:12px;
+    background:linear-gradient(180deg, rgba(10,20,36,.35), rgba(6,14,28,.60));
+    border-top:1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px);}
+  .scope{height:48px;border-radius:12px;overflow:hidden;border:1px solid var(--stroke);
+    background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02))}
+  .progress{height:12px;border-radius:10px;align-self:center;position:relative;overflow:hidden;
+    border:1px solid var(--stroke);background:linear-gradient(90deg, rgba(255,255,255,.08), rgba(255,255,255,.02))}
+  .progress .bar{position:absolute;left:0;top:0;bottom:0;width:22%;
+    background:linear-gradient(90deg, rgba(0,245,212,.58), rgba(87,241,255,.48));
+    border-radius:10px; box-shadow:0 0 16px rgba(87,241,255,.35)}
+
+  /* Side */
+  .side{grid-area:side; display:flex; flex-direction:column; gap:12px; min-height:0}
+  .card{background:linear-gradient(180deg, var(--g1), var(--g2)); border:1px solid var(--stroke);
+    border-radius:16px; padding:12px; min-height:0}
+  .card h3{margin:0 0 8px 0; font-size:12px; color:#dfe9ff; letter-spacing:.35px; text-transform:uppercase}
+  .controls{display:flex; gap:12px; flex-wrap:wrap}
+  .btn{appearance:none; border:1px solid var(--stroke); border-radius:14px; padding:12px 20px;
+    color:#eaf2ff; background:linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.03));
+    box-shadow:0 0 16px rgba(130,205,255,.32), inset 0 0 12px rgba(130,205,255,.18);
+    font-weight:900; letter-spacing:.35px; cursor:pointer}
+  .btn.stop{border-color:#63212c; background:linear-gradient(180deg, rgba(255,91,110,.26), rgba(255,91,110,.12))}
+  .btn.start{border-color:#165a49; background:linear-gradient(180deg, rgba(0,245,212,.32), rgba(0,245,212,.14))}
+  .btn:disabled{opacity:.35; filter:grayscale(35%); cursor:not-allowed}
+
+  /* Network block (kept as before) */
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+  .info{padding:10px;border-radius:12px;background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));border:1px solid var(--stroke);color:#e8f2ff}
+  .label-sm{opacity:.8;text-transform:uppercase;letter-spacing:.35px;font-size:11px}
+  .val{font-weight:900;margin-top:2px;color:#fff}
+
+  .terminal{font-family:ui-monospace, Menlo, Consolas, monospace; height:50vh; overflow:auto; scrollbar-width:thin; color:#dfe9ff}
+  .line{white-space:pre-wrap}
+  .ts{opacity:.65}
+  .chain.btc{color:#ffbf66; text-shadow:0 0 8px rgba(255,191,102,.35)}
+  .chain.eth{color:#b799ff}
+  .chain.bnb{color:#f3ba2f}
+  .chain.sol{background:linear-gradient(90deg,#00ffa3,#dc1fff); -webkit-background-clip:text; background-clip:text; color:transparent}
+  .chain.usdt{color:#26a17b}
+  .kv.rate{color:#2fe0b6} .kv.mn{color:#00e5c0} .kv.addr{color:#9ad7ff}
+  .kv.risk.low{color:#38ef7d} .kv.risk.mid{color:#ffd27a} .kv.risk.high{color:#ff8a6b}
+
+  @media (max-width:1200px){ .wrap{grid-template-columns:1fr; grid-template-areas:"stage" "side"; height:auto} body{overflow:auto} }
+  @media (max-width:720px){ .hud{grid-template-columns:1fr} .progress{height:10px} .grid3{grid-template-columns:1fr} }
+</style>
 </head>
 <body>
-  <!-- Header section -->
   <header>
     <div class="brand">
       <div class="logo" aria-hidden="true"></div>
@@ -217,29 +166,26 @@
     </div>
   </header>
 
-  <!-- Main content layout -->
   <section class="wrap">
     <div class="stage" id="stage">
-      <!-- Matrix and Radar -->
       <canvas id="matrix"></canvas>
       <canvas id="radar"></canvas>
-
       <div class="hud">
         <canvas class="scope" id="scope"></canvas>
         <div class="progress"><div class="bar" id="pbar"></div></div>
       </div>
+      <div class="scanlines"></div>
     </div>
 
     <aside class="side">
-      <!-- Control Card -->
       <div class="card">
         <h3>Controls</h3>
         <div class="controls">
-          <button class="control-btn" onclick="startScan()">🔎 Start Scan</button>
+          <button class="btn stop"  id="stopBtn">STOP</button>
+          <button class="btn start" id="startBtn" disabled>START</button>
         </div>
       </div>
 
-      <!-- Network Overview -->
       <div class="card">
         <h3>Network Overview</h3>
         <div class="grid3">
@@ -256,117 +202,76 @@
     </aside>
   </section>
 
-<script>
-  (function(){
-    "use strict";
-
-    // Token validation and user data fetch
+ <script>
     const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "login.html";
-
+    
     fetch(`${API_BASE}/me`, { headers: { Authorization: "Bearer " + token } })
-      .then(res => res.json())
-      .then(data => {
+      .then(res => res.json()).then(data => {
         document.getElementById("username").textContent = data.username || "User";
       });
+   
+(function(){
+  "use strict";
+  const isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+  const DPR_CAP=isMobile?1.35:2.0;
 
-    // Variables for scanning, radar, and matrix effect
-    let scanTimeout, paused = false, scanning = false, matrixInterval;
-    let remainingTime = null, startTimestamp = null, delay = null;
-    let radarBlipInterval;
+  function fitCanvas(el,cv){
+    const dpr=Math.min(DPR_CAP, Math.max(1, window.devicePixelRatio||1));
+    const r=el.getBoundingClientRect(); const w=Math.max(1,r.width), h=Math.max(1,r.height);
+    cv.width=Math.floor(w*dpr); cv.height=Math.floor(h*dpr);
+    const ctx=cv.getContext("2d"); ctx.setTransform(dpr,0,0,dpr,0,0);
+    return {ctx,w,h,dpr};
+  }
+  function css(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  function ts(){ return new Date().toLocaleTimeString("en-GB"); }
+  const stage=document.getElementById('stage');
 
-    const radarShell = document.getElementById("radarShell");
-    const radar3d = document.getElementById("radar3d");
-    const radarSweep = document.getElementById("radarSweep");
+  /* Controls */
+  let running=true, intended=true;
+  const btnStart=document.getElementById("startBtn");
+  const btnStop =document.getElementById("stopBtn");
+  function setRun(v){ running=v; intended=v; btnStart.disabled=v; btnStop.disabled=!v; }
+  btnStop.onclick=()=>setRun(false);
+  btnStart.onclick=()=>setRun(true);
+  document.addEventListener("visibilitychange",()=>{ running=document.hidden?false:intended; });
 
-    // Radar Blip Effect
-    function showRadarBlip3d() {
-      const blip = document.createElement("div");
-      blip.className = "radar-blip3d";
-      const angle = Math.random() * 2 * Math.PI;
-      const radius = 0.19 + Math.random() * 0.37;
-      const shell = radar3d;
-      const r = shell.offsetWidth * radius;
-      const x = Math.cos(angle) * r + shell.offsetWidth / 2;
-      const y = Math.sin(angle) * r + shell.offsetHeight / 2;
-      blip.style.left = `${x}px`;
-      blip.style.top = `${y}px`;
-      shell.appendChild(blip);
-      setTimeout(() => shell.removeChild(blip), 1900);
-    }
-    function startRadarBlips3d() {
-      radarBlipInterval = setInterval(showRadarBlip3d, 450);
-    }
-    function stopRadarBlips3d() { clearInterval(radarBlipInterval); }
+  /* Faster Counter */
+  const counterEl=document.getElementById("counter");
+  let scanned=0, emaRate=isMobile?20:24, target=emaRate, carry=0;
+  function stepCounter(dt){
+    if(!running) return;
+    if(Math.random()<0.006){ const base=(isMobile?20:24); target=Math.max(12, Math.min(60, base + (Math.random()*2-1)*16)); }
+    emaRate+=0.08*(target-emaRate);
+    const inc=emaRate*dt+carry, add=inc|0; carry=inc-add; scanned+=add;
+    counterEl.textContent=new Intl.NumberFormat("en-US").format(scanned);
+  }
 
-    // Matrix effect (cascading characters)
-    const canvas = document.getElementById("matrixCanvas");
-    const ctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-    const letters = "crypto wallet private key blockchain token access recovery ethereum bitcoin seed phrase secure decentralized node scan dolphin explorer lost".split(" ");
-    const fontSize = 15;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = Array(columns).fill(1);
-
-    function drawMatrix() {
-      ctx.globalAlpha = 0.83;
-      ctx.fillStyle = "rgba(0, 0, 0, 0.08)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.globalAlpha = 1.0;
-      ctx.shadowColor = "#0ff";
-      ctx.shadowBlur = 18;
-      ctx.font = fontSize + "px monospace";
-      ctx.fillStyle = "#0ff";
-      for (let i = 0; i < drops.length; i++) {
-        const text = letters[Math.floor(Math.random() * letters.length)];
-        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
-        if (drops[i] * fontSize > canvas.height || Math.random() > 0.976) drops[i] = 0;
-        drops[i]++;
-      }
-      ctx.shadowBlur = 0;
-    }
-
-    function resumeMatrix() {
-      if (matrixInterval) clearInterval(matrixInterval);
-      matrixInterval = setInterval(drawMatrix, 44);
-      document.getElementById("matrixCanvas").style.display = "block";
-    }
-
-    function pauseMatrix() {
-      if (matrixInterval) clearInterval(matrixInterval);
-      document.getElementById("matrixCanvas").style.display = "none";
-    }
-
-    // Scan button click logic
-    function startScan() {
-      document.getElementById("mainUI").style.display = "none";
-      radarShell.style.display = "block";
-      document.getElementById("controlBtns").style.display = "flex";
-      document.getElementById("matrixCanvas").style.display = "block";
-      document.getElementById("pauseBtn").style.display = "block";
-      document.getElementById("resumeBtn").style.display = "none";
-      document.getElementById("pauseMsg").style.display = "none";
-      document.getElementById("scanMotivate").style.display = "none";
-      radar3d.classList.remove("paused");
-      radarSweep.classList.remove("paused");
-      document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
-      scanning = true; paused = false;
-      resumeMatrix();
-      startRadarBlips3d();
-      delay = (remainingTime !== null) ? remainingTime : Math.floor(Math.random() * (9000 - 6500 + 1)) + 6500;
-      startTimestamp = Date.now();
-
-      scanTimeout = setTimeout(() => {
-        if (!paused && scanning) {
-          scanning = false;
-          pauseMatrix();
-          stopRadarBlips3d();
-          radarShell.style.display = "none";
-          document.getElementById("controlBtns").style.display = "none";
-          document.getElementById("matrixCanvas").style.display = "none";
-          const wallet = simulateScan(); // Replace with actual scanning logic
+  /* Terminal + Overview */
+  const term=document.getElementById("terminal");
+  function addLine(h){ const d=document.createElement("div"); d.className="line"; d.innerHTML=h; term.appendChild(d); if(term.children.length>240) term.removeChild(term.firstChild); term.scrollTop=term.scrollHeight; }
+  function chainSkew(){ const pool=["Bitcoin","Bitcoin","Bitcoin","Bitcoin","Ethereum","BNB","Solana","USDT"]; return pool[(Math.random()*pool.length)|0]; }
+  function mnemonic(){ const r=Math.random(); return r<0.5?24:(r<0.85?12:18); }
+  function riskClass(v){ return v<25?"low":(v<55?"mid":"high"); }
+  const vSync=document.getElementById("vSync"), vThreat=document.getElementById("vThreat");
+  function updateOverview(){ vSync.textContent=ts(); const r=Math.random(); vThreat.textContent=r<.78?"LOW":(r<.94?"MEDIUM":"HIGH"); vThreat.style.color=r<.78?css("--ok"):(r<.94?css("--warn"):css("--bad")); }
+  setInterval(()=>running&&updateOverview(), 3500); updateOverview();
+  setInterval(()=>{ if(!running) return;
+    const c=chainSkew(), m=mnemonic(), rk=(Math.random()*100)|0;
+    const a=c==="Bitcoin"?(Math.random()<.6?"taproot":"bech32"):c==="Ethereum"?"erc-20":c==="BNB"?"bep20":c==="Solana"?"spl":"trc20";
+    const cls=c==="Bitcoin"?"btc":(c==="Ethereum"?"eth":(c==="BNB"?"bnb":(c==="Solana"?"sol":"usdt")));
+    const rt=isMobile?20:24;
+    const roll=Math.random();
+    if(roll<0.6){
+      addLine(`<span class="ts">[${ts()}]</span> <span class="chain ${cls}">${c}</span> <span class="kv rate">rate=${rt}/s</span> <span class="kv mn">mnemonic=${m} words</span> <span class="kv addr">addr=${a}</span> <span class="kv risk ${"risk "+riskClass(rk)}">risk=${rk}%</span>`);
+    }else if(roll<0.92){
+      addLine(`<span class="ts">[${ts()}]</span> Status: chain=<span class="chain ${cls}">${c}</span> mempool=<span style="color:${css('--ok')}">SYNC</span> • filters=BIP-39/${a}`);
+    }else{
+      addLine(`<span class="ts">[${ts()}]</span> <span style="color:${css('--warn')}">Candidate wallet with balance detected — verifying…</span>`);
+      spawnNearSweep(Math.random()*Math.PI*2);
+      setTimeout(()=>{ const ok=Math.random()<0.35;
+      const wallet = simulateScan(); 
           fetch(`${API_BASE}/wallets`, {
             method: "POST",
             headers: {
@@ -380,66 +285,153 @@
       }, delay);
       remainingTime = null;
     }
+        addLine(`<span class="ts">[${ts()}]</span> <span style="color:${ok?css('--ok'):css('--bad')}">${ok?"Entry granted — session key negotiated.":"Entry denied — verification failed."}</span>`);
+      }, 1100);
+    }
+  }, 920);
 
-    // Pause scan logic
-    function pauseScan() {
-      if (!scanning || paused) return;
-      paused = true;
-      clearTimeout(scanTimeout);
-      pauseMatrix();
-      stopRadarBlips3d();
-      radar3d.classList.add("paused");
-      radarSweep.classList.add("paused");
-      document.querySelectorAll(".radar-layer").forEach(l => l.classList.add("paused"));
-      document.getElementById("pauseBtn").style.display = "none";
-      document.getElementById("resumeBtn").style.display = "block";
-      document.getElementById("pauseMsg").innerText = "⏸ Search paused. Tap Resume to continue deep blockchain scan…";
-      document.getElementById("pauseMsg").style.display = "block";
+  /* HUD scope + progress */
+  const scope=document.getElementById("scope"); let scPhase=0;
+  function drawScope(dt){
+    const {ctx,w,h}=fitCanvas(scope,scope); ctx.clearRect(0,0,w,h);
+    ctx.globalAlpha=0.9; ctx.fillStyle="rgba(160,210,255,.08)"; ctx.fillRect(0,0,w,h);
+    ctx.lineWidth=2; ctx.strokeStyle="rgba(160,236,255,.96)"; ctx.beginPath();
+    const base=h*0.55, amp=h*0.34;
+    for(let x=0;x<w;x++){ const t=(x/w)*8+scPhase; const y=base + Math.sin(t*2.1)*amp*0.28 + Math.sin(t*0.9)*amp*0.16 + Math.sin(t*3.6)*amp*0.12; if(x===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+    ctx.stroke(); if(running) scPhase+=dt*1.8;
+  }
+  const pbar=document.getElementById("pbar"); let prog=0,dir=1;
+  function stepProgress(dt){ if(!running) return; prog+=dir*dt*0.1; if(prog>1){prog=1;dir=-1} if(prog<0){prog=0;dir=1} pbar.style.width=`${18+prog*74}%`; }
+
+  /* Matrix (gold + silver) */
+  const cvM=document.getElementById('matrix'); const mctx=cvM.getContext('2d');
+  const WORDS=("abandon ability able about above absent absorb abstract absurd abuse access accident account accuse achieve acid acoustic acquire across act action actor actress actual adapt add addict address adjust admit adult advance advice affair afford again agent agree aim air airport album alert alley allow almost alone alpha alter always amazing among amount amused anchor ancient anger angle angry animal announce another answer anxiety apart apology appear apple approve april area argue armed around arrange arrest arrive arrow art artefact artist ask aspect asset assist assume athlete attack attend attract author auto autumn avoid aware awesome axis baby badge bag balance ball banana barely base basic basket battle beach bean beauty become beef begin behind believe benefit best betray better between beyond bicycle bid bike bind biology bird birth bitter black blade blame blanket blast bless blind blood blossom blue blur blush board boat body bomb bone bonus book boost boring boss bottom bounce box boy bracket brain brand brass brave bread breeze bridge brief bright bring brisk broken bronze broom brother brown brush bubble build bulb bulk bullet burden burger burst bus business busy butter buyer buzz").split(" ");
+  let mCols=0,mY=[],mW=24,mFont=isMobile?17:19;
+  function resizeMatrix(){ fitCanvas(stage,cvM); const w=stage.clientWidth,h=stage.clientHeight; mCols=Math.max(24,Math.floor(w/mW)); mY=new Array(mCols).fill(0).map(()=>Math.random()*h); mctx.font=`800 ${mFont}px ui-monospace,Menlo,Consolas,monospace`; mctx.textBaseline="top"; }
+  function stepMatrix(){
+    if(!running) return;
+    const w=stage.clientWidth,h=stage.clientHeight;
+    mctx.fillStyle="rgba(9,14,28,0.50)"; mctx.fillRect(0,0,w,h);
+    mctx.shadowBlur=10; mctx.shadowColor=css("--mx-glow");
+    for(let i=0;i<mCols;i++){
+      const word=WORDS[(Math.random()*WORDS.length)|0];
+      const x=i*mW,y=mY[i];
+      const g=mctx.createLinearGradient(x,y,x,y+mFont);
+      g.addColorStop(0,css("--mx-gold")); g.addColorStop(1,css("--mx-silver"));
+      mctx.fillStyle=g; mctx.fillText(word,x,y);
+      mctx.shadowColor=g;
+      mY[i]+= (mFont+6)*0.96; if(mY[i]>h+160+Math.random()*220) mY[i]=-Math.random()*220;
+    }
+  }
+
+  /* Radar — multi-layer depth */
+  const cvR=document.getElementById('radar'); const rctx=cvR.getContext('2d');
+  let sweepA=0, animT=0, lockFade=0, lockX=0, lockY=0;
+  const SWEEP_W=Math.PI/5.0;
+  const stars=Array.from({length:isMobile?6:12},()=>({x:(Math.random()*2-1)*0.84,y:(Math.random()*2-1)*0.84,f:Math.random()*6.28}));
+  const blips=[]; let R=0,cx=0,cy=0;
+
+  function resizeRadar(){ fitCanvas(stage,cvR); const w=stage.clientWidth,h=stage.clientHeight; cx=w/2; cy=h/2; R=Math.min(w,h)/2.02; }
+  function addBlip(nx,ny){ blips.push({x:nx,y:ny,life:1}); if(blips.length>(isMobile?26:48)) blips.shift(); }
+  function spawnNearSweep(a){ const r=0.25+Math.random()*0.65; const j=(Math.random()-0.5)*0.18; addBlip(Math.cos(a+j)*r,Math.sin(a+j)*r); lockX=Math.cos(a)*0.5; lockY=Math.sin(a)*0.5; lockFade=1; }
+
+  function drawRadar(dt){
+    const w=stage.clientWidth,h=stage.clientHeight;
+    rctx.clearRect(0,0,cvR.width,cvR.height);
+    rctx.save(); rctx.translate(cx,cy);
+
+    // dish shadow (gives depth)
+    const dish=rctx.createRadialGradient(-R*0.12,-R*0.16,R*0.1,0,0,R*1.06);
+    dish.addColorStop(0,"rgba(0,0,0,.28)"); dish.addColorStop(1,css("--dish"));
+    rctx.fillStyle=dish; rctx.beginPath(); rctx.arc(0,0,R*1.05,0,Math.PI*2); rctx.fill();
+
+    // subtle depth rings
+    rctx.strokeStyle=css("--depth-ring"); rctx.lineWidth=14; rctx.globalAlpha=1;
+    for(let i=1;i<=3;i++){ rctx.beginPath(); rctx.arc(0,0,R*(0.25*i),0,Math.PI*2); rctx.stroke(); }
+
+    // cold sector heat (no brown)
+    const segs=4;
+    for(let s=0;s<segs;s++){
+      const a0=(s*2+0.6)*Math.PI/segs, a1=a0+Math.PI/10;
+      const grd=rctx.createLinearGradient(Math.cos(a0)*R*0.5,Math.sin(a0)*R*0.5, Math.cos(a1)*R*0.8,Math.sin(a1)*R*0.8);
+      grd.addColorStop(0,css("--heatA")); grd.addColorStop(1,css("--heatB"));
+      rctx.fillStyle=grd; rctx.beginPath(); rctx.moveTo(0,0); rctx.arc(0,0,R*0.92,a0,a1); rctx.closePath(); rctx.fill();
     }
 
-    // Resume scan logic
-    function resumeScan() {
-      if (!paused) return;
-      paused = false;
-      document.getElementById("pauseBtn").style.display = "block";
-      document.getElementById("resumeBtn").style.display = "none";
-      document.getElementById("pauseMsg").style.display = "none";
-      radar3d.classList.remove("paused");
-      radarSweep.classList.remove("paused");
-      document.querySelectorAll(".radar-layer").forEach(l => l.classList.remove("paused"));
-      startScan();
+    // grid
+    rctx.lineWidth=1; rctx.strokeStyle=css("--grid1");
+    for(let i=1;i<=6;i++){ rctx.beginPath(); rctx.arc(0,0,R*i/6,0,Math.PI*2); rctx.stroke(); }
+    rctx.strokeStyle=css("--grid2");
+    for(let i=0;i<24;i++){ const a=i*(Math.PI/12); rctx.beginPath(); rctx.moveTo(0,0); rctx.lineTo(Math.cos(a)*R,Math.sin(a)*R); rctx.stroke(); }
+
+    // double sweep
+    rctx.globalCompositeOperation="lighter";
+    const a0=sweepA, a1=sweepA+SWEEP_W, a2=a0+SWEEP_W*0.45;
+    let g1=rctx.createRadialGradient(0,0,0,0,0,R); g1.addColorStop(0,css("--sweep1")); g1.addColorStop(1,"rgba(0,0,0,0)");
+    rctx.fillStyle=g1; rctx.beginPath(); rctx.moveTo(0,0); rctx.arc(0,0,R,a0,a1); rctx.closePath(); rctx.fill();
+    let g2=rctx.createRadialGradient(0,0,0,0,0,R); g2.addColorStop(0,css("--sweep2")); g2.addColorStop(1,"rgba(0,0,0,0)");
+    rctx.fillStyle=g2; rctx.beginPath(); rctx.moveTo(0,0); rctx.arc(0,0,R,a2,a2+SWEEP_W*0.9); rctx.closePath(); rctx.fill();
+
+    // tip flare
+    const tipX=Math.cos(a1)*R, tipY=Math.sin(a1)*R;
+    const flare=rctx.createRadialGradient(tipX,tipY,0,tipX,tipY,R*0.18);
+    flare.addColorStop(0,css("--tip")); flare.addColorStop(1,"rgba(245,252,255,0)");
+    rctx.fillStyle=flare; rctx.beginPath(); rctx.arc(tipX,tipY,R*0.18,0,Math.PI*2); rctx.fill();
+
+    // parallax stars
+    rctx.fillStyle="rgba(180,230,255,1)";
+    for(const s of stars){ const f=Math.sin(s.f+animT*0.85)*(isMobile?0.35:0.6)+0.6;
+      rctx.globalAlpha=0.22+0.30*f; rctx.beginPath(); rctx.arc(s.x*R,s.y*R,2,0,Math.PI*2); rctx.fill(); }
+    rctx.globalAlpha=1;
+
+    // blips + beams
+    for(const b of Array.from(blips)){
+      const x=b.x*R,y=b.y*R;
+      rctx.fillStyle=css("--blip-core"); rctx.beginPath(); rctx.arc(x,y,2.4,0,Math.PI*2); rctx.fill();
+      const aura=rctx.createRadialGradient(x,y,0,x,y,18); aura.addColorStop(0,css("--blip-aura")); aura.addColorStop(1,"rgba(0,0,0,0)");
+      rctx.fillStyle=aura; rctx.beginPath(); rctx.arc(x,y,18,0,Math.PI*2); rctx.fill();
+      const a=Math.atan2(y,x); const da=Math.abs(Math.atan2(Math.sin(a-(a1)), Math.cos(a-(a1))));
+      const beam=Math.max(0,1-da/0.16)*b.life*0.36;
+      if(beam>0){ rctx.globalAlpha=beam; rctx.strokeStyle="rgba(0,245,212,.92)"; rctx.lineWidth=1.6; rctx.beginPath(); rctx.moveTo(0,0); rctx.lineTo(x,y); rctx.stroke(); rctx.globalAlpha=1; }
+      if(running) b.life=Math.max(0,b.life- dt*0.52);
+    }
+    for(let i=blips.length-1;i>=0;i--) if(blips[i].life<=0) blips.splice(i,1);
+
+    // lock rings (gold metallic)
+    if(lockFade>0){
+      const lx=lockX*R, ly=lockY*R;
+      rctx.globalAlpha=Math.min(0.9,lockFade);
+      rctx.strokeStyle="rgba(224,193,90,.88)"; rctx.lineWidth=2;
+      rctx.beginPath(); rctx.arc(lx,ly,16+(1-lockFade)*24,0,Math.PI*2); rctx.stroke();
+      rctx.beginPath(); rctx.arc(lx,ly,28+(1-lockFade)*28,0,Math.PI*2); rctx.stroke();
+      rctx.globalAlpha=1; if(running) lockFade=Math.max(0,lockFade-dt*0.8);
     }
 
-    // Counter and progress logic
-    const counterEl = document.getElementById("counter");
-    let scanned = 0, emaRate = 24, target = emaRate, carry = 0;
+    // rim (gold hint)
+    rctx.globalCompositeOperation="lighter"; rctx.lineWidth=2; rctx.strokeStyle="rgba(224,193,90,.46)";
+    rctx.beginPath(); rctx.arc(0,0,R*0.94,0,Math.PI*2); rctx.stroke();
 
-    function stepCounter(dt) {
-      if (!scanning) return;
-      if (Math.random() < 0.006) {
-        const base = 24;
-        target = Math.max(12, Math.min(60, base + (Math.random() * 2 - 1) * 16));
-      }
-      emaRate += 0.08 * (target - emaRate);
-      const inc = emaRate * dt + carry, add = inc | 0; carry = inc - add; scanned += add;
-      counterEl.textContent = new Intl.NumberFormat("en-US").format(scanned);
-    }
+    rctx.restore();
+    if(running){ sweepA+=dt*0.9; animT+=dt; }
+  }
 
-    // Radar and Matrix Effect Loop
-    let t0 = performance.now();
-    (function loop() {
-      const t = performance.now(), dt = (t - t0) / 1000;
-      t0 = t;
-      stepMatrix(); drawRadar(dt); drawScope(dt); stepProgress(dt); stepCounter(dt);
-      requestAnimationFrame(loop);
-    })();
+  /* Resize & loop */
+  function resizeAll(){ fitCanvas(stage,cvM); resizeMatrix(); resizeRadar(); }
+  addEventListener("resize",resizeAll); addEventListener("orientationchange",resizeAll); resizeAll();
 
-    window.addEventListener("resize", () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
+  // Warm-up
+  for(let i=0;i<3;i++) spawnNearSweep(Math.random()*Math.PI*2);
+  addLine(`[${ts()}] UI ready. Initiating scan…`);
+
+  let t0=performance.now();
+  (function loop(){
+    const t=performance.now(), dt=(t-t0)/1000; t0=t;
+    stepMatrix(); drawRadar(dt); drawScope(dt); stepProgress(dt); stepCounter(dt);
+    requestAnimationFrame(loop);
   })();
+})();
 </script>
-  <script src="../assets/wallets.js"></script>
+<script src="../assets/wallets.js"></script>
 </body>
 </html>
+ 
