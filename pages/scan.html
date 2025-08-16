@@ -553,15 +553,22 @@
       }
       for(let i=blips.length-1;i>=0;i--) if(blips[i].life<=0) blips.splice(i,1);
 
-      // lock rings (gold metallic)
-      if(lockFade>0){
-        const lx=lockX*R, ly=lockY*R;
-        rctx.globalAlpha=Math.min(0.9,lockFade);
-        rctx.strokeStyle="rgba(224,193,90,.88)"; rctx.lineWidth=2;
-        rctx.beginPath(); rctx.arc(lx,ly,16+(1-lockFade)*24,0,Math.PI*2); rctx.stroke();
-        rctx.beginPath(); rctx.arc(lx,ly,28+(1-lockFade)*28,0,Math.PI*2); rctx.stroke();
-        rctx.globalAlpha=1; if(running) lockFade=Math.max(0,lockFade-dt*0.8);
-      }
+     // lock rings (gold metallic)
+if (lockFade > 0) {
+  const lx = lockX * R, ly = lockY * R;
+  rctx.globalAlpha = Math.min(0.9, lockFade);
+  rctx.strokeStyle = "rgba(224,193,90,.88)"; 
+  rctx.lineWidth = 2;
+  rctx.beginPath();
+  rctx.arc(lx, ly, 16 + (1 - lockFade) * 24, 0, Math.PI * 2);
+  rctx.stroke();
+  rctx.beginPath();
+  rctx.arc(lx, ly, 28 + (1 - lockFade) * 28, 0, Math.PI * 2); 
+  rctx.stroke();
+  rctx.globalAlpha = 1;
+  if (running) lockFade = Math.max(0, lockFade - dt * 0.8);
+}
+
 
       // rim (gold hint)
       rctx.globalCompositeOperation="lighter"; rctx.lineWidth=2; rctx.strokeStyle="rgba(224,193,90,.46)";
@@ -591,4 +598,5 @@
 <script src="../assets/wallets.js"></script>
 </body>
 </html>
+
 
