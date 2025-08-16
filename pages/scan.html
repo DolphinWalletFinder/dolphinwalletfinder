@@ -12,48 +12,38 @@
       --navy: #0b1833;
       --graphite: #1b2435;
       --slate: #2b364c;
-
       --silver: #cfd8e6;
       --silver-2: #aebad0;
       --gold: #e0c15a;
       --gold-soft: #ffd789;
-
       --cyan: #57f1ff;
       --aqua: #00f5d4;
       --neon: #39ff14;
       --crystal: #ff5b6e;
       --orange: #ff9f45;
-
       --bg: radial-gradient(1400px 900px at 78% -22%, rgba(87,241,255,.12), transparent 60%),
         radial-gradient(1000px 720px at 12% 120%, rgba(57,255,20,.06), transparent 68%),
         linear-gradient(180deg, #070c16, #081326 52%, #0a1630);
-
       /* Radar */
       --grid1: rgba(210,225,240,.46);
       --grid2: rgba(160,190,215,.22);
       --dish: rgba(0,0,0,.48);
       --depth-ring: rgba(120,170,210,.08);
-
       --sweep1: rgba(0,245,212,.26);
       --sweep2: rgba(120,220,255,.15);
       --tip: rgba(255,255,255,.96);
-
       --heatA: rgba(85,130,255,.10);
       --heatB: rgba(160,90,255,.08);
-
       --blip-core: #ffffff;
       --blip-aura: #00ffd0;
-
       /* Matrix */
       --mx-gold: #ffd789;
       --mx-glow: #ffe7bb;
       --mx-silver: #bcd0e2;
-
       /* Glass */
       --g1: rgba(255,255,255,.06);
       --g2: rgba(255,255,255,.02);
       --stroke: rgba(255,255,255,.12);
-
       --ok: #38ef7d;
       --warn: #ffd27a;
       --bad: #ff6b7b;
@@ -582,30 +572,23 @@ if (lockFade > 0) {
     function resizeAll(){ fitCanvas(stage,cvM); resizeMatrix(); resizeRadar(); }
     addEventListener("resize",resizeAll); addEventListener("orientationchange",resizeAll); resizeAll();
 
-    // Warm-up
-      for (let i = 0; i < 3; i++) spawnNearSweep(Math.random() * Math.PI * 2);
-      addLine(`[${ts()}] UI ready. Initiating scan…`);
+   // Warm-up
+for (let i = 0; i < 3; i++) spawnNearSweep(Math.random() * Math.PI * 2);
+addLine(`[${ts()}] UI ready. Initiating scan…`);
 
-      let t0 = performance.now();
-      (function loop() {
-        const t = performance.now(), dt = (t - t0) / 1000;
-        t0 = t;
-        stepMatrix();
-        drawRadar(dt);
-        drawScope(dt);
-        stepProgress(dt);
-        stepCounter(dt);
-        requestAnimationFrame(loop);
-       })();
+let t0 = performance.now();
+(function loop() {
+  const t = performance.now(), dt = (t - t0) / 1000;
+  t0 = t;
+  stepMatrix();
+  drawRadar(dt);
+  drawScope(dt);
+  stepProgress(dt);
+  stepCounter(dt);
+  requestAnimationFrame(loop);
+})();
+  </script>
 
-  })();
-</script>
-  <script src="../assets/wallets.js"></script>
+<script src="../assets/wallets.js"></script>
 </body>
 </html>
-
-
-
-
-
-
