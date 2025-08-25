@@ -58,12 +58,6 @@
   .mode-toggle{display:inline-block;margin-top:6px;color:#9fefff;background:transparent;border:none;cursor:pointer;font-weight:800}
   .error{min-height:16px;color:#ffb4b4;font-size:.85rem}
 
-  .row{display:flex;justify-content:space-between;align-items:center;gap:12px;font-size:.95rem;color:rgba(190,245,255,.9);flex-wrap:wrap}
-  .row a{color:var(--c1);text-decoration:none}
-  .row a:hover{text-decoration:underline}
-  .check{display:flex;align-items:flex-start;gap:10px;color:rgba(190,245,255,.9);font-size:.95rem}
-  .check input{margin-top:3px;width:18px;height:18px;accent-color:var(--c2)}
-
   .cta{grid-column:1/-1;display:flex;gap:12px;align-items:center;margin-top:6px;flex-wrap:wrap}
   .btn{flex:1;min-width:140px;border:none;border-radius:14px;position:relative;overflow:hidden;color:#001018;padding:16px 18px;font-weight:900;letter-spacing:.35px;text-transform:uppercase;background:linear-gradient(95deg,var(--c2),var(--c1),var(--c3),var(--c2));background-size:220% 100%;box-shadow:0 24px 50px rgba(53,167,255,.30), inset 0 0 0 1px rgba(0,0,0,.28);transition:transform .15s ease, box-shadow .15s ease, background-position .55s ease; text-shadow:0 1px 0 rgba(255,255,255,.45), 0 0 8px rgba(0,255,240,.25); text-align:center}
   .btn:hover{transform:translateY(-1px);background-position:100% 0}
@@ -130,6 +124,7 @@
           <button class="mode-toggle toggle" type="button" id="modeToggle">Not registered yet? Create an account</button>
 
           <form id="accessForm" novalidate>
+            <!-- Username -->
             <div class="fg" style="grid-column:1/-1">
               <label class="label" for="username">Username</label>
               <div class="control">
@@ -137,8 +132,9 @@
                 <input id="username" name="username" class="input" type="text" placeholder="Your username" autocomplete="username" required/>
               </div>
             </div>
-			  
-            <div class="fg">
+
+            <!-- Password -->
+            <div class="fg" style="grid-column:1/-1">
               <label class="label" for="password">Password</label>
               <div class="control">
                 <span class="icon" aria-hidden="true">🔒</span>
@@ -148,27 +144,28 @@
               </div>
             </div>
 
-	        <div id="registerFields" style="display:none; grid-column:1/-1; display:contents">
-  			<div class="fg">
-  	  <label class="label" for="confirm">Confirm Password</label>
-    	<div class="control">
-     	 <span class="icon" aria-hidden="true">✅</span>
-     	 <input id="confirm" name="confirm" class="input" type="password" placeholder="Repeat password" autocomplete="new-password" aria-describedby="confirmErr"/>
-   	   <small id="confirmErr" class="error" aria-live="polite"></small>
-  	  </div>
- 	 </div>
+            <!-- Register-only fields -->
+            <div id="registerFields" style="grid-column:1/-1; display:none">
+              <div class="fg">
+                <label class="label" for="confirm">Confirm Password</label>
+                <div class="control">
+                  <span class="icon" aria-hidden="true">✅</span>
+                  <input id="confirm" name="confirm" class="input" type="password" placeholder="Repeat password" autocomplete="new-password" aria-describedby="confirmErr"/>
+                  <small id="confirmErr" class="error" aria-live="polite"></small>
+                </div>
+              </div>
 
- 		 <div class="fg">
-  		  <label class="label" for="email">Email</label>
-   			 <div class="control">
-    		  <span class="icon" aria-hidden="true">📧</span>
-   		   <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="emailErr"/>
-   		   <small id="emailErr" class="error" aria-live="polite"></small>
-   		 </div>
-		  </div>
+              <div class="fg">
+                <label class="label" for="email">Email</label>
+                <div class="control">
+                  <span class="icon" aria-hidden="true">📧</span>
+                  <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="emailErr"/>
+                  <small id="emailErr" class="error" aria-live="polite"></small>
+                </div>
               </div>
             </div>
 
+            <!-- CTA row is always outside registerFields -->
             <div class="cta">
               <button class="btn" type="submit" id="formBtn">Login</button>
               <div id="errorMessage" class="error" style="flex:1; min-height:unset"></div>
@@ -198,7 +195,8 @@
     formBtn.textContent = isRegisterMode ? 'Register' : 'Login';
     modeToggle.textContent = isRegisterMode ? 'Already registered? Login' : 'Not registered yet? Create an account';
     kicker.textContent = isRegisterMode ? 'Create a new account' : 'Sign in to your account';
-    document.getElementById('password').autocomplete = signin ? 'current-password' : 'new-password';
+    const pass = document.getElementById('password');
+    if (pass) pass.autocomplete = signin ? 'current-password' : 'new-password';
   }
   function toggleForm(){ isRegisterMode = !isRegisterMode; applyMode(); }
   tabIn.addEventListener('click',()=>{ isRegisterMode=false; applyMode(); });
