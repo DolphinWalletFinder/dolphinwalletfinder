@@ -1,4 +1,4 @@
-const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+const API_BASE_URL = "https://web-production-222fa.up.railway.app/api";
 
 // ثبت‌نام کاربر
 async function register(username, email, password) {
