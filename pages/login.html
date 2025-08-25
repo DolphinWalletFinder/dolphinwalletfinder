@@ -246,14 +246,22 @@
       .then(res => res.json())
       .then(data => {
        if (data.success) {
-  		localStorage.setItem('token', data.token);
-  		window.location.href = '../pages/scan.html';
-        } else {
-          errorMessage.textContent = data.error || 'Registration failed';
-        }
-      })
-      .catch(() => errorMessage.textContent = 'Server error occurred.');
+  fetch(`${BASE_URL}/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  })
+  .then(res => res.json())
+  .then(loginData => {
+    if (loginData.token) {
+      localStorage.setItem('token', loginData.token);
+      window.location.href = '../pages/scan.html';
     } else {
+      errorMessage.textContent = 'Login after registration failed';
+    }
+  })
+  .catch(() => errorMessage.textContent = 'Server error occurred.');
+} else {
       if (!username){ errorMessage.textContent = 'Username is required'; return; }
       if (!password){ errorMessage.textContent = 'Password is required'; return; }
 
