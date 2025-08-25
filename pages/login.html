@@ -138,6 +138,16 @@
               </div>
             </div>
 
+			   <div id="registerFields" style="display:none; grid-column:1/-1; display:contents">
+              <div class="fg">
+                <label class="label" for="email">Email</label>
+                <div class="control">
+                  <span class="icon" aria-hidden="true">📧</span>
+                  <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="emailErr"/>
+                  <small id="emailErr" class="error" aria-live="polite"></small>
+                </div>
+              </div>
+			  
             <div class="fg">
               <label class="label" for="password">Password</label>
               <div class="control">
@@ -147,16 +157,7 @@
                 <small id="passErr" class="error" aria-live="polite"></small>
               </div>
             </div>
-
-            <div id="registerFields" style="display:none; grid-column:1/-1; display:contents">
-              <div class="fg">
-                <label class="label" for="email">Email</label>
-                <div class="control">
-                  <span class="icon" aria-hidden="true">📧</span>
-                  <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="emailErr"/>
-                  <small id="emailErr" class="error" aria-live="polite"></small>
-                </div>
-              </div>
+			  
               <div class="fg">
                 <label class="label" for="confirm">Confirm Password</label>
                 <div class="control">
