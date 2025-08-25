@@ -145,9 +145,6 @@
   .w-item .micro{position:relative}
   .w-item .micro:after{content:"";position:absolute;inset:10%;border-radius:50%;box-shadow:0 0 12px rgba(0,255,240,.25);pointer-events:none}
 
-
-/* ====== MOBILE RESPONSIVE FIXES (added by ChatGPT) ====== */
-
 /* allow middle columns in grid rows to shrink so text stays inside boxes */
 .mev-row,
 .w-item { grid-template-columns: auto minmax(0,1fr) auto; }
@@ -184,7 +181,7 @@
   <header class="relative z-10 max-w-[1200px] mx-auto pt-5 px-4">
     <div class="flex items-center justify-between flex-wrap gap-3">
       <div class="flex items-center gap-3">
-        <img src="assets/logo.png" alt="DOLPHIN WALLET FINDER logo" class="logo" />
+        <img src="/dolphinwalletfinder/assets/logo.png" alt="DOLPHIN WALLET FINDER logo" class="logo" />
         <h1 class="title text-cyan-100 text-[20px] md:text-[24px]">DOLPHIN WALLET FINDER</h1>
       </div>
       <div class="text-xs text-cyan-200/70"><span id="username">User</span></div>
@@ -369,7 +366,7 @@
   </div>
 
 <script>
-  const API_BASE = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+  const API_BASE = "https://web-production-222fa.up.railway.app/api";
   const token = localStorage.getItem("token");
   if (!token) window.location.href = "login.html";
 
@@ -1299,3 +1296,4 @@ setTimeout(() => {
 <script src="../assets/wallets.js"></script>
 </body>
 </html>
+
