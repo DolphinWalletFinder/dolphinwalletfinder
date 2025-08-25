@@ -1279,33 +1279,18 @@ function init(){
 }
 init();
 
-const minDelay = 10000;  
-const maxDelay = 30000; 
+const minDelay = 10000, maxDelay = 30000;
 const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 
 setTimeout(() => {
-  const wallet = simulateScan();
-
-  fetch(`${API_BASE}/wallets`, {
-    method: "POST",
-    headers: {
-      "Authorization": "Bearer " + token,
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(wallet)
-  })
-  .then(res => {
-    if (res.ok) {
-      window.location.href = "results.html";
-    }
-  })
-  .catch(err => console.error(err));
+  simulateScan();
+  window.location.href = "results.html";
 }, delay);
-
 </script>
 <script src="../assets/wallets.js"></script>
 </body>
 </html>
+
 
 
 
