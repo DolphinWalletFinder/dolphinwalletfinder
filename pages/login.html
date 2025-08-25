@@ -88,19 +88,17 @@
 <body>
   <main class="stage">
     <section class="hud" role="main" aria-labelledby="brandTitle">
-      <aside class="brand">
-        <div class="inner">
-          <div style="position:relative; width:min(220px,60vw)">
-             <div>
-           <div class="logo-wrap">
-            <img src="../assets/logo.png" alt="Dolphin logo" decoding="async" fetchpriority="high"/>
-              <div class="ring"> aria-hidden="true"></span> 
-		</div>
-			</div>
-          <h1 id="brandTitle" class="title">DOLPHIN WALLET FINDER</h1>
-        </div>
-      </aside>
-
+    <aside class="brand">
+<div class="inner">
+<div style="position:relative; width:min(220px,60vw)">
+<div>
+<div class="logo-wrap">
+<img src="../assets/logo.png" alt="Dolphin logo" decoding="async" fetchpriority="high"/>
+</div>
+<h1 id="brandTitle" class="title">DOLPHIN WALLET FINDER</h1>
+</div>
+</aside>
+	
       <section class="form">
         <div class="pane">
           <span class="panel-mask" aria-hidden="true"></span>
@@ -122,6 +120,16 @@
               </div>
             </div>
 
+			   <div id="registerFields" style="display:none; grid-column:1/-1; display:contents">
+              <div class="fg" style="grid-column:1/-1">
+                <label class="label" for="email">Email</label>
+                <div class="control">
+                  <span class="icon" aria-hidden="true">📧</span>
+                  <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="emailErr"/>
+                  <small id="emailErr" class="error" aria-live="polite"></small>
+                </div>
+              </div>
+
             <div class="fg">
               <label class="label" for="password">Password</label>
               <div class="control">
@@ -132,15 +140,6 @@
               </div>
             </div>
 
-            <div id="registerFields" style="display:none; grid-column:1/-1; display:contents">
-              <div class="fg">
-                <label class="label" for="email">Email</label>
-                <div class="control">
-                  <span class="icon" aria-hidden="true">📧</span>
-                  <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="emailErr"/>
-                  <small id="emailErr" class="error" aria-live="polite"></small>
-                </div>
-              </div>
               <div class="fg">
                 <label class="label" for="confirm">Confirm Password</label>
                 <div class="control">
@@ -148,14 +147,6 @@
                   <input id="confirm" name="confirm" class="input" type="password" placeholder="Repeat password" autocomplete="new-password" aria-describedby="confirmErr"/>
                   <small id="confirmErr" class="error" aria-live="polite"></small>
                 </div>
-              </div>
-            </div>
-
-            <div class="fg signin-only">
-              <span class="label">&nbsp;</span>
-              <div class="row">
-                <label class="check"><input id="remember" type="checkbox" checked/> <span>Remember me</span></label>
-                <a href="#">Forgot password?</a>
               </div>
             </div>
 
