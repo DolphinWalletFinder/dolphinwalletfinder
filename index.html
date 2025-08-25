@@ -1,267 +1,152 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dolphin Wallet Finder</title>
-  <link rel="stylesheet" href="assets/style-neon.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"/>
 
-  <!-- Link to Manifest -->
+ <!-- Link to Manifest -->
   <link rel="manifest" href="/dolphinwalletfinder/manifest.json" />
 
   <style>
-    body {
-      margin: 0; padding: 0;
-      min-height: 100vh;
-      background: linear-gradient(120deg, #000012 55%, #02243c 100%);
-      font-family: 'Orbitron', 'Montserrat', Arial, sans-serif;
-      color: #0ff;
-      display: flex; align-items: center; justify-content: center;
-      overflow-x: hidden;
-    }
-    .main-glass {
-      background: linear-gradient(120deg,rgba(0,18,35,0.99) 60%,rgba(0,255,255,0.07) 100%);
-      border-radius: 38px;
-      box-shadow: 0 0 60px #0ff2, 0 8px 80px #001c3a;
-      max-width: 590px;
-      width: 98vw;
-      padding: 56px 26px 38px 26px;
-      margin: 50px 0 30px 0;
-      position: relative;
-      border: 2px solid #0ff2;
-      animation: popIn 1s cubic-bezier(.21,.93,.31,1.12);
-      z-index: 2;
-      overflow: hidden;
-    }
-    @keyframes popIn { 
-      0%{transform:scale(.93) translateY(70px);opacity:0;}
-      60%{transform:scale(1.03);}
-      100%{transform:scale(1) translateY(0);opacity:1;}
-    }
-    .logo-head {
-      font-size: 2.6em;
-      font-weight: bold;
-      letter-spacing: 2px;
-      background: linear-gradient(90deg,#23ffe7,#0077ff 80%,#0ff 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text; text-fill-color: transparent;
-      text-shadow: 0 0 27px #0ff7;
-      margin-bottom: 12px; display: flex; align-items: center; gap: 17px;
-      justify-content: center;
-      animation: logoPulse 1.6s infinite alternate;
-    }
-    @keyframes logoPulse {
-      0%,100% { filter: drop-shadow(0 0 22px #23ffee); }
-      70% { filter: drop-shadow(0 0 9px #1bfefe); }
-    }
-    .logo-head .fa-dolphin { color: #23ffe7; filter: drop-shadow(0 0 16px #11bfa7); font-size: 1.2em;}
-    .slogan {
-      text-align: center;
-      margin: 12px 0 24px 0;
-      color: #c8f6ff;
-      font-size: 1.14em;
-      font-weight: 500;
-      letter-spacing: .6px;
-      line-height: 1.7;
-      text-shadow: 0 0 12px #00646e28;
-      animation: fadeInUp 1s 0.32s both;
-    }
-    @keyframes fadeInUp {from {opacity:0; transform:translateY(32px);} to {opacity:1; transform:translateY(0);}}
-    .big-fact {
-      text-align: center;
-      font-size: 1.19em;
-      font-weight: bold;
-      color: #1bfefe;
-      background: linear-gradient(93deg,rgba(0,255,255,0.16),rgba(0,35,80,0.14) 100%);
-      border-radius: 14px;
-      margin: 8px 0 24px 0;
-      padding: 15px 12px;
-      box-shadow: 0 0 12px #23ffe722;
-      border: 1px solid #0ff4;
-      animation: fadeInUp 1s 0.45s both;
-      line-height: 1.6;
-    }
-    .counters-area {
-      display: flex; gap: 22px; justify-content: center; margin: 24px 0 11px 0;
-      align-items: center;
-    }
-    .counter-card {
-      background: linear-gradient(120deg,rgba(0,255,255,0.09),rgba(0,35,80,0.14) 100%);
-      border: 1.2px solid #0ff4;
-      border-radius: 13px;
-      box-shadow: 0 0 19px #0ff3;
-      color: #fffd;
-      padding: 13px 17px 7px 17px;
-      min-width: 108px;
-      min-height: 55px;
-      display: flex; flex-direction: column; align-items: center;
-      font-size: 1.13em;
-      font-family: 'Orbitron', monospace;
-      position: relative;
-      animation: fadeInUp 0.7s both;
-    }
-    .counter-num {
-      font-size: 1.47em; font-weight: bold; color: #0ff;
-      text-shadow: 0 0 8px #0ff8, 0 0 1px #1bffe7;
-      margin-bottom: 0;
-      animation: neonNum 2.5s infinite alternate;
-    }
-    @keyframes neonNum {
-      0% { text-shadow: 0 0 7px #0ff3,0 0 1px #1bffe7;}
-      60% { text-shadow: 0 0 22px #31fff9,0 0 9px #fff;}
-      100% { text-shadow: 0 0 7px #0ff3,0 0 1px #1bffe7;}
-    }
-    .counter-label {
-      color: #a6faff; font-size: 0.92em; margin-top: 0px; letter-spacing: 0.7px;
-      font-weight: 500;
-    }
-    .features-animated {
-      margin: 26px 0 18px 0;
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 17px 18px;
-    }
-    .feature-card {
-      background: linear-gradient(110deg,rgba(0,255,255,0.09),rgba(0,40,110,0.13) 100%);
-      border-radius: 15px;
-      box-shadow: 0 0 22px #0ff3;
-      border: 1px solid #0ff3;
-      padding: 19px 14px 15px 14px;
-      color: #fff;
-      font-size: 1.07em;
-      position: relative;
-      transition: transform .18s,box-shadow .16s;
-      display: flex; flex-direction: column; align-items: center;
-      min-width: 0;
-      animation: fadeInCard 0.7s both;
-    }
-    .feature-card:hover {
-      transform: translateY(-7px) scale(1.045);
-      box-shadow: 0 0 36px #0ff8;
-      z-index: 2;
-    }
-    .feature-card i {
-      font-size: 2em;
-      color: #19e3d2;
-      margin-bottom: 8px;
-      filter: drop-shadow(0 0 11px #0ff6);
-      animation: glow 2.1s infinite alternate;
-    }
-    @keyframes glow { 0% { filter: drop-shadow(0 0 7px #1ff9fa);} 100% { filter: drop-shadow(0 0 17px #0ff);} }
-    @keyframes fadeInCard {from{opacity:0;transform:translateY(32px);} to{opacity:1;transform:translateY(0);}}
-    .main-btns {
-      display: flex; justify-content: center; gap: 17px; margin: 38px 0 0 0; flex-wrap: wrap;
-    }
-    .main-btn {
-      padding: 13px 34px;
-      background: linear-gradient(135deg,#0ff 70%,#1eeaff 100%);
-      border: none; border-radius: 12px; color: #000;
-      font-size: 1.10em; font-weight: bold; cursor: pointer;
-      margin-bottom: 10px; box-shadow: 0 0 17px #0ff6;
-      transition: all 0.15s;
-      letter-spacing: .5px;
-    }
-    .main-btn:hover {
-      background: linear-gradient(135deg,#1eeaff 40%,#0ff 95%);
-      color: #001d34;
-      box-shadow: 0 0 29px #0ff8;
-      transform: scale(1.065);
-    }
-    .divider {
-      width: 91%; margin: 34px auto 19px auto;
-      border: 0; border-top: 1.2px solid #0ff3; opacity: 0.18;
-    }
-    .trust-bar {
-      margin-top: 18px; color: #aeecff; font-size: 1.04em;
-      background: linear-gradient(93deg,rgba(0,255,255,0.05),rgba(50,220,255,0.08) 97%);
-      border-radius: 13px;
-      padding: 14px 15px 11px 14px; border: 1.2px solid #0ff2;
-      box-shadow: 0 0 13px #0ff3;
-      display: flex; align-items: center; gap: 13px; justify-content: center;
-    }
-    .trust-bar .fa-shield-halved { color: #1cffe7; font-size: 1.2em; }
-    @media (max-width: 700px) {
-      .main-glass { max-width: 100vw; }
-      .features-animated { grid-template-columns: 1fr; gap: 14px; }
-      .counters-area { flex-direction: column; gap: 13px;}
-      .logo-head { font-size: 2em; }
-    }
-    @media (max-width: 500px) {
-      .main-glass { padding: 12vw 1.5vw 6vw 1.5vw; }
-      .logo-head { font-size: 1.1em; }
-      .main-btn { font-size: .95em; min-width: 92px;}
-      .feature-card { font-size: 0.97em; padding: 14px 6vw 14px 6vw; }
-    }
+  :root{
+    --c1:#0ff1e7; --c2:#35a7ff; --c3:#14ff89;
+    --grid:#0e1628;
+    --panel:rgba(10,16,26,.70); --panel2:rgba(6,12,20,.60);
+    --stroke:rgba(64,203,255,.28); --dash:rgba(32,205,255,.20);
+    --muted:rgba(190,245,255,.85); --text:#eafaff;
+    --shadow-lg:0 28px 90px rgba(0,0,0,.65);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--text);
+    font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:
+      radial-gradient(1400px 820px at 15% 10%, rgba(53,167,255,.12), transparent 60%),
+      radial-gradient(1100px 680px at 85% 90%, rgba(20,255,137,.12), transparent 60%),
+      linear-gradient(180deg,#0a1220,var(--grid) 42%);
+    overflow-x:hidden; -webkit-tap-highlight-color:transparent;
+  }
+
+  .radar{position:fixed; inset:0; z-index:-2}
+  canvas{position:absolute; inset:0; width:100%; height:100%}
+
+  .stage{min-height:100%; display:grid; place-items:center; padding:clamp(16px,3vw,32px); position:relative; z-index:2}
+  .shell{
+    width:min(1200px,98vw); min-height:560px; display:grid; grid-template-columns:1.05fr 1.45fr;
+    border-radius:28px; overflow:hidden; isolation:isolate; position:relative;
+    box-shadow:var(--shadow-lg); border:1px solid var(--stroke);
+  }
+  @media (max-width:980px){ .shell{ grid-template-columns:1fr } }
+
+  .brand-pane{
+    position:relative;
+    background:
+      radial-gradient(900px 600px at 20% 10%, rgba(53,167,255,.22), transparent 60%),
+      radial-gradient(700px 520px at 100% 100%, rgba(20,255,137,.20), transparent 65%),
+      linear-gradient(180deg, rgba(12,22,36,.88), rgba(8,16,28,.78));
+    backdrop-filter: blur(18px) saturate(120%);
+    border-right:1px solid rgba(64,203,255,.18);
+    overflow:hidden;
+  }
+  .brand-inner{ padding:34px; height:100%; display:flex; flex-direction:column; justify-content:space-between }
+  .logo-wrap{ position:relative; width:min(240px,42vw); aspect-ratio:1/1; filter: drop-shadow(0 18px 42px rgba(53,167,255,.45)); }
+  .ring{ position:absolute; inset:-12%; border-radius:50%;
+    background:conic-gradient(from 0deg, rgba(53,167,255,.75), transparent 20%, rgba(15,241,231,.75), transparent 70%);
+    filter:blur(12px); animation:spin 8s linear infinite; opacity:.9;
+  }
+  .title{ margin:14px 0 6px; font-weight:900; font-size:clamp(22px,2.2vw,30px);
+    background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3)); -webkit-background-clip:text; color:transparent; }
+  .kicker{ color:var(--muted); line-height:1.8 }
+
+  .content-pane{ background:linear-gradient(180deg,var(--panel),var(--panel2)); backdrop-filter: blur(18px) saturate(120%); position:relative; }
+  .border-glow{ position:absolute; inset:-1.5px; border-radius:30px; z-index:-1; background:conic-gradient(from 0deg, transparent, rgba(53,167,255,.55), transparent 40%, rgba(15,241,231,.55), transparent 75%); filter:blur(8px); animation:spin 14s linear infinite; }
+  .pane-inner{ padding:28px clamp(24px,4vw,38px); display:flex; flex-direction:column; gap:18px; height:100% }
+
+  .hero h2{ margin:0; font-size:clamp(22px,2.4vw,32px); font-weight:900; background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3)); -webkit-background-clip:text; color:transparent }
+  .hero p{ color:var(--muted); line-height:1.9; margin:0 }
+
+  .stats{ display:flex; gap:14px; flex-wrap:wrap; margin-top:6px }
+  .stat{ background:linear-gradient(120deg,rgba(0,255,255,.09),rgba(0,35,80,.14)); border:1px solid rgba(64,203,255,.28); border-radius:14px; padding:12px 16px; min-width:140px }
+  .stat .n{ font-size:1.6rem; font-weight:900; color:var(--c1) }
+  .stat .l{ color:var(--muted); font-size:.95rem }
+
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:6px }
+  @media (max-width:980px){ .grid{ grid-template-columns:1fr } }
+  .card{ background:linear-gradient(110deg,rgba(0,255,255,.08),rgba(0,40,110,.13)); border:1px solid rgba(64,203,255,.28); border-radius:16px; padding:18px; display:flex; gap:10px; }
+
+  .actions{ margin-top:20px; display:flex; justify-content:center }
+  .btn-big{ text-align:center; border:none; border-radius:18px; padding:20px 28px; font-size:1.15rem; font-weight:900; letter-spacing:.35px; text-transform:uppercase; color:#001019; background:linear-gradient(95deg,var(--c2),var(--c1),var(--c3),var(--c2)); background-size:220% 100%; box-shadow:0 24px 50px rgba(53,167,255,.30); cursor:pointer; transition:transform .15s ease, background-position .55s ease; min-width:min(320px,90%); }
+  .btn-big:hover{ transform:translateY(-1px); background-position:100% 0 }
+
+  .foot{ margin-top:auto; text-align:center; color:var(--muted); font-size:.9rem }
   </style>
 </head>
 <body>
-  <div class="main-glass">
-    <div class="logo-head">
-      <i class="fa-solid fa-dolphin"></i> Dolphin Wallet Finder
-    </div>
-    <div class="slogan">
-      <span style="font-size:1.25em;font-weight:bold;">Discover what others left behind on the blockchain!</span>
-      <br>
-      Over <span class="highlight" style="color:#23ffe7;font-weight:700">20% of all crypto wallets</span> are estimated to be <b style="color:#fffa">lost, abandoned, or inaccessible.</b>
-    </div>
-    <div class="big-fact">
-      <i class="fa-solid fa-circle-info"></i>
-      Did you know? <b>It's estimated that over <span style="color:#fffe">3.7 million BTC</span> and countless millions in ETH & other tokens</b> are trapped in forgotten or lost wallets.<br>
-      <span style="color:#aff;">Thousands of these wallets still hold real value. Dolphin helps you find them.</span>
-    </div>
-    <div class="counters-area">
-      <div class="counter-card">
-        <div class="counter-num" id="walletsCounter">0</div>
-        <div class="counter-label">Wallets Discovered</div>
-      </div>
-      <div class="counter-card">
-        <div class="counter-num" id="usersCounter">0</div>
-        <div class="counter-label">More than Active Users</div>
-      </div>
-    </div>
-    <div class="features-animated">
-      <div class="feature-card">
-        <i class="fa-solid fa-compass"></i>
-        Scan millions of <span style="color:#1bffe7;font-weight:bold;">abandoned</span> and <span style="color:#1bffe7;font-weight:bold;">dormant</span> wallets. Explore what others have left behind.
-      </div>
-      <div class="feature-card">
-        <i class="fa-solid fa-cubes"></i>
-        Works on <span style="color:#1bffe7;">Bitcoin, Ethereum, BNB, Tron, Solana, Polygon</span> and more!
-      </div>
-      <div class="feature-card">
-        <i class="fa-solid fa-bolt"></i>
-        <span style="color:#1bffe7;">AI-powered</span> rapid scanning & wallet analysis. Start finding in seconds!
-      </div>
-      <div class="feature-card">
-        <i class="fa-solid fa-shield"></i>
-        <span style="color:#1bffe7;">Bank-grade privacy</span> & human admin for payouts. No bots, no fraud, ever.
-      </div>
-      <div class="feature-card">
-        <i class="fa-solid fa-gift"></i>
-        <span style="color:#1bffe7;">Start free</span> – no blockchain expertise needed. If you can click, you can win!
-      </div>
-      <div class="feature-card">
-        <i class="fa-solid fa-cloud-arrow-up"></i>
-        Continue your search on any device, anytime. <span style="color:#1bffe7;">Cloud-synced progress</span>.
-      </div>
-    </div>
-    <div class="main-btns">
-      <button class="main-btn" onclick="window.location.href='/dolphinwalletfinder/pages/login.html'"><i class="fa-solid fa-arrow-right-to-bracket"></i> Login</button>
-      <button class="main-btn" onclick="goRegister()"><i class="fa-solid fa-user-plus"></i> Register</button>
-    </div>
-    <hr class="divider">
-    <div class="trust-bar">
-      <i class="fa-solid fa-shield-halved"></i>
-      <span>
-        <b>Security first:</b> All discoveries processed with strict privacy.<br>
-        <span style="color:#31fff9;font-weight:600;">Withdrawals require admin review.</span>
-      </span>
-    </div>
+  <div class="radar">
+    <canvas id="radarGrid"></canvas>
+    <canvas id="radarSweep"></canvas>
   </div>
 
-  <!-- Install Button -->
-  <button id="installBtn" style="display: none;">Install</button>
+  <main class="stage">
+    <section class="shell">
+      <aside class="brand-pane">
+        <div class="brand-inner">
+          <div>
+           <div class="logo-wrap">
+            <img src="logo.png" alt="Dolphin logo" decoding="async" fetchpriority="high"/>
+              <div class="ring"> aria-hidden="true"></span> 
+		</div>
+                <defs>
+                  <linearGradient id="g" x1="0" x2="1">
+                    <stop offset="0%" stop-color="#35a7ff"/>
+                    <stop offset="60%" stop-color="#0ff1e7"/>
+                    <stop offset="100%" stop-color="#14ff89"/>
+                  </linearGradient>
+                </defs>
+                <circle cx="60" cy="60" r="54" stroke="url(#g)" stroke-width="4" fill="none"/>
+                <path d="M22 72 C48 20 72 20 98 72" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round"/>
+                <circle cx="60" cy="72" r="10" fill="url(#g)"/>
+              </svg>
+            </div>
+            <h1 class="title">Dolphin Wallet Finder</h1>
+            <p class="kicker">  Did you know? <b>It's estimated that over <span style="color:#fffe">3.7 million BTC</span> and countless millions in <span style="color:#fffe">ETH & other</span> tokens</b> are trapped in forgotten or lost wallets.<br>
+      <span style="color:#aff;">Thousands of these wallets still hold real value. Dolphin helps you find them.</span></p>
+          </div>
+        </div>
+      </aside>
+
+      <section class="content-pane">
+        <div class="border-glow"></div>
+        <div class="pane-inner">
+          <div class="hero">
+            <h2>Discover what others left behind on the blockchain!</h2>
+            <p>Millions in digital assets are locked in inactive or forgotten wallets. Dolphin helps you find them.</p>
+          </div>
+
+          <div class="stats">
+            <div class="stat"><div class="n" id="wCount">0</div><div class="l">Wallets uncovered</div></div>
+            <div class="stat"><div class="n" id="uCount">0</div><div class="l">Active users</div></div>
+            <div class="stat"><div class="n" id="cCount">0</div><div class="l">Supported networks</div></div>
+          </div>
+
+          <div class="grid">
+            <article class="card"><i>🧭</i><div><strong>AI-powered</strong><br/>Rapid scanning & wallet analysis. Start finding in seconds!</div></article>
+            <article class="card"><i>🧊</i><div><strong>Multi‑chain</strong><br/>Bitcoin, Ethereum, BNB, Tron, Solana.</div></article>
+            <article class="card"><i>🛡️</i><div><strong>Bank‑grade privacy</strong><br/>Human‑verified withdrawals. No bots, no fraud, ever.</div></article>
+            <article class="card"><i>☁️</i><div><strong>Cloud sync</strong><br/>Pick up where you left off on any device.</div></article>
+          </div>
+
+          <div class="actions">
+            <a class="btn-big" href="'/dolphinwalletfinder/pages/login.html'">Join Now — Login or Register</a>
+          </div>
+
+          <div class="foot">© 2025 DOLPHIN WALLET FINDER. All rights reserved.</div>
+        </div>
+      </section>
+    </section>
+  </main>
 
   <script>
        if ('serviceWorker' in navigator) {
@@ -275,41 +160,31 @@
           });
       });
     }
+    const targets = { wCount: 274, uCount: 14000, cCount: 5 };
 
-    // Demo counter - this data should be loaded from your server
-    let wallets = 274, users = 14000;
-    let walletsShown = 0, usersShown = 0;
-
-    function animateCounter(id, target, speed=22) {
-      let el = document.getElementById(id);
-      let current = 0;
-      let step = Math.max(1, Math.floor(target / 100));
-      function update() {
-        if (current < target) {
-          current += step;
-          if (current > target) current = target;
-          el.textContent = current.toLocaleString();
-          setTimeout(update, speed);
-        } else {
-          el.textContent = target.toLocaleString();
-        }
+    function animNum(id, target, dur=1200, abbreviate=false){
+      const el = document.getElementById(id); if(!el) return;
+      const start = performance.now();
+      function fmt(val){
+        if(!abbreviate) return val.toLocaleString('en-US');
+        if(val >= 1_000_000) return Math.round(val/1_000_000)+'M';
+        if(val >= 1_000) return Math.round(val/1000)+'K';
+        return String(val);
       }
-      update();
+      function tick(now){
+        const p = Math.min(1, (now - start)/dur);
+        const val = Math.floor(target * (0.2 + 0.8*p*p));
+        const abbreviateThis = (id === 'uCount');
+        el.textContent = fmt(abbreviateThis ? val : val);
+        if(p < 1) requestAnimationFrame(tick);
+      }
+      requestAnimationFrame(tick);
     }
-    window.addEventListener("DOMContentLoaded",()=> {
-      animateCounter("walletsCounter", wallets, 11);
-      animateCounter("usersCounter", users, 19);
-    });
 
-    function goRegister() {
-      window.location.href = "/dolphinwalletfinder/pages/login.html";
-      setTimeout(()=> {
-        const t = document.querySelector('.toggle');
-        if(t) t.click();
-      },500);
-    }
+    Object.entries(targets).forEach(([id,val])=>{
+      const abbreviate = id === 'uCount';
+      animNum(id, val, 1500, abbreviate);
+    });
   </script>
 </body>
 </html>
-
-
