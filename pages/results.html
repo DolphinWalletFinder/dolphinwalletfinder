@@ -69,9 +69,12 @@
   .hero h2{ margin:0; font-size:clamp(22px,2.4vw,32px); font-weight:900; background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3)); -webkit-background-clip:text; color:transparent }
   .hero p{ color:var(--muted); line-height:1.9; margin:0 }
 
+  /* FIX: Responsive grid for stat cards */
   .stats{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:14px; margin-top:6px }
+  /* FIX: Ensure enough padding/height */
   .stat{ background:linear-gradient(120deg,rgba(0,255,255,.09),rgba(0,35,80,.14)); border:1px solid rgba(64,203,255,.28); border-radius:14px; padding:14px 18px; min-height:76px; overflow:visible }
-  .stat .n{ font-size:clamp(18px,2.2vw,28px); font-weight:900; color:var(--c1); line-height:1.2; overflow-wrap:anywhere; white-space:normal }
+  /* FIX: Allow long values to wrap (dates, tokens, addresses) */
+  .stat .n{ font-size:clamp(18px,2.2vw,28px); font-weight:900; color:var(--c1); line-height:1.3; overflow-wrap:anywhere; white-space:normal; word-break:break-word }
   .stat .l{ color:var(--muted); font-size:.95rem; margin-top:6px; white-space:normal }
 
   .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:6px }
@@ -170,11 +173,23 @@
       window.location.href = "login.html";
     }
 
-    // UI helpers
+    // ---- helpers ----
     function setNextStep(text){ nextStepCopy.textContent = text; }
     function setButton(text, handler){ licenseBtn.textContent = text; licenseBtn.onclick = handler; }
 
-    // Check license and decide button
+    // Format ISO date to 'YYYY-MM-DD HH:mm:ss' (falls back to raw text)
+    function formatDateMaybe(value){
+      const s = String(value || '').trim();
+      const d = new Date(s);
+      if (!s) return "—";
+      if (!isNaN(d)) {
+        const iso = d.toISOString().slice(0,19).replace('T',' ');
+        return iso;
+      }
+      return s; // not a valid date -> show as-is (and it will wrap in CSS)
+    }
+
+    // ---- license & flow ----
     function checkLicenseAndSetButton() {
       fetch(`${API_BASE_URL}/license/status`, {
         headers: { "Authorization": "Bearer " + token }
@@ -195,7 +210,6 @@
       });
     }
 
-    // Check if transaction fee is paid
     function checkTransactionFeeStatus() {
       fetch(`${API_BASE_URL}/final-tx`, {
         headers: { "Authorization": "Bearer " + token }
@@ -216,7 +230,7 @@
       });
     }
 
-    // Get wallet data
+    // ---- data ----
     function loadWalletData() {
       fetch(`${API_BASE_URL}/my-wallet`, {
         headers: { "Authorization": "Bearer " + token }
@@ -237,13 +251,13 @@
           <strong>Address:</strong><br>${maskedAddress}<br><br>
           <strong>Balance:</strong> ${wallet.balance}<br>
           <strong>Network:</strong> ${wallet.network}<br>
-          <strong>Last Transaction:</strong> ${wallet.lastTx}
+          <strong>Last Transaction:</strong> ${formatDateMaybe(wallet.lastTx)}
         `;
 
-        // Stats mirrors
+        // Stats mirrors (NO TRUNCATION)
         document.getElementById('statBalance').textContent = wallet.balance ?? '—';
         document.getElementById('statNetwork').textContent = wallet.network ?? '—';
-        document.getElementById('statLastTx').textContent = (wallet.lastTx || '').toString().slice(0, 8) + '…';
+        document.getElementById('statLastTx').textContent = formatDateMaybe(wallet.lastTx);
 
         // Generate 12 mnemonic words with random masking
         const allWords = [
@@ -273,12 +287,12 @@
       });
     }
 
-    // Init
+    // ---- init ----
     loadWalletData();
     checkLicenseAndSetButton();
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    // (Optional) very subtle canvas shimmer to add life without heavy GPU
+    // (Optional) subtle canvas shimmer
     try{
       const canvas = document.getElementById('bg');
       const ctx = canvas.getContext('2d');
