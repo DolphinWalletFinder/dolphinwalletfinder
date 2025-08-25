@@ -1,6 +1,6 @@
 
 // تنظیمات API
-const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app";
+const API_BASE_URL = "https://web-production-222fa.up.railway.app";
 
 // گرفتن توکن ذخیره‌شده
 function getToken() {
