@@ -137,6 +137,25 @@
                 <input id="username" name="username" class="input" type="text" placeholder="Your username" autocomplete="username" required/>
               </div>
             </div>
+            <div class="fg" style="grid-column:1/-1">
+              <label class="label" for="password">Password</label>
+              <div class="control">
+                <span class="icon" aria-hidden="true">🔒</span>
+                <input id="password" name="password" class="input" type="password" placeholder="Your password" autocomplete="current-password" required aria-describedby="passErr"/>
+                <button type="button" class="toggle-pass" id="tgl">Show</button>
+                <small id="passErr" class="error" aria-live="polite"></small>
+              </div>
+            </div>
+
+	 <div class="fg">
+                <label class="label" for="confirm">Confirm Password</label>
+                <div class="control">
+                  <span class="icon" aria-hidden="true">✅</span>
+                  <input id="confirm" name="confirm" class="input" type="password" placeholder="Repeat password" autocomplete="new-	password" aria-describedby="confirmErr"/>
+                  <small id="confirmErr" class="error" aria-live="polite"></small>
+                </div>
+              </div>
+            </div>
 
 			   <div id="registerFields" style="display:none; grid-column:1/-1; display:contents">
               <div class="fg">
@@ -147,26 +166,6 @@
                   <small id="emailErr" class="error" aria-live="polite"></small>
                 </div>
               </div>
-			  
-            <div class="fg">
-              <label class="label" for="password">Password</label>
-              <div class="control">
-                <span class="icon" aria-hidden="true">🔒</span>
-                <input id="password" name="password" class="input" type="password" placeholder="Your password" autocomplete="current-password" required aria-describedby="passErr"/>
-                <button type="button" class="toggle-pass" id="tgl">Show</button>
-                <small id="passErr" class="error" aria-live="polite"></small>
-              </div>
-            </div>
-			  
-              <div class="fg">
-                <label class="label" for="confirm">Confirm Password</label>
-                <div class="control">
-                  <span class="icon" aria-hidden="true">✅</span>
-                  <input id="confirm" name="confirm" class="input" type="password" placeholder="Repeat password" autocomplete="new-password" aria-describedby="confirmErr"/>
-                  <small id="confirmErr" class="error" aria-live="polite"></small>
-                </div>
-              </div>
-            </div>
 
             <div class="cta">
               <button class="btn" type="submit" id="formBtn">Login</button>
