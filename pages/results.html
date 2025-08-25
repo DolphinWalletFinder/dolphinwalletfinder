@@ -2,110 +2,197 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Scan Result - Dolphin Wallet</title>
-  <link rel="stylesheet" href="../assets/style-neon.css" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dolphin Wallet — Scan Result</title>
+  <!-- Optional font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+
   <style>
-    body {
-      background: radial-gradient(ellipse at center, #000010, #000);
-      font-family: 'Orbitron', sans-serif;
-      color: #0ff;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      overflow: hidden;
-    }
-    .result-box {
-      border: 1px solid #0ff4;
-      padding: 40px;
-      border-radius: 20px;
-      background: rgba(0, 10, 20, 0.8);
-      box-shadow: 0 0 30px #0ff4, inset 0 0 20px #0ff2;
-      text-align: center;
-      width: 95%;
-      max-width: 720px;
-      box-sizing: border-box;
-    }
-    h1 { font-size: 2em; margin-bottom: 20px; }
-    .wallet-info {
-      font-size: 1.1em;
-      line-height: 1.6;
-      margin-bottom: 20px;
-    }
-    .mnemonic {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-      gap: 10px;
-      margin-top: 20px;
-    }
-    .mnemonic input {
-      background: #000;
-      border: 1px solid #0ff6;
-      padding: 10px;
-      border-radius: 8px;
-      color: #0ff;
-      text-align: center;
-      font-family: monospace;
-      font-size: 0.9em;
-    }
-    .btn {
-      margin-top: 30px;
-      padding: 12px 24px;
-      font-size: 1em;
-      color: #000;
-      background: #0ff;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .btn:hover {
-      background: #00faff;
-      box-shadow: 0 0 12px #0ff;
-    }
+  :root{
+    --c1:#0ff1e7; --c2:#35a7ff; --c3:#14ff89;
+    --grid:#0e1628;
+    --panel:rgba(10,16,26,.70); --panel2:rgba(6,12,20,.60);
+    --stroke:rgba(64,203,255,.28); --dash:rgba(32,205,255,.20);
+    --muted:rgba(190,245,255,.85); --text:#eafaff;
+    --shadow-lg:0 28px 90px rgba(0,0,0,.65);
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    margin:0; color:var(--text);
+    font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    background:
+      radial-gradient(1400px 820px at 15% 10%, rgba(53,167,255,.12), transparent 60%),
+      radial-gradient(1100px 680px at 85% 90%, rgba(20,255,137,.12), transparent 60%),
+      linear-gradient(180deg,#0a1220,var(--grid) 42%);
+    overflow-x:hidden; -webkit-tap-highlight-color:transparent;
+  }
+
+  .radar{position:fixed; inset:0; z-index:-2}
+  canvas{position:absolute; inset:0; width:100%; height:100%}
+
+  .stage{min-height:100%; display:grid; place-items:center; padding:clamp(16px,3vw,32px); position:relative; z-index:2}
+  .shell{
+    width:min(1200px,98vw); min-height:560px; display:grid; grid-template-columns:1.05fr 1.45fr;
+    border-radius:28px; overflow:hidden; isolation:isolate; position:relative;
+    box-shadow:var(--shadow-lg); border:1px solid var(--stroke);
+    background:linear-gradient(180deg,var(--panel),var(--panel2));
+  }
+  @media (max-width:980px){ .shell{ grid-template-columns:1fr } }
+
+  .brand-pane{
+    position:relative;
+    background:
+      radial-gradient(900px 600px at 20% 10%, rgba(53,167,255,.22), transparent 60%),
+      radial-gradient(700px 520px at 100% 100%, rgba(20,255,137,.20), transparent 65%),
+      linear-gradient(180deg, rgba(12,22,36,.88), rgba(8,16,28,.78));
+    backdrop-filter: blur(18px) saturate(120%);
+    border-right:1px solid rgba(64,203,255,.18);
+    overflow:hidden;
+  }
+  .brand-inner{ padding:34px; height:100%; display:flex; flex-direction:column; gap:18px; justify-content:space-between }
+  .logo-wrap{ position:relative; width:min(240px,42vw); aspect-ratio:1/1; filter: drop-shadow(0 18px 42px rgba(53,167,255,.45)); }
+  .ring{ position:absolute; inset:-12%; border-radius:50%;
+    background:conic-gradient(from 0deg, rgba(53,167,255,.75), transparent 20%, rgba(15,241,231,.75), transparent 70%);
+    filter:blur(12px); animation:spin 8s linear infinite; opacity:.9;
+  }
+  .title{ margin:14px 0 6px; font-weight:900; font-size:clamp(22px,2.2vw,30px);
+    background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3)); -webkit-background-clip:text; color:transparent; }
+  .kicker{ color:var(--muted); line-height:1.8 }
+
+  .content-pane{ position:relative; }
+  .border-glow{ position:absolute; inset:-1.5px; border-radius:30px; z-index:-1; background:conic-gradient(from 0deg, transparent, rgba(53,167,255,.55), transparent 40%, rgba(15,241,231,.55), transparent 75%); filter:blur(8px); animation:spin 14s linear infinite; }
+  .pane-inner{ padding:28px clamp(24px,4vw,38px); display:flex; flex-direction:column; gap:18px; height:100% }
+
+  .hero h2{ margin:0; font-size:clamp(22px,2.4vw,32px); font-weight:900; background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3)); -webkit-background-clip:text; color:transparent }
+  .hero p{ color:var(--muted); line-height:1.9; margin:0 }
+
+  .stats{ display:flex; gap:14px; flex-wrap:wrap; margin-top:6px }
+  .stat{ background:linear-gradient(120deg,rgba(0,255,255,.09),rgba(0,35,80,.14)); border:1px solid rgba(64,203,255,.28); border-radius:14px; padding:12px 16px; min-width:140px }
+  .stat .n{ font-size:1.6rem; font-weight:900; color:var(--c1) }
+  .stat .l{ color:var(--muted); font-size:.95rem }
+
+  .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:6px }
+  @media (max-width:980px){ .grid{ grid-template-columns:1fr } }
+  .card{ background:linear-gradient(110deg,rgba(0,255,255,.08),rgba(0,40,110,.13)); border:1px solid rgba(64,203,255,.28); border-radius:16px; padding:18px; display:flex; gap:10px; }
+
+  .actions{ margin-top:20px; display:flex; justify-content:center }
+  .btn-big{ text-align:center; border:none; border-radius:18px; padding:20px 28px; font-size:1.15rem; font-weight:900; letter-spacing:.35px; text-transform:uppercase; color:#001019; background:linear-gradient(95deg,var(--c2),var(--c1),var(--c3),var(--c2)); background-size:220% 100%; box-shadow:0 24px 50px rgba(53,167,255,.30); cursor:pointer; transition:transform .15s ease, background-position .55s ease; min-width:min(320px,90%); }
+  .btn-big:hover{ transform:translateY(-1px); background-position:100% 0 }
+
+  .foot{ margin-top:auto; text-align:center; color:var(--muted); font-size:.9rem }
+  .wallet-info{ color:var(--muted); line-height:1.9 }
+  .mnemonic{ display:grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap:10px }
+  .mnemonic input{ background:#000; border:1px solid var(--stroke); padding:10px; border-radius:8px; color:var(--text); text-align:center; font-family:monospace; font-size:.9em; }
+
+  .logo-wrap img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+  }
+
+  @media (max-width: 600px){
+    .logo-wrap{ width:min(180px,60vw); margin:0 auto; }
+  }
+
+  @keyframes spin{ to{ transform:rotate(1turn) } }
   </style>
 </head>
 <body>
-  <div class="result-box">
-    <h1>🎉 Wallet Found!</h1>
-    <div class="wallet-info" id="walletInfo">Loading...</div>
-    <div class="mnemonic" id="mnemonicWords"></div>
-    <button class="btn" id="licenseBtn">Loading...</button>
-  </div>
+  <!-- Subtle background canvas hook (optional to animate later) -->
+  <div class="radar"><canvas id="bg"></canvas></div>
+
+  <main class="stage">
+    <section class="shell">
+      <!-- Left / Brand Pane -->
+      <aside class="brand-pane">
+        <div class="brand-inner">
+          <div class="logo-wrap">
+            <div class="ring"></div>
+            <!-- Replace src with your logo -->
+            <img src="./assets/logo.svg" alt="Dolphin Wallet" />
+          </div>
+
+          <div>
+            <div class="title">Dolphin Wallet</div>
+            <p class="kicker">Secure discovery of wallets with a clean, neon HUD interface. Review your scan result and proceed with license or fee steps when ready.</p>
+          </div>
+
+          <div class="foot">© <span id="year"></span> Dolphin Wallet — All rights reserved</div>
+        </div>
+      </aside>
+
+      <!-- Right / Content Pane -->
+      <section class="content-pane">
+        <div class="border-glow"></div>
+        <div class="pane-inner">
+          <header class="hero">
+            <h2>🎉 Wallet Found</h2>
+            <p id="walletInfo">Loading...</p>
+
+            <div class="stats" id="stats">
+              <div class="stat"><div class="n" id="statBalance">—</div><div class="l">Balance</div></div>
+              <div class="stat"><div class="n" id="statNetwork">—</div><div class="l">Network</div></div>
+              <div class="stat"><div class="n" id="statLastTx">—</div><div class="l">Last Tx</div></div>
+            </div>
+          </header>
+
+          <section class="grid">
+            <div class="card" style="flex-direction:column">
+              <strong>Mnemonic (masked)</strong>
+              <div class="mnemonic" id="mnemonicWords"></div>
+            </div>
+
+            <div class="card" style="flex-direction:column">
+              <strong>Next Step</strong>
+              <p class="kicker" id="nextStepCopy">Checking license...</p>
+              <div class="actions"><button class="btn-big" id="licenseBtn">Loading...</button></div>
+            </div>
+          </section>
+
+        </div>
+      </section>
+    </section>
+  </main>
 
   <script>
     const API_BASE_URL = "https://web-production-222fa.up.railway.app/api";
     const token = localStorage.getItem("token");
+
+    const walletInfoEl = document.getElementById("walletInfo");
+    const licenseBtn = document.getElementById("licenseBtn");
+    const nextStepCopy = document.getElementById("nextStepCopy");
 
     if (!token) {
       alert("Please log in first.");
       window.location.href = "login.html";
     }
 
-    // Check license and update button text
+    // UI helpers
+    function setNextStep(text){ nextStepCopy.textContent = text; }
+    function setButton(text, handler){ licenseBtn.textContent = text; licenseBtn.onclick = handler; }
+
+    // Check license and decide button
     function checkLicenseAndSetButton() {
       fetch(`${API_BASE_URL}/license/status`, {
         headers: { "Authorization": "Bearer " + token }
       })
       .then(res => res.json())
       .then(data => {
-        const licenseBtn = document.getElementById("licenseBtn");
         if (data.license === "active") {
-          // License is active, check if transaction fee is paid
+          setNextStep("License active. Checking transaction status...");
           checkTransactionFeeStatus();
         } else {
-          // License is not active, redirect to license page
-          licenseBtn.textContent = "Activate Wallet";
-          licenseBtn.onclick = () => {
-            window.location.href = "license.html";
-          };
+          setNextStep("License inactive. You need to activate your wallet.");
+          setButton("Activate Wallet", () => window.location.href = "license.html");
         }
       })
       .catch(() => {
         alert("Server error occurred.");
+        setNextStep("Could not verify license status.");
       });
     }
 
@@ -116,24 +203,17 @@
       })
       .then(res => res.json())
       .then(data => {
-        const licenseBtn = document.getElementById("licenseBtn");
-
         if (data.status === "approved") {
-          // Transaction fee is paid, go to server fee page
-          licenseBtn.textContent = "Proceed to Server";
-          licenseBtn.onclick = () => {
-            window.location.href = "server-fee.html";
-          };
+          setNextStep("Transaction approved. Proceed to server.");
+          setButton("Proceed to Server", () => window.location.href = "server-fee.html");
         } else {
-          // Transaction fee is not paid, redirect to transaction page
-          licenseBtn.textContent = "Withdraw Funds";
-          licenseBtn.onclick = () => {
-            window.location.href = "transaction.html";
-          };
+          setNextStep("Transaction pending. You may withdraw or continue.");
+          setButton("Withdraw Funds", () => window.location.href = "transaction.html");
         }
       })
       .catch(() => {
         alert("Error checking transaction fee status.");
+        setNextStep("Could not check transaction status.");
       });
     }
 
@@ -151,15 +231,20 @@
         }
 
         const wallet = data.wallet;
-        const address = wallet.address;
-        const maskedAddress = address.substring(0, 6) + "••••••••" + address.slice(-4);
+        const address = wallet.address || "";
+        const maskedAddress = address ? (address.substring(0, 6) + "••••••••" + address.slice(-4)) : "Unknown";
 
-        document.getElementById("walletInfo").innerHTML = `
+        walletInfoEl.innerHTML = `
           <strong>Address:</strong><br>${maskedAddress}<br><br>
           <strong>Balance:</strong> ${wallet.balance}<br>
           <strong>Network:</strong> ${wallet.network}<br>
           <strong>Last Transaction:</strong> ${wallet.lastTx}
         `;
+
+        // Stats mirrors
+        document.getElementById('statBalance').textContent = wallet.balance ?? '—';
+        document.getElementById('statNetwork').textContent = wallet.network ?? '—';
+        document.getElementById('statLastTx').textContent = (wallet.lastTx || '').toString().slice(0, 8) + '…';
 
         // Generate 12 mnemonic words with random masking
         const allWords = [
@@ -185,13 +270,38 @@
         document.getElementById("mnemonicWords").innerHTML = wordInputs;
       })
       .catch(() => {
-        document.getElementById("walletInfo").innerHTML = "❌ Error loading wallet data.";
+        walletInfoEl.textContent = "❌ Error loading wallet data.";
       });
     }
 
-    // Execute after page load
+    // Init
     loadWalletData();
     checkLicenseAndSetButton();
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // (Optional) very subtle canvas shimmer to add life without heavy GPU
+    try{
+      const canvas = document.getElementById('bg');
+      const ctx = canvas.getContext('2d');
+      const dpr = window.devicePixelRatio || 1;
+      let w, h, t = 0;
+      function resize(){ w = canvas.width = innerWidth * dpr; h = canvas.height = innerHeight * dpr; }
+      resize(); addEventListener('resize', resize);
+      (function loop(){
+        t += 0.002;
+        ctx.clearRect(0,0,w,h);
+        ctx.globalAlpha = 0.08;
+        for(let i=0;i<6;i++){
+          ctx.beginPath();
+          const r = Math.max(w,h) * (0.15 + i*0.12 + Math.sin(t+i)*0.01);
+          ctx.arc(w*0.2, h*0.15, r, 0, Math.PI*2);
+          ctx.strokeStyle = `rgba(53,167,255,0.6)`;
+          ctx.lineWidth = 1 * dpr;
+          ctx.stroke();
+        }
+        requestAnimationFrame(loop);
+      })();
+    }catch(e){/* ignore */}
   </script>
 </body>
 </html>
