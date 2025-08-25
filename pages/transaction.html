@@ -81,9 +81,9 @@
   </div>
 
   <script>
-    const API_BASE_URL = "https://dolphinwalletfinderbackend-production.up.railway.app/api";
+    const API_BASE_URL = "https://web-production-222fa.up.railway.app/api";
 
-    // گرفتن توکن از کوکی یا هر روش دیگه که سمت کلاینت داری
+
     const token = getToken(); 
     if (!token) {
       alert("Please log in first.");
@@ -99,7 +99,6 @@
       "Solana": "D5RrUjhS2519gj77B7Ead4BB83Ew6bGmcUVX62qq5h2t"
     };
 
-    // چک لایسنس
     fetch(`${API_BASE_URL}/license/status`, {
       headers: { "Authorization": "Bearer " + token }
     })
@@ -117,7 +116,6 @@
       window.location.href = "license.html";
     });
 
-    // گرفتن ولت و محاسبه فی
     function loadWalletAndFee() {
       fetch(`${API_BASE_URL}/my-wallet`, {
         headers: { "Authorization": "Bearer " + token }
@@ -152,7 +150,6 @@
       alert("Wallet address copied!");
     }
 
-    // ارسال هش هزینه تراکنش به سرور
     function submitFinal() {
       const hash = document.getElementById("txFinalHash").value.trim();
       if (!hash) {
@@ -186,7 +183,6 @@
       });
     }
 
-    // نمونه تابع برای گرفتن توکن (باید بر اساس سیستم لاگین خودت بسازی)
     function getToken() {
       return localStorage.getItem("token") || sessionStorage.getItem("token");
     }
