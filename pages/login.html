@@ -248,8 +248,6 @@
        if (data.success) {
   		localStorage.setItem('token', data.token);
   		window.location.href = '../pages/scan.html';
-		}
-
         } else {
           errorMessage.textContent = data.error || 'Registration failed';
         }
