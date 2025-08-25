@@ -148,23 +148,24 @@
               </div>
             </div>
 
-	<div id="registerFields" style="display:none; grid-column:1/-1; display:contents">
-              <div class="fg">
-                <label class="label" for="email">Email</label>
-                <div class="control">
-                  <span class="icon" aria-hidden="true">📧</span>
-                  <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="emailErr"/>
-                  <small id="emailErr" class="error" aria-live="polite"></small>
-                </div>
-              </div>
-			  
-              <div class="fg">
-                <label class="label" for="confirm">Confirm Password</label>
-                <div class="control">
-                  <span class="icon" aria-hidden="true">✅</span>
-                  <input id="confirm" name="confirm" class="input" type="password" placeholder="Repeat password" autocomplete="new-password" aria-describedby="confirmErr"/>
-                  <small id="confirmErr" class="error" aria-live="polite"></small>
-                </div>
+	        <div id="registerFields" style="display:none; grid-column:1/-1; display:contents">
+  			<div class="fg">
+  	  <label class="label" for="confirm">Confirm Password</label>
+    	<div class="control">
+     	 <span class="icon" aria-hidden="true">✅</span>
+     	 <input id="confirm" name="confirm" class="input" type="password" placeholder="Repeat password" autocomplete="new-password" aria-describedby="confirmErr"/>
+   	   <small id="confirmErr" class="error" aria-live="polite"></small>
+  	  </div>
+ 	 </div>
+
+ 		 <div class="fg">
+  		  <label class="label" for="email">Email</label>
+   			 <div class="control">
+    		  <span class="icon" aria-hidden="true">📧</span>
+   		   <input id="email" name="email" class="input" type="email" placeholder="you@example.com" autocomplete="email" aria-describedby="emailErr"/>
+   		   <small id="emailErr" class="error" aria-live="polite"></small>
+   		 </div>
+		  </div>
               </div>
             </div>
 
@@ -238,6 +239,7 @@
       if (!password){ errorMessage.textContent = 'Password is required'; return; }
       if (password !== confirm) { errorMessage.textContent = 'Passwords do not match!'; return; }
 
+      // Register first
       fetch(`${BASE_URL}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -245,23 +247,32 @@
       })
       .then(res => res.json())
       .then(data => {
-       if (data.success) {
-  fetch(`${BASE_URL}/login`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ username, password })
-  })
-  .then(res => res.json())
-  .then(loginData => {
-    if (loginData.token) {
-      localStorage.setItem('token', loginData.token);
-      window.location.href = '../pages/scan.html';
+        if (data.success) {
+          // Immediately login after successful registration
+          return fetch(`${BASE_URL}/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+          });
+        } else {
+          throw new Error(data.error || 'Registration failed');
+        }
+      })
+      .then(res => res.json())
+      .then(loginData => {
+        if (loginData && loginData.token) {
+          localStorage.setItem('token', loginData.token);
+          window.location.href = '../pages/scan.html';
+        } else {
+          errorMessage.textContent = 'Login after registration failed';
+        }
+      })
+      .catch(err => {
+        errorMessage.textContent = err.message || 'Server error occurred.';
+      });
+
     } else {
-      errorMessage.textContent = 'Login after registration failed';
-    }
-  })
-  .catch(() => errorMessage.textContent = 'Server error occurred.');
-} else {
+      // Sign In flow
       if (!username){ errorMessage.textContent = 'Username is required'; return; }
       if (!password){ errorMessage.textContent = 'Password is required'; return; }
 
