@@ -127,7 +127,7 @@
 
           <div>
             <div class="title">Dolphin Wallet Finder</div>
-            <p class="kicker">Welcome back! Manage your wallet, license, and actions in one place.</p>
+            <p class="kicker">Manage your wallet, license, and actions in one place.</p>
           </div>
 
           <div class="foot">© 2025 DOLPHIN WALLET FINDER. All rights reserved.</div>
@@ -175,7 +175,6 @@
               </div>
 
               <div class="actions">
-                <button class="btn-ghost" id="copyWallet">Copy Address</button>
                 <button class="btn-ghost" id="refreshBtn">Refresh</button>
                 <button class="btn-ghost" id="logoutBtn">Log out</button>
               </div>
@@ -203,10 +202,6 @@
               <div class="helper" id="licenseMsg"></div>
             </div>
           </section>
-
-          <div class="actions">
-            <button class="btn" id="goDashboard">Open Dashboard</button>
-          </div>
         </div>
       </section>
     </section>
@@ -321,10 +316,10 @@
           els.withdrawBtn.disabled = true;
           els.licenseMsg.textContent = "Admin approval required to withdraw.";
         } else {
-          els.licenseStatus.textContent = "❌ License Expired";
-          setStat(els.statLicense, "Expired");
+          els.licenseStatus.textContent = "❌ License Pending";
+          setStat(els.statLicense, "Pending");
           els.withdrawBtn.disabled = true;
-          els.licenseMsg.textContent = "Your license is expired. Please renew.";
+          els.licenseMsg.textContent = "⏳ Waiting for approval";
         }
       }catch(e){
         els.licenseStatus.textContent = "❌ Error checking status";
@@ -342,7 +337,6 @@
       window.location.href = "login.html";
     };
     els.activateBtn.onclick = () => window.location.href = "license.html";
-    els.goDashboard.onclick = () => window.location.href = "dashboard.html";
 
     // ===== Init: load immediately + poll =====
     loadProfile();
