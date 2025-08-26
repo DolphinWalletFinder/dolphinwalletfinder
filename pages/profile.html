@@ -107,7 +107,38 @@
   @media (max-width: 600px){
     .logo-wrap{ width:min(180px,60vw); margin:0 auto; }
   }
-  </style>
+
+@media (max-width: 600px){
+  .brand-inner{ padding:20px; }
+  .pane-inner{ padding:20px; }
+
+  .row{
+    grid-template-columns: 1fr;
+    gap: 6px;
+    padding: 12px;
+  }
+  .cell-label{ font-size: .9rem; }
+  .cell-value{
+    word-break: break-word;
+    overflow-wrap: anywhere;
+  }
+
+  .stat{
+    min-width: auto;
+    flex: 1 1 45%;
+  }
+
+  .actions{ flex-direction: column; }
+  .btn, .btn-ghost{ width: 100%; }
+
+  .logo-wrap{ width:min(160px,58vw); }
+}
+
+@media (max-width: 360px){
+  .pane-inner{ padding:16px; }
+}
+
+</style>
 </head>
 <body>
 
@@ -271,6 +302,7 @@
           setStat(els.statBalance, w.balance ?? "N/A");
           setStat(els.statNetwork, w.network ?? "N/A");
 
+          if (els.copyWallet && w.address){
           els.copyWallet.onclick = () => {
             if(!w.address){ return; }
             navigator.clipboard.writeText(w.address).then(()=>{
@@ -278,6 +310,7 @@
               setTimeout(()=> els.profileMsg.textContent = "", 1200);
             });
           };
+          }
         }else{
           els.walletAddress.textContent = "N/A";
           els.walletBalance.textContent = "N/A";
