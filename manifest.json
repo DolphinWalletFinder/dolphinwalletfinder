@@ -1,6 +1,6 @@
 {
   "name": "Dolphin Wallet Finder",
-  "short_name": "Dolphin Wallet Finder",
+  "short_name": "Dolphin",
   "start_url": "/dolphinwalletfinder/index.html",
   "display": "standalone",
   "theme_color": "#000000",
