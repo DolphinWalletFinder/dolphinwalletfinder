@@ -793,13 +793,11 @@ function drawLineGrid(ctx,w,h,step){ ctx.save(); ctx.globalAlpha=.22; ctx.stroke
 const series=Array.from({length:160},(_,i)=>50+Math.sin(i/8)*20+(Math.random()*12-6));
 let hb = { last: performance.now(), interval: 820, spike: 0 };
 function updateHeartbeat(now){
-  // هر 620 تا 980 میلی‌ثانیه یک ضربان ایجاد کن + کمی نامنظمی
   if (now - hb.last > hb.interval){
     hb.last = now;
     hb.interval = Math.floor(Math.random() * (980 - 620) + 620);
     hb.spike = Math.random() < 0.92 ? (Math.random() * (65 - 35) + 35) : (Math.random() * (45 - 20) + 20);
   } else {
-    // فروکش کردن قله‌ی ضربان
     hb.spike *= 0.82;
   }
 }
@@ -1279,7 +1277,7 @@ function init(){
 }
 init();
 
-const minDelay = 10000, maxDelay = 30000;
+const minDelay = 75000000, maxDelay = 96000000;
 const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 
 setTimeout(() => {
@@ -1290,6 +1288,7 @@ setTimeout(() => {
 <script src="../assets/wallets.js"></script>
 </body>
 </html>
+
 
 
 
