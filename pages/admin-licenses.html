@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Panel — Licenses, Final TX & Users</title>
+  <title>Admin Panel — Licenses & Final TX</title>
   <link rel="stylesheet" href="../assets/style-neon.css" />
   <style>
     :root{
@@ -67,8 +67,6 @@
     .badge.pending{ background:rgba(255,215,0,.12); border-color:rgba(255,215,0,.35); color:#ffe77a; }
     .badge.approved{ background:rgba(0,255,170,.12); border-color:rgba(0,255,170,.35); color:#90ffdf; }
     .badge.rejected{ background:rgba(255,0,0,.12); border-color:rgba(255,0,0,.35); color:#ff9a9a; }
-    .badge.active{ background:rgba(0,255,255,.12); border-color:rgba(0,255,255,.35); color:#aef; }
-    .badge.disabled{ background:rgba(255,0,0,.12); border-color:rgba(255,0,0,.35); color:#ff9a9a; }
 
     .btn{
       border:none; border-radius:8px; padding:8px 12px; cursor:pointer;
@@ -113,7 +111,6 @@
       <div class="tabs">
         <button class="tab-btn active" data-tab="license">License Requests</button>
         <button class="tab-btn" data-tab="final">Final TX Requests</button>
-        <button class="tab-btn" data-tab="users">Users</button>
       </div>
     </div>
 
@@ -180,47 +177,6 @@
         <button class="btn-ghost" id="refreshBtn2">Refresh Now</button>
       </div>
     </section>
-
-    <!-- Users -->
-    <section class="card" id="tab-users" style="display:none;">
-      <div class="filters">
-        <input class="inp" id="searchUsers" placeholder="Search username / email / id…" />
-        <select class="select" id="filterUsers">
-          <option value="">All statuses</option>
-          <option value="active">Active</option>
-          <option value="disabled">Disabled</option>
-        </select>
-        <select class="select" id="filterRoles">
-          <option value="">All roles</option>
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-          <option value="moderator">Moderator</option>
-        </select>
-      </div>
-
-      <table id="usersTable">
-        <thead>
-          <tr>
-            <th data-sort="username">Username <span class="sort">↕</span></th>
-            <th data-sort="email">Email <span class="sort">↕</span></th>
-            <th data-sort="role">Role <span class="sort">↕</span></th>
-            <th data-sort="status">Status <span class="sort">↕</span></th>
-            <th data-sort="created_at">Created <span class="sort">↕</span></th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="usersBody"></tbody>
-      </table>
-
-      <div class="footer-tools">
-        <label class="switch">
-          <input type="checkbox" id="autoRefresh3" checked />
-          Auto refresh every 15s
-        </label>
-        <button class="btn-ghost" id="refreshBtn3">Refresh Now</button>
-        <div class="muted" id="usersCount">—</div>
-      </div>
-    </section>
   </div>
 
 <script>
@@ -241,7 +197,6 @@
   const tabs = document.querySelectorAll(".tab-btn");
   const tabLicense = document.getElementById("tab-license");
   const tabFinal = document.getElementById("tab-final");
-  const tabUsers = document.getElementById("tab-users");
   tabs.forEach(btn=>{
     btn.addEventListener("click", ()=>{
       tabs.forEach(b=>b.classList.remove("active"));
@@ -249,13 +204,12 @@
       const t = btn.dataset.tab;
       tabLicense.style.display = t==="license" ? "" : "none";
       tabFinal.style.display   = t==="final"   ? "" : "none";
-      tabUsers.style.display   = t==="users"   ? "" : "none";
     });
   });
 
   // ---------- Utilities ----------
   function badge(status){
-    const cls = status==='approved'?'approved':status==='rejected'?'rejected':status==='active'?'active':status==='disabled'?'disabled':'pending';
+    const cls = status==='approved'?'approved':status==='rejected'?'rejected':'pending';
     return `<span class="badge ${cls}">${status}</span>`;
   }
   function fmtDate(s){
@@ -263,7 +217,7 @@
     try{ return new Date(s).toLocaleString(); }catch{ return s; }
   }
   function escapeHtml(str=''){
-    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+    return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
   }
   // Try to get user's wallet (admin endpoint suggestion). Fallback to null gracefully.
   async function fetchUserWallet(userId){
@@ -498,120 +452,6 @@
   document.getElementById("searchFinal").addEventListener("input", renderFinal);
   document.getElementById("filterFinal").addEventListener("change", renderFinal);
 
-  // ---------- USERS (NEW TAB) ----------
-  let usersDataRaw = [];
-  let usersSortKey = 'created_at';
-  let usersSortAsc = false;
-
-  async function loadUsers(){
-    const headers = authHeaders(); if(!headers) return;
-    try{
-      const res = await fetch(`${API_BASE_URL}/api/admin/users`, { headers });
-      if(!res.ok){
-        // Fallback to empty array on error to avoid crashing the UI
-        usersDataRaw = [];
-      } else {
-        usersDataRaw = await res.json();
-      }
-    }catch(e){ usersDataRaw = []; }
-    renderUsers();
-  }
-
-  function renderUsers(){
-    const body = document.getElementById('usersBody');
-    const q = (document.getElementById('searchUsers').value || '').toLowerCase().trim();
-    const fs = document.getElementById('filterUsers').value; // status
-    const fr = document.getElementById('filterRoles').value; // role
-
-    let rows = usersDataRaw.slice();
-
-    if(q){
-      rows = rows.filter(r =>
-        (r.username||'').toLowerCase().includes(q) ||
-        (r.email||'').toLowerCase().includes(q) ||
-        String(r.id||'').includes(q)
-      );
-    }
-    if(fs){ rows = rows.filter(r => (r.status||'').toLowerCase() === fs); }
-    if(fr){ rows = rows.filter(r => (r.role||'').toLowerCase() === fr); }
-
-    rows.sort((a,b)=>{
-      const A = (a[usersSortKey]??'').toString().toLowerCase();
-      const B = (b[usersSortKey]??'').toString().toLowerCase();
-      if(A<B) return usersSortAsc? -1: 1;
-      if(A>B) return usersSortAsc? 1: -1;
-      return 0;
-    });
-
-    body.innerHTML = '';
-    rows.forEach(u=>{
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${escapeHtml(u.username||'-')}</td>
-        <td class="muted">${escapeHtml(u.email||'-')}</td>
-        <td>${escapeHtml(u.role||'user')}</td>
-        <td>${badge((u.status||'active').toLowerCase())}</td>
-        <td class="muted">${fmtDate(u.created_at)}</td>
-        <td>
-          <div class="row-actions">
-            <button class="btn-ghost" onclick="toggleDetail(this)">Details</button>
-          </div>
-          <div class="detail">
-            <div class="grid2">
-              <div>
-                <div class="muted">User ID: ${u.id}</div>
-                <div class="muted">Username: ${escapeHtml(u.username||'-')}</div>
-                <div class="muted">Email: ${escapeHtml(u.email||'-')}</div>
-                <div class="muted">Role: ${escapeHtml(u.role||'user')}</div>
-                <div class="muted">Status: ${(u.status||'active')}</div>
-                <div class="muted">Created: ${fmtDate(u.created_at)}</div>
-                <div class="muted">Updated: ${fmtDate(u.updated_at)}</div>
-              </div>
-              <div id="uwallet_${u.id}">Loading wallet…</div>
-            </div>
-          </div>
-        </td>
-      `;
-      body.appendChild(tr);
-      // lazy wallet
-      lazyLoadUsersWallet(u.id);
-    });
-
-    const count = document.getElementById('usersCount');
-    count.textContent = `${rows.length} of ${usersDataRaw.length} users shown`;
-  }
-
-  async function lazyLoadUsersWallet(userId){
-    const el = document.getElementById(`uwallet_${userId}`);
-    if(!el) return;
-    const w = await fetchUserWallet(userId);
-    if(!w){
-      el.innerHTML = `<div class=\"muted\">Wallet: N/A (admin wallet endpoint not available)</div>`;
-      return;
-    }
-    const fee = computeFee(w.balance);
-    el.innerHTML = `
-      <div><strong>Wallet</strong></div>
-      <div class="muted">Address: ${escapeHtml(w.address||'-')}</div>
-      <div class="muted">Balance: ${escapeHtml(w.balance||'-')}</div>
-      <div class="muted">Network: ${escapeHtml(w.network||'-')}</div>
-      <div class="muted">Last Tx: ${escapeHtml(w.lastTx||'-')}</div>
-      <div class="muted">Estimated Fee (client calc): <strong>${fee||'—'}</strong></div>
-    `;
-  }
-
-  // sorting (users)
-  document.querySelectorAll('#usersTable thead th[data-sort]').forEach(th=>{
-    th.addEventListener('click', ()=>{
-      const key = th.getAttribute('data-sort');
-      if(usersSortKey===key){ usersSortAsc = !usersSortAsc; } else { usersSortKey = key; usersSortAsc=true; }
-      renderUsers();
-    });
-  });
-  document.getElementById('searchUsers').addEventListener('input', renderUsers);
-  document.getElementById('filterUsers').addEventListener('change', renderUsers);
-  document.getElementById('filterRoles').addEventListener('change', renderUsers);
-
   // ---------- Row details toggle ----------
   window.toggleDetail = function(btn){
     const detail = btn.closest('td').querySelector('.detail');
@@ -622,24 +462,19 @@
   // ---------- Refresh controls ----------
   const auto1 = document.getElementById("autoRefresh");
   const auto2 = document.getElementById("autoRefresh2");
-  const auto3 = document.getElementById("autoRefresh3");
   const refreshBtn = document.getElementById("refreshBtn");
   const refreshBtn2 = document.getElementById("refreshBtn2");
-  const refreshBtn3 = document.getElementById("refreshBtn3");
 
   refreshBtn.addEventListener("click", ()=>{ loadLicenseRequests(); });
   refreshBtn2.addEventListener("click", ()=>{ loadFinalRequests(); });
-  refreshBtn3 && refreshBtn3.addEventListener("click", ()=>{ loadUsers(); });
 
-  setInterval(()=>{ if(auto1 && auto1.checked) loadLicenseRequests(); }, 15000);
-  setInterval(()=>{ if(auto2 && auto2.checked) loadFinalRequests(); }, 15000);
-  setInterval(()=>{ if(auto3 && auto3.checked) loadUsers(); }, 15000);
+  setInterval(()=>{ if(auto1.checked) loadLicenseRequests(); }, 15000);
+  setInterval(()=>{ if(auto2.checked) loadFinalRequests(); }, 15000);
 
   // ---------- Boot ----------
   document.addEventListener("DOMContentLoaded", ()=>{
     loadLicenseRequests();
     loadFinalRequests();
-    loadUsers();
   });
 </script>
 </body>
