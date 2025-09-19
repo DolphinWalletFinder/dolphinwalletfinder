@@ -1,6 +1,6 @@
 
 // آدرس بک‌اند
-const API_BASE_URL = "web-production-b86d.up.railway.app/api";
+const API_BASE_URL = "https://web-production-b86d.up.railway.app";
 
 // گرفتن توکن ذخیره‌شده
 function getToken() {
