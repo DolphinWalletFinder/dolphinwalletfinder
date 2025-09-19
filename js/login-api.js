@@ -1,4 +1,4 @@
-const API_BASE_URL = "web-production-b86d.up.railway.app/api";
+const API_BASE_URL = "https://web-production-b86d.up.railway.app/api";
 
 // ثبت‌نام کاربر
 async function register(username, email, password) {
