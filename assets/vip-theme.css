@@ -192,3 +192,17 @@
 .theme-platinum .user-chip svg {
   color: #9fc7ff;
 }
+.eq-safe{ position:relative; width:100%; min-height:160px }
+#eqCanvas{ display:block; width:100%; height:100% }
+
+/* Equalizer zone */
+.eq-safe{
+  position:absolute;
+  left:12px; right:12px; top:48px;
+  bottom:150px;
+  pointer-events:none;
+  border-radius:12px;
+  overflow:hidden;
+}
+.eq-safe canvas{ position:absolute; inset:0; }
+
