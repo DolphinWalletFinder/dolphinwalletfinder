@@ -131,3 +131,64 @@
   0%,100%{background-position:0% 50%}
   50%{background-position:100% 50%}
 }
+
+/* ===== User Chip in Header ===== */
+.user-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: .4rem .8rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: .9rem;
+  color: #e5faff;
+
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  backdrop-filter: blur(8px) saturate(160%);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .05),
+    0 6px 18px -6px rgba(0, 0, 0, .6);
+
+  transition: transform .25s ease, box-shadow .25s ease;
+}
+.user-chip:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, .05),
+    0 10px 28px -8px rgba(0, 0, 0, .7);
+}
+
+.user-chip svg {
+  width: 18px;
+  height: 18px;
+  opacity: .85;
+  filter: drop-shadow(0 0 4px rgba(255,255,255,.15));
+}
+
+.user-chip span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 180px;
+}
+
+/* Gold */
+.theme-gold .user-chip {
+  border-color: rgba(246, 194, 90, .45);
+  color: #fce9b2;
+  background: rgba(246, 194, 90, .1);
+}
+.theme-gold .user-chip svg {
+  color: #f6c25a;
+}
+
+/* Platinum */
+.theme-platinum .user-chip {
+  border-color: rgba(159, 199, 255, .45);
+  color: #dbe8ff;
+  background: rgba(159, 199, 255, .1);
+}
+.theme-platinum .user-chip svg {
+  color: #9fc7ff;
+}
