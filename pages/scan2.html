@@ -7,7 +7,11 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/three@0.160.0/build/three.min.js"></script>
+<script type="module">
+  import * as THREE from 'https://unpkg.com/three@0.160.0/build/three.module.js';
+  window.THREE = THREE;
+</script>
+
 <link rel="stylesheet" href="../assets/vip-theme.css">
 <style>
   :root{ --bg:#070b14; --c1:#0ff1e7; --c2:#35a7ff; --c3:#14ff89; --grid:#0e1628; --panel:rgba(10,16,26,.65); --panel2:rgba(6,12,20,.55) }
