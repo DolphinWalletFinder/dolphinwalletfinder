@@ -420,6 +420,8 @@ const SETTINGS = {
     glowLead:    6
   }
 };
+SETTINGS.scan.hourlyMin *= 3;
+SETTINGS.scan.hourlyMax *= 3;
 (()=>{ const r=document.documentElement.style; r.setProperty('--c1',SETTINGS.theme.c1); r.setProperty('--c2',SETTINGS.theme.c2); r.setProperty('--c3',SETTINGS.theme.c3); r.setProperty('--grid',SETTINGS.theme.grid); })();
 
 /* ================= HELPERS ================= */
