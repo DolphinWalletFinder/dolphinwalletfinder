@@ -41,6 +41,7 @@ const wallets = [
 "network": "Bitcoin",
 "lastTx": "2016-10-22 20:04:41"
 },
+];
 
 // انتخاب ولت تصادفی و ذخیره در دیتابیس
 async function simulateScan() {
