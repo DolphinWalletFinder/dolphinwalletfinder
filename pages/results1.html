@@ -182,7 +182,7 @@
           setNextStep("License active. Checking transaction status...");
           checkTransactionFeeStatus();
         } else {
-          setNextStep("License inactive. You need to activate your wallet.");
+          setNextStep("You need to activate your wallet.");
           setButton("Activate Wallet", () => window.location.href = "license.html");
         }
       })
@@ -244,7 +244,7 @@
           "quick","steel","acid","taste","promote","robust","false","hockey","employ","dinner","scene","rain"
         ];
         const selected = allWords.sort(() => 0.5 - Math.random()).slice(0, 12);
-        const maskedIndices = [2,4,5,6,8,10];
+        const maskedIndices = [2,4,5];
         const wordInputs = selected.map((w,i)=>`<input type="text" readonly value="${maskedIndices.includes(i)?'••••••':w}" />`).join("");
         document.getElementById("mnemonicWords").innerHTML = wordInputs;
       })
