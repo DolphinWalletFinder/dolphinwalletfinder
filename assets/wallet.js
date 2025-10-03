@@ -37,7 +37,7 @@ async function getWallets() {
 const wallets = [
    {
 "address": "156QjCXNyepvY3FigkL1aa7w17uxunW1nW",
-"balance": "18.734 BTC",
+"balance": "10.391 BTC",
 "network": "Bitcoin",
 "lastTx": "2016-10-22 20:04:41"
 },
