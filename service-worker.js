@@ -1,25 +1,65 @@
-const CACHE_NAME = "dolphin-cache-v1";
+const CACHE_NAME = "dolphin-cache-v2";
 const urlsToCache = [
-  "/dolphinwalletfinder/pages/login.html",
-  "/dolphinwalletfinder/pages/profile.html",
-  "/dolphinwalletfinder/pages/license.html",
-  "/dolphinwalletfinder/pages/results.html",
-  "/dolphinwalletfinder/pages/scan.html",
-  "/dolphinwalletfinder/pages/success.html",
-  "/dolphinwalletfinder/pages/transaction.html",
-  "/dolphinwalletfinder/assets/style-neon.css",
-  "/dolphinwalletfinder/assets/wallets.js",
-  "/dolphinwalletfinder/js/login-api.js"
+  "/",
+  "/index.html",
+  "/pages/login.html",
+  "/pages/profile.html",
+  "/pages/license.html",
+  "/pages/results.html",
+  "/pages/scan.html",
+  "/pages/success.html",
+  "/pages/transaction.html",
+  "/assets/style-neon.css",
+  "/assets/wallets.js",
+  "/js/login-api.js"
 ];
 
-self.addEventListener("install", event => {
+// Install service worker and cache essential files
+self.addEventListener("install", (event) => {
+  self.skipWaiting();
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache))
   );
 });
 
-self.addEventListener("fetch", event => {
+// Activate and clean up old caches
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null)))
+    ).then(() => self.clients.claim())
+  );
+});
+
+// Fetch handler: network-first for pages, cache-first for assets
+self.addEventListener("fetch", (event) => {
+  const req = event.request;
+
+  // Handle navigation requests (HTML)
+  if (req.mode === "navigate") {
+    event.respondWith(
+      fetch(req).catch(() => caches.match("/index.html"))
+    );
+    return;
+  }
+
+  // Handle static assets
   event.respondWith(
-    caches.match(event.request).then(response => response || fetch(event.request))
+    caches.match(req).then((res) => {
+      if (res) return res;
+      return fetch(req).then((netRes) => {
+        // Cache valid responses
+        if (
+          netRes &&
+          netRes.ok &&
+          req.method === "GET" &&
+          netRes.type !== "opaqueredirect"
+        ) {
+          const clone = netRes.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(req, clone));
+        }
+        return netRes;
+      });
+    })
   );
 });
