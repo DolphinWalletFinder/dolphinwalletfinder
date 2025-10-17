@@ -156,6 +156,26 @@
   }
 
   @keyframes spin{ to { transform: rotate(360deg); } }
+
+  /* =====================
+     Minimal fixes for mobile fit & "jump"
+     (only CSS additions; nothing else changed)
+     ===================== */
+  /* Avoid number-width reflow during counter animation */
+  .stat .n{ font-variant-numeric: tabular-nums; }
+
+  /* Prevent any glow/blur from causing accidental scrollbars */
+  .content-pane, .brand-pane { overflow: hidden; }
+
+  /* So it fits smaller phones without forcing a tall box */
+  @media (max-width: 600px){
+    .stage{ padding:12px; }
+    .shell{ min-height:unset; height:auto; }
+    .brand-inner{ padding:22px; }
+    .pane-inner{ padding:20px 16px; }
+    .stores-strip{ padding:14px; }
+    .store-badge{ width:100%; min-width:0; }
+  }
   </style>
 </head>
 <body>
@@ -298,5 +318,3 @@
   </script>
 </body>
 </html>
-
-
