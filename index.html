@@ -100,7 +100,7 @@
   .btn-telegram:hover { transform:translateY(-1px); opacity:.9; }
   .btn-telegram svg { width:22px; height:22px; fill:#fff; }
 
-  /* Coming-soon strip (text only headline, disabled official image badges below) */
+  /* Coming-soon strip (headline + glassy disabled badges with text) */
   .stores-wrap{ margin-top:auto; padding-top:6px; }
   .stores-strip{
     position:relative;
@@ -130,20 +130,17 @@
   .store-badges{ display:flex; gap:12px; flex-wrap:wrap; }
   .store-badge{
     display:inline-flex; align-items:center; gap:12px;
-    padding:8px 12px; border-radius:14px;
+    padding:10px 14px; border-radius:14px;
     border:1px solid rgba(64,203,255,.28);
     background:linear-gradient(110deg,rgba(0,255,255,.10),rgba(0,40,110,.18));
-    min-width:220px;
+    min-width:260px;
     cursor:not-allowed;
     opacity:.98;
   }
-  .store-badge img{
-    height:36px; width:auto; display:block;
-    -webkit-user-drag:none; user-select:none;
-  }
-  .store-badge .label{ display:flex; flex-direction:column; line-height:1.1; text-align:left; }
-  .store-badge .overline{ font-size:11px; opacity:.85; letter-spacing:.4px; }
-  .store-badge .name{ font-size:16px; font-weight:900; color:var(--text); }
+  .store-badge img{ height:28px; width:auto; display:block; -webkit-user-drag:none; user-select:none; }
+  .store-badge .label{ display:flex; flex-direction:column; line-height:1.1; }
+  .store-badge .name{ font-size:15px; font-weight:900; color:var(--text); }
+  .store-badge .overline{ font-size:11px; opacity:.9; letter-spacing:.35px; color:var(--muted); }
 
   .foot{ margin-top:12px; text-align:center; color:var(--muted); font-size:.9rem }
 
@@ -212,19 +209,27 @@
             </a>
           </div>
 
-          <!-- Coming soon strip: headline only + disabled official image badges underneath -->
+          <!-- Coming soon strip: headline + glassy disabled official image badges with text -->
           <div class="stores-wrap">
             <div class="stores-strip" role="region" aria-label="Coming soon to marketplaces">
               <div class="stores-text">Coming soon on top marketplaces</div>
               <div class="store-badges">
                 <!-- Google Play official badge (button, disabled) -->
                 <button class="store-badge" type="button" disabled aria-disabled="true" title="Coming soon">
-                  <img src="assets/google-play-badge.png" alt="Get it on Google Play" loading="lazy" decoding="async" />
+                  <img src="assets/google-play-badge.png" alt="Google Play badge" loading="lazy" decoding="async" />
+                  <div class="label">
+                    <span class="overline">Get it on</span>
+                    <span class="name">Google Play</span>
+                  </div>
                 </button>
 
                 <!-- App Store official badge (button, disabled) -->
                 <button class="store-badge" type="button" disabled aria-disabled="true" title="Coming soon">
-                  <img src="assets/app-store-badge.png" alt="Download on the App Store" loading="lazy" decoding="async" />
+                  <img src="assets/app-store-badge.png" alt="App Store badge" loading="lazy" decoding="async" />
+                  <div class="label">
+                    <span class="overline">Download on the</span>
+                    <span class="name">App Store</span>
+                  </div>
                 </button>
               </div>
             </div>
