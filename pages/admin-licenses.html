@@ -68,7 +68,7 @@
     .badge.approved{ background:rgba(0,255,170,.12); border-color:rgba(0,255,170,.35); color:#90ffdf; }
     .badge.rejected{ background:rgba(255,0,0,.12); border-color:rgba(255,0,0,.35); color:#ff9a9a; }
     .badge.active{ background:rgba(0,255,255,.12); border-color:rgba(0,255,255,.35); color:#aef; }
-    .badge.disabled{ background:rgba(255,0,0,.12); border-color:rgba(255,0,0,.35); color:#ff9a9a; }
+    .badge.disabled{ background:rgba(255,0,0,.12); border-color:rgba(0,255,0,0.35); color:#ff9a9a; }
 
     .btn{
       border:none; border-radius:8px; padding:8px 12px; cursor:pointer;
@@ -116,7 +116,6 @@
     <div class="header">
       <h1>🔐 Admin Panel</h1>
       <div class="header-tools">
-        <!-- NEW: Backup button -->
         <button class="btn" id="btnBackup" title="Download JSON Backup">⬇️ Backup</button>
 
         <div class="tabs">
@@ -225,12 +224,10 @@
       <div class="footer-tools">
         <label class="switch">
           <input type="checkbox" id="autoRefresh3" checked />
-          Auto refresh every 15s
         </label>
         <button class="btn-ghost" id="refreshBtn3">Refresh Now</button>
         <div class="muted" id="usersCount">—</div>
 
-        <!-- Pagination controls -->
         <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
           <button class="btn-ghost" id="btnPrevUsers">« Prev</button>
           <div class="muted" id="usersPagerInfo">Page 1 / ?</div>
@@ -241,10 +238,8 @@
   </div>
 
 <script>
-  // Set to your deployed API. Empty string would use same-origin.
   const API_BASE_URL = "https://web-production-b86d.up.railway.app";
 
-  // ---------- Auth headers ----------
   function authHeaders() {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -255,7 +250,6 @@
     return { "Authorization": "Bearer " + token, "Content-Type": "application/json" };
   }
 
-  // ---------- Tabs ----------
   const tabs = document.querySelectorAll(".tab-btn");
   const tabLicense = document.getElementById("tab-license");
   const tabFinal = document.getElementById("tab-final");
@@ -271,7 +265,6 @@
     });
   });
 
-  // ---------- Utilities ----------
   function badge(status){
     const cls = status==='approved'?'approved':status==='rejected'?'rejected':status==='active'?'active':status==='disabled'?'disabled':'pending';
     return `<span class="badge ${cls}">${status}</span>`;
@@ -302,7 +295,7 @@
     return `${fee} ${curr}`;
   }
 
-  // ---------- Rendering License ----------
+  // ---------- License ----------
   let licenseDataRaw = [];
   let licenseSortKey = 'created_at';
   let licenseSortAsc = false;
@@ -406,7 +399,7 @@
   document.getElementById("searchLicense").addEventListener("input", renderLicense);
   document.getElementById("filterLicense").addEventListener("change", renderLicense);
 
-  // ---------- Rendering Final ----------
+  // ---------- Final ----------
   let finalDataRaw = [];
   let finalSortKey = 'created_at';
   let finalSortAsc = false;
@@ -510,13 +503,82 @@
   document.getElementById("searchFinal").addEventListener("input", renderFinal);
   document.getElementById("filterFinal").addEventListener("change", renderFinal);
 
-  // ---------- USERS (server-side pagination) ----------
+  // ---------- Users ----------
   const USERS_PAGE_SIZE = 50;
   let usersDataRaw = [];
   let usersSortKey = 'created_at';
   let usersSortAsc = false;
   let usersPage = 0;
   let usersTotal = 0;
+
+  // NEW: cache total per filter signature
+  const usersTotalCache = new Map(); // key: JSON.stringify({q,fs,fr}) -> number
+
+  // NEW: smart total fetcher (header-first, then count pages)
+  async function fetchUsersTotalSmart(q, fs, fr){
+    const headers = authHeaders(); if(!headers) return 0;
+
+    // helper to read X-Total-Count from a request
+    async function tryHeader(style){
+      const params = new URLSearchParams();
+      if (style === 'limit') {
+        params.set('limit', '1');
+        params.set('offset', '0');
+      } else {
+        params.set('page', '1');
+        params.set('per_page', '1');
+      }
+      if (q)  params.set('q', q);
+      if (fs) params.set('status', fs);
+      if (fr) params.set('role', fr);
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/users?${params.toString()}`, { headers });
+      if (!res.ok) return null;
+      const totalHdr = res.headers.get('X-Total-Count') || res.headers.get('x-total-count');
+      if (totalHdr && !Number.isNaN(parseInt(totalHdr,10))) return parseInt(totalHdr,10);
+      return null;
+    }
+
+    // 1) Try limit/offset header
+    let headerTotal = await tryHeader('limit');
+    if (headerTotal !== null) return headerTotal;
+
+    // 2) Try page/per_page header
+    headerTotal = await tryHeader('page');
+    if (headerTotal !== null) return headerTotal;
+
+    // 3) Fallback: count by paging (fast, big pages)
+    const pageSize = 500;
+    let offset = 0;
+    let total = 0;
+    while(true){
+      const params = new URLSearchParams();
+      params.set('limit', String(pageSize));
+      params.set('offset', String(offset));
+      if (q)  params.set('q', q);
+      if (fs) params.set('status', fs);
+      if (fr) params.set('role', fr);
+
+      const res = await fetch(`${API_BASE_URL}/api/admin/users?${params.toString()}`, { headers });
+      if (!res.ok) break;
+      let page;
+      try { page = await res.json(); } catch { page = []; }
+      total += page.length;
+      if (page.length < pageSize) break;
+      offset += pageSize;
+      // be nice to the API
+      await new Promise(r=>setTimeout(r, 60));
+    }
+    return total;
+  }
+
+  // Show "Users (N)" on tab
+  function updateUsersTabBadge(){
+    const btnUsers = [...document.querySelectorAll('.tab-btn')].find(b => b.dataset.tab === 'users');
+    if (!btnUsers) return;
+    const baseLabel = 'Users';
+    btnUsers.textContent = usersTotal ? `${baseLabel} (${usersTotal})` : baseLabel;
+  }
 
   async function loadUsers(page = usersPage){
     usersPage = page;
@@ -526,7 +588,23 @@
     const fs = document.getElementById('filterUsers')?.value || '';
     const fr = document.getElementById('filterRoles')?.value || '';
 
-    // limit/offset
+    // ---- NEW: ensure total is known up-front (cached per filter combo)
+    const sig = JSON.stringify({q,fs,fr});
+    if (usersTotalCache.has(sig)) {
+      usersTotal = usersTotalCache.get(sig);
+      updateUsersTabBadge();
+      document.getElementById('usersCount').textContent =
+        `Total users: ${usersTotal} — Loading page ${usersPage + 1}…`;
+    } else {
+      // compute once per filter change
+      usersTotal = await fetchUsersTotalSmart(q, fs, fr);
+      usersTotalCache.set(sig, usersTotal);
+      updateUsersTabBadge();
+      document.getElementById('usersCount').textContent =
+        `Total users: ${usersTotal} — Loading page ${usersPage + 1}…`;
+    }
+
+    // ---- fetch current page (kept از قبل)
     const params1 = new URLSearchParams();
     params1.set('limit', String(USERS_PAGE_SIZE));
     params1.set('offset', String(usersPage * USERS_PAGE_SIZE));
@@ -538,7 +616,6 @@
     let res;
     try { res = await fetch(url, { headers }); } catch { res = null; }
 
-    // fallback
     if (!res || !res.ok) {
       const params2 = new URLSearchParams();
       params2.set('page', String(usersPage + 1));
@@ -553,26 +630,23 @@
 
     if (!res || !res.ok) {
       usersDataRaw = [];
-      usersTotal = 0;
       renderUsers();
       updateUsersPager();
-      updateUsersTabBadge(); // keep tab label in sync on error/empty
       return;
     }
 
     try { usersDataRaw = await res.json(); } catch { usersDataRaw = []; }
 
+    // اگر هدر حاضر بود، کش را بهتر کن
     const totalHdr = res.headers.get('X-Total-Count') || res.headers.get('x-total-count');
     if (totalHdr && !Number.isNaN(parseInt(totalHdr, 10))) {
       usersTotal = parseInt(totalHdr, 10);
-    } else {
-      const seen = (usersPage * USERS_PAGE_SIZE) + usersDataRaw.length;
-      usersTotal = usersDataRaw.length === USERS_PAGE_SIZE ? seen + USERS_PAGE_SIZE : seen;
+      usersTotalCache.set(sig, usersTotal);
+      updateUsersTabBadge();
     }
 
     renderUsers();
     updateUsersPager();
-    updateUsersTabBadge(); // <-- show "Users (N)" on the tab
   }
 
   function renderUsers(){
@@ -651,14 +725,6 @@
     btnNext.disabled = totalPages ? (usersPage + 1 >= totalPages) : likelyLastPage;
   }
 
-  // --- NEW: show total on Users tab
-  function updateUsersTabBadge(){
-    const btnUsers = [...document.querySelectorAll('.tab-btn')].find(b => b.dataset.tab === 'users');
-    if (!btnUsers) return;
-    const baseLabel = 'Users';
-    btnUsers.textContent = usersTotal ? `${baseLabel} (${usersTotal})` : baseLabel;
-  }
-
   async function lazyLoadUsersWallet(userId){
     const el = document.getElementById(`uwallet_${userId}`);
     if(!el) return;
@@ -678,7 +744,6 @@
     `;
   }
 
-  // sorting (users)
   document.querySelectorAll('#usersTable thead th[data-sort]').forEach(th=>{
     th.addEventListener('click', ()=>{
       const key = th.getAttribute('data-sort');
@@ -687,18 +752,16 @@
       updateUsersPager();
     });
   });
-  document.getElementById('searchUsers').addEventListener('input', ()=>loadUsers(0));
-  document.getElementById('filterUsers').addEventListener('change', ()=>loadUsers(0));
-  document.getElementById('filterRoles').addEventListener('change', ()=>loadUsers(0));
+  document.getElementById('searchUsers').addEventListener('input', ()=>{ usersTotalCache.clear(); loadUsers(0); });
+  document.getElementById('filterUsers').addEventListener('change', ()=>{ usersTotalCache.clear(); loadUsers(0); });
+  document.getElementById('filterRoles').addEventListener('change', ()=>{ usersTotalCache.clear(); loadUsers(0); });
 
-  // ---------- Row details toggle ----------
   window.toggleDetail = function(btn){
     const detail = btn.closest('td').querySelector('.detail');
     if(!detail) return;
     detail.style.display = detail.style.display==='block' ? 'none' : 'block';
   }
 
-  // ---------- Refresh controls ----------
   const auto1 = document.getElementById("autoRefresh");
   const auto2 = document.getElementById("autoRefresh2");
   const auto3 = document.getElementById("autoRefresh3");
@@ -710,7 +773,7 @@
 
   refreshBtn.addEventListener("click", ()=>{ loadLicenseRequests(); });
   refreshBtn2.addEventListener("click", ()=>{ loadFinalRequests(); });
-  refreshBtn3 && refreshBtn3.addEventListener("click", ()=>{ loadUsers(usersPage); });
+  refreshBtn3 && refreshBtn3.addEventListener("click", ()=>{ usersTotalCache.clear(); loadUsers(usersPage); });
 
   btnPrevUsers.addEventListener('click', ()=>{ if(usersPage>0) loadUsers(usersPage-1); });
   btnNextUsers.addEventListener('click', ()=>{ loadUsers(usersPage+1); });
@@ -719,11 +782,8 @@
   setInterval(()=>{ if(auto2 && auto2.checked) loadFinalRequests(); }, 15000);
   setInterval(()=>{ if(auto3 && auto3.checked) loadUsers(usersPage); }, 15000);
 
-  // ================== BACKUP (NEW) ==================
-  // Helper: pause
+  // ---------- Backup (بدون تغییر) ----------
   function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
-
-  // Helper: download JSON file
   function downloadJSON(filename, obj) {
     const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json;charset=utf-8' });
     const url = URL.createObjectURL(blob);
@@ -731,8 +791,6 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-
-  // Fetch all users with paging (limit/offset)
   async function fetchAllUsers(limit=200){
     const headers = authHeaders(); if(!headers) throw new Error("No auth");
     let offset = 0;
@@ -749,23 +807,17 @@
     }
     return all;
   }
-
   async function fetchJson(path){
     const headers = authHeaders(); if(!headers) throw new Error("No auth");
     const res = await fetch(`${API_BASE_URL}${path}`, { headers });
     if(!res.ok) throw new Error(`fetch ${path} failed`);
     return await res.json();
   }
-
   async function backupNow(){
     const btn = document.getElementById('btnBackup');
     try{
       if(btn){ btn.disabled = true; btn.textContent = 'Backing up…'; }
-
-      // 1) Users (all pages)
       const users = await fetchAllUsers(200);
-
-      // 2) Last wallet per user
       const wallets = {};
       for (const u of users){
         try{
@@ -774,15 +826,11 @@
         }catch(_){}
         await sleep(35);
       }
-
-      // 3) Other admin tables
       const [licenseReqs, finalReqs, withdrawReqs] = await Promise.all([
         fetchJson('/api/admin/license-requests'),
         fetchJson('/api/admin/final-requests'),
         fetchJson('/api/admin/withdraw-requests')
       ]);
-
-      // 4) Bundle
       const payload = {
         meta: {
           created_at: new Date().toISOString(),
@@ -795,7 +843,6 @@
         final_requests: finalReqs,
         withdraw_requests: withdrawReqs
       };
-
       const stamp = new Date().toISOString().replace(/[:.]/g,'-');
       downloadJSON(`backup-${stamp}.json`, payload);
       if(btn){ btn.textContent = '✅ Backup ready'; setTimeout(()=>{ btn.textContent='⬇️ Backup'; btn.disabled=false; }, 1500); }
@@ -805,10 +852,8 @@
       if(btn){ btn.textContent='⬇️ Backup'; btn.disabled=false; }
     }
   }
-
   document.getElementById('btnBackup')?.addEventListener('click', backupNow);
 
-  // ---------- Boot ----------
   document.addEventListener("DOMContentLoaded", ()=>{
     loadLicenseRequests();
     loadFinalRequests();
