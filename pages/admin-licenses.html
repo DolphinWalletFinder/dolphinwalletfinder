@@ -556,6 +556,7 @@
       usersTotal = 0;
       renderUsers();
       updateUsersPager();
+      updateUsersTabBadge(); // keep tab label in sync on error/empty
       return;
     }
 
@@ -571,6 +572,7 @@
 
     renderUsers();
     updateUsersPager();
+    updateUsersTabBadge(); // <-- show "Users (N)" on the tab
   }
 
   function renderUsers(){
@@ -632,8 +634,8 @@
       lazyLoadUsersWallet(u.id);
     });
 
-  const count = document.getElementById('usersCount');
-  count.textContent = `Total users: ${usersTotal} — Showing ${rows.length} on page ${usersPage + 1}`;
+    const count = document.getElementById('usersCount');
+    count.textContent = `Total users: ${usersTotal} — Showing ${rows.length} on page ${usersPage + 1}`;
   }
 
   function updateUsersPager(){
@@ -647,6 +649,14 @@
     btnPrev.disabled = usersPage <= 0;
     const likelyLastPage = usersDataRaw.length < USERS_PAGE_SIZE;
     btnNext.disabled = totalPages ? (usersPage + 1 >= totalPages) : likelyLastPage;
+  }
+
+  // --- NEW: show total on Users tab
+  function updateUsersTabBadge(){
+    const btnUsers = [...document.querySelectorAll('.tab-btn')].find(b => b.dataset.tab === 'users');
+    if (!btnUsers) return;
+    const baseLabel = 'Users';
+    btnUsers.textContent = usersTotal ? `${baseLabel} (${usersTotal})` : baseLabel;
   }
 
   async function lazyLoadUsersWallet(userId){
@@ -807,4 +817,3 @@
 </script>
 </body>
 </html>
-
