@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>License Activation — Dolphin Wallet Finder</title>
 
-  <!-- ================= CORE THEME ================= -->
   <style>
   :root{
     --c1:#0ff1e7; --c2:#35a7ff; --c3:#14ff89;
@@ -75,7 +74,7 @@
   .card{ background:linear-gradient(110deg,rgba(0,255,255,.08),rgba(0,40,110,.13)); border:1px solid rgba(64,203,255,.28); border-radius:16px; padding:18px; display:flex; gap:10px; align-items:center }
 
   .actions{ margin-top:6px; display:flex; justify-content:center }
-  .btn-big{ text-align:center; border:none; border-radius:18px; padding:16px 24px; font-size:1.05rem; font-weight:900; letter-spacing:.35px; text-transform:uppercase; color:#001019; background:linear-gradient(95deg,var(--c2),var(--c1),var(--c3),var(--c2)); background-size:220% 100%; box-shadow:0 24px 50px rgba(53,167,255,.30); cursor:pointer; transition:transform .15s ease, background-position .55s ease; min-width:min(280px,90%); }
+  .btn-big{ text-align:center; border:none; border-radius:18px; padding:16px 24px; font-size:1.05rem; font-weight:900; letter-spacing:.35px; text-transform:uppercase; color:#001019; background:linear-gradient(95deg,var(--c2),var(--c1),var(--c3),var(--c2)); background-size:220% 100%; box-shadow:0 24px 50px rgba(53,167,255,.30); cursor:pointer; transition:transform .15s ease, background-position:.55s ease; min-width:min(280px,90%); }
   .btn-big:hover{ transform:translateY(-1px); background-position:100% 0 }
 
   .foot{ margin-top:auto; text-align:center; color:var(--muted); font-size:.9rem }
@@ -109,6 +108,11 @@
   }
   .status-message{ color:var(--muted); padding-top:6px; min-height:26px }
   .helper{ font-size:.9rem; color:var(--muted) }
+
+  /* --- NEW: wallets two-column layout --- */
+  .wallets{ display:grid; grid-template-columns:1fr 1fr; gap:12px; width:100%; }
+  @media (max-width:680px){ .wallets{ grid-template-columns:1fr } }
+  .wallet-card{ display:flex; flex-direction:column; gap:8px; align-items:stretch; }
 
   .logo-wrap img{ width:100%; height:100%; object-fit:contain; display:block; }
   @keyframes spin{ to{ transform:rotate(360deg) } }
@@ -150,32 +154,48 @@
         <div class="pane-inner">
           <header class="hero">
             <h2>🔑 License Activation</h2>
-            <p>To continue, send <b>200 USDT</b> via <b>TRC20</b> network to the address below.</p>
+            <p>To continue, send <b>200 USDT</b> via <b>TRC20</b> or <b>BEP20</b> network to one of the addresses below.</p>
           </header>
 
           <div class="stats">
             <div class="stat"><div class="n">200 USDT</div><div class="l">Amount</div></div>
-            <div class="stat"><div class="n">TRC20</div><div class="l">Network</div></div>
+            <div class="stat"><div class="n">TRC20 / BEP20</div><div class="l">Networks</div></div>
             <div class="stat"><div class="n">One-Time</div><div class="l">Payment</div></div>
           </div>
 
           <section class="grid">
-            <div class="card" style="flex-direction:column">
-              <div class="helper">Wallet Address (TRC20):</div>
-              <div class="wallet-address" id="licenseWallet">Loading…</div>
-              <button class="copy-btn" id="copyBtn" type="button">📋 Copy Address</button>
-              <div class="helper">After sending, enter your transaction hash (TXID):</div>
+            <!-- LEFT CARD: wallets + tx submit -->
+            <div class="card" style="flex-direction:column; align-items:stretch">
+              <div class="helper">Wallet Addresses:</div>
+
+              <!-- NEW: two networks side-by-side -->
+              <div class="wallets">
+                <div class="wallet-card">
+                  <div class="helper">TRC20</div>
+                  <div class="wallet-address" id="walletTRC20">Loading…</div>
+                  <button class="copy-btn" id="copyTRC20" type="button">📋 Copy TRC20</button>
+                </div>
+
+                <div class="wallet-card">
+                  <div class="helper">BEP20</div>
+                  <div class="wallet-address" id="walletBEP20">Loading…</div>
+                  <button class="copy-btn" id="copyBEP20" type="button">📋 Copy BEP20</button>
+                </div>
+              </div>
+
+              <div class="helper" style="margin-top:8px">After sending, enter your transaction hash (TXID/TX Hash):</div>
               <input class="input" id="txHash" type="text" placeholder="Transaction Hash (TXID)" />
               <button class="btn-ghost" id="submitBtn" type="button">Submit for Verification</button>
               <div class="status-message" id="statusMessage"></div>
             </div>
 
+            <!-- RIGHT CARD: instructions -->
             <div class="card">
               <div>
                 <div style="font-weight:800; margin-bottom:6px">Instructions</div>
                 <ul style="margin:0; padding-inline-start:18px; line-height:1.9; color:var(--muted)">
                   <li>Make sure you are logged in, otherwise you will be redirected to login page.</li>
-                  <li>Send the amount to the wallet address using TRC20 network.</li>
+                  <li>Send the amount to one of the wallet addresses using the matching network (TRC20 or BEP20).</li>
                   <li>Submit your TXID here for admin verification.</li>
                 </ul>
               </div>
@@ -194,17 +214,32 @@
   <!-- ================= Scripts ================= -->
   <script>
     const API_BASE_URL = "https://web-production-b86d.up.railway.app/api";
-    const LICENSE_WALLET_ADDRESS = "TWWKr8K7pZuXTHK6ogVwZ7kAN5mVLHMmpp";
 
-    const walletEl = document.getElementById("licenseWallet");
-    walletEl.textContent = LICENSE_WALLET_ADDRESS;
+    // NEW: separate constants for each network
+    const LICENSE_WALLET_ADDRESS_TRC20 = "TWWKr8K7pZuXTHK6ogVwZ7kAN5mVLHMmpp";
+    const LICENSE_WALLET_ADDRESS_BEP20 = "0xacDd54d29d350f183bE47Ec64C95Bfc05805c902";
 
-    document.getElementById("copyBtn").addEventListener("click", () => {
-      navigator.clipboard.writeText(LICENSE_WALLET_ADDRESS).then(() => {
-        walletEl.style.outline = "1px solid rgba(64,203,255,.55)";
-        setTimeout(()=>walletEl.style.outline="none", 500);
+    // Fill addresses
+    document.getElementById("walletTRC20").textContent = LICENSE_WALLET_ADDRESS_TRC20;
+    document.getElementById("walletBEP20").textContent = LICENSE_WALLET_ADDRESS_BEP20;
+
+    // Copy helpers
+    function flashOutline(el){
+      el.style.outline = "1px solid rgba(64,203,255,.55)";
+      setTimeout(()=>el.style.outline="none", 500);
+    }
+    function copyValue(value, el){
+      navigator.clipboard.writeText(value).then(()=>{
+        flashOutline(el);
         alert("Wallet address copied to clipboard!");
       });
+    }
+
+    document.getElementById("copyTRC20").addEventListener("click", () => {
+      copyValue(LICENSE_WALLET_ADDRESS_TRC20, document.getElementById("walletTRC20"));
+    });
+    document.getElementById("copyBEP20").addEventListener("click", () => {
+      copyValue(LICENSE_WALLET_ADDRESS_BEP20, document.getElementById("walletBEP20"));
     });
 
     document.getElementById("submitBtn").addEventListener("click", submitLicense);
@@ -251,7 +286,7 @@
       });
     }
 
-    // Background animation
+    // Background animation (unchanged)
     const c = document.getElementById('bg');
     if (c && c.getContext) {
       const ctx = c.getContext('2d');
@@ -278,6 +313,3 @@
   </script>
 </body>
 </html>
-
-
-
