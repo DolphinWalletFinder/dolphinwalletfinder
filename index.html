@@ -2,7 +2,8 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <!-- Lock zooming on iPhone -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
   <title>Dolphin Wallet Finder</title>
 
   <!-- Link to Manifest -->
@@ -17,24 +18,29 @@
     --muted:rgba(190,245,255,.85); --text:#eafaff;
     --shadow-lg:0 28px 90px rgba(0,0,0,.65);
   }
-  *{box-sizing:border-box}
-  html,body{height:100%}
-  body{
-    margin:0; color:var(--text);
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  /* Prevent panning/scroll + bounce on iOS */
+  html, body{
+    margin:0; overflow:hidden; overscroll-behavior:none;
+    touch-action:none; /* iOS 17+ */
+    color:var(--text);
     font-family:Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
     background:
       radial-gradient(1400px 820px at 15% 10%, rgba(53,167,255,.12), transparent 60%),
       radial-gradient(1100px 680px at 85% 90%, rgba(20,255,137,.12), transparent 60%),
       linear-gradient(180deg,#0a1220,var(--grid) 42%);
-    overflow-x:hidden; -webkit-tap-highlight-color:transparent;
   }
 
   .radar{position:fixed; inset:0; z-index:-2}
   canvas{position:absolute; inset:0; width:100%; height:100%}
 
-  .stage{min-height:100%; display:grid; place-items:center; padding:clamp(16px,3vw,32px); position:relative; z-index:2}
+  /* Fit exactly to device viewport height (accounts for iOS browser chrome) */
+  .stage{min-height:100dvh; display:grid; place-items:center; padding:clamp(16px,3vw,32px); position:relative; z-index:2}
   .shell{
-    width:min(1200px,98vw); min-height:620px; display:grid; grid-template-columns:1.05fr 1.45fr;
+    width:min(1200px,100vw);
+    height:auto;
+    display:grid; grid-template-columns:1.05fr 1.45fr;
     border-radius:28px; overflow:hidden; isolation:isolate; position:relative;
     box-shadow:var(--shadow-lg); border:1px solid var(--stroke);
   }
@@ -60,7 +66,7 @@
     background:linear-gradient(90deg,var(--c2),var(--c1),var(--c3)); -webkit-background-clip:text; color:transparent; }
   .kicker{ color:var(--muted); line-height:1.8 }
 
-  .content-pane{ background:linear-gradient(180deg,var(--panel),var(--panel2)); backdrop-filter: blur(18px) saturate(120%); position:relative; }
+  .content-pane{ background:linear-gradient(180deg,var(--panel),var(--panel2)); backdrop-filter: blur(18px) saturate(120%); position:relative; overflow:hidden; }
   .border-glow{ position:absolute; inset:-1.5px; border-radius:30px; z-index:-1; background:conic-gradient(from 0deg, transparent, rgba(53,167,255,.55), transparent 40%, rgba(15,241,231,.55), transparent 75%); filter:blur(8px); animation:spin 14s linear infinite; }
   .pane-inner{ padding:28px clamp(24px,4vw,38px); display:flex; flex-direction:column; gap:18px; height:100% }
 
@@ -69,7 +75,7 @@
 
   .stats{ display:flex; gap:14px; flex-wrap:wrap; margin-top:6px }
   .stat{ background:linear-gradient(120deg,rgba(0,255,255,.09),rgba(0,35,80,.14)); border:1px solid rgba(64,203,255,.28); border-radius:14px; padding:12px 16px; min-width:140px }
-  .stat .n{ font-size:1.6rem; font-weight:900; color:var(--c1) }
+  .stat .n{ font-size:1.6rem; font-weight:900; color:var(--c1); font-variant-numeric:tabular-nums; }
   .stat .l{ color:var(--muted); font-size:.95rem }
 
   .grid{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:6px }
@@ -77,7 +83,6 @@
   .card{ background:linear-gradient(110deg,rgba(0,255,255,.08),rgba(0,40,110,.13)); border:1px solid rgba(64,203,255,.28); border-radius:16px; padding:18px; display:flex; gap:10px; }
 
   .actions{ margin-top:20px; display:flex; justify-content:center; flex-wrap:wrap; gap:12px }
-  /* Unified CTA style for equal sizes */
   .cta{
     display:flex; align-items:center; justify-content:center; gap:10px;
     height:56px; padding:0 22px;
@@ -100,12 +105,10 @@
   .btn-telegram:hover{ transform:translateY(-1px); opacity:.92 }
   .btn-telegram svg{ width:22px; height:22px; fill:#fff; }
 
-  /* Mobile: make both full-width and equal */
   @media (max-width:600px){
     .cta{ width:100%; min-width:unset; }
   }
 
-  /* Coming-soon strip (headline + glassy disabled badges with text) */
   .stores-wrap{ margin-top:auto; padding-top:6px; }
   .stores-strip{
     position:relative;
@@ -157,20 +160,8 @@
 
   @keyframes spin{ to { transform: rotate(360deg); } }
 
-  /* =====================
-     Minimal fixes for mobile fit & "jump"
-     (only CSS additions; nothing else changed)
-     ===================== */
-  /* Avoid number-width reflow during counter animation */
-  .stat .n{ font-variant-numeric: tabular-nums; }
-
-  /* Prevent any glow/blur from causing accidental scrollbars */
-  .content-pane, .brand-pane { overflow: hidden; }
-
-  /* So it fits smaller phones without forcing a tall box */
+  /* Mobile comfort spacing (no structural change) */
   @media (max-width: 600px){
-    .stage{ padding:12px; }
-    .shell{ min-height:unset; height:auto; }
     .brand-inner{ padding:22px; }
     .pane-inner{ padding:20px 16px; }
     .stores-strip{ padding:14px; }
@@ -235,12 +226,10 @@
             </a>
           </div>
 
-          <!-- Coming soon strip: headline + glassy disabled official image badges with text -->
           <div class="stores-wrap">
             <div class="stores-strip" role="region" aria-label="Coming soon to marketplaces">
               <div class="stores-text">Coming soon on top marketplaces</div>
               <div class="store-badges">
-                <!-- Google Play official badge (button, disabled) -->
                 <button class="store-badge" type="button" disabled aria-disabled="true" title="Coming soon">
                   <img src="assets/google-play-badge.png" alt="Google Play badge" loading="lazy" decoding="async" />
                   <div class="label">
@@ -248,8 +237,6 @@
                     <span class="name">Google Play</span>
                   </div>
                 </button>
-
-                <!-- App Store official badge (button, disabled) -->
                 <button class="store-badge" type="button" disabled aria-disabled="true" title="Coming soon">
                   <img src="assets/app-store-badge.png" alt="App Store badge" loading="lazy" decoding="async" />
                   <div class="label">
@@ -271,6 +258,32 @@
   </main>
 
   <script>
+    // HARD-LOCK: block pinch/double-tap zooming & touch panning on iOS
+    (function(){
+      // Stop native iOS pinch gestures
+      ['gesturestart','gesturechange','gestureend'].forEach(evt=>{
+        document.addEventListener(evt, function(e){ e.preventDefault(); }, {passive:false});
+      });
+      // Block double-tap zoom
+      let lastTouchEnd = 0;
+      document.addEventListener('touchend', function(e){
+        const now = Date.now();
+        if (now - lastTouchEnd <= 300) {
+          e.preventDefault();
+        }
+        lastTouchEnd = now;
+      }, {passive:false});
+      // Block two-finger pinch/zoom and any scroll move
+      document.addEventListener('touchmove', function(e){
+        if (e.touches && e.touches.length > 1) {
+          e.preventDefault();
+        } else {
+          // also prevent one-finger panning to keep the frame static
+          e.preventDefault();
+        }
+      }, {passive:false});
+    })();
+
     // Register service worker
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -311,8 +324,7 @@
       animNum(id, val, 1500, abbreviate);
     });
 
-    // Example: update version easily from one place if needed
-    const APP_VERSION = "v1.4.2"; 
+    const APP_VERSION = "v1.4.3-lock";
     const verEl = document.getElementById("appVersion");
     if (verEl) verEl.textContent = APP_VERSION;
   </script>
