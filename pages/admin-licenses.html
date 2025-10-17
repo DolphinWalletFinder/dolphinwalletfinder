@@ -632,8 +632,8 @@
       lazyLoadUsersWallet(u.id);
     });
 
-    const count = document.getElementById('usersCount');
-    count.textContent = `${rows.length} shown — page ${usersPage + 1}`;
+  const count = document.getElementById('usersCount');
+  count.textContent = `Total users: ${usersTotal} — Showing ${rows.length} on page ${usersPage + 1}`;
   }
 
   function updateUsersPager(){
@@ -807,3 +807,4 @@
 </script>
 </body>
 </html>
+
