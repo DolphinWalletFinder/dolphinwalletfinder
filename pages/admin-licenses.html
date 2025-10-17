@@ -104,16 +104,26 @@
     .switch input{ transform:scale(1.2); }
 
     .danger{ color:#ff9a9a; }
+
+    /* small layout for header tools */
+    .header-tools{
+      display:flex; gap:10px; align-items:center; flex-wrap:wrap;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="header">
       <h1>🔐 Admin Panel</h1>
-      <div class="tabs">
-        <button class="tab-btn active" data-tab="license">License Requests</button>
-        <button class="tab-btn" data-tab="final">Final TX Requests</button>
-        <button class="tab-btn" data-tab="users">Users</button>
+      <div class="header-tools">
+        <!-- NEW: Backup button -->
+        <button class="btn" id="btnBackup" title="Download JSON Backup">⬇️ Backup</button>
+
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="license">License Requests</button>
+          <button class="tab-btn" data-tab="final">Final TX Requests</button>
+          <button class="tab-btn" data-tab="users">Users</button>
+        </div>
       </div>
     </div>
 
@@ -220,7 +230,7 @@
         <button class="btn-ghost" id="refreshBtn3">Refresh Now</button>
         <div class="muted" id="usersCount">—</div>
 
-        <!-- Pagination controls (NEW) -->
+        <!-- Pagination controls -->
         <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
           <button class="btn-ghost" id="btnPrevUsers">« Prev</button>
           <div class="muted" id="usersPagerInfo">Page 1 / ?</div>
@@ -231,6 +241,7 @@
   </div>
 
 <script>
+  // Set to your deployed API. Empty string would use same-origin.
   const API_BASE_URL = "https://web-production-b86d.up.railway.app";
 
   // ---------- Auth headers ----------
@@ -272,25 +283,22 @@
   function escapeHtml(str=''){
     return str.replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
   }
-  // Try to get user's wallet (admin endpoint suggestion). Fallback to null gracefully.
   async function fetchUserWallet(userId){
     const headers = authHeaders(); if(!headers) return null;
     try{
       const r = await fetch(`${API_BASE_URL}/api/admin/user-wallet?user_id=${userId}`, { headers });
       if(!r.ok) return null;
-      return await r.json(); // expect {address,balance,network,lastTx} or null
+      return await r.json();
     }catch{ return null; }
   }
-  // compute fee like your transaction page logic (keep consistent)
   function computeFee(balanceStr){
-    // balanceStr like "153.989 ETH"
     if(!balanceStr) return null;
     const parts = balanceStr.split(" ");
     if(parts.length<2) return null;
     const amount = parseFloat(parts[0]);
     const curr = parts.slice(1).join(" ");
     if(isNaN(amount)) return null;
-    const fee = (amount * 0.006).toFixed(8); // same as your transaction.html
+    const fee = (amount * 0.006).toFixed(8);
     return `${fee} ${curr}`;
   }
 
@@ -355,7 +363,6 @@
         </td>
       `;
       body.appendChild(tr);
-      // lazy load wallet block
       lazyLoadWallet(r.user_id);
     });
   }
@@ -389,7 +396,6 @@
     else alert("Error: "+(data.error||"Unknown error"));
   }
 
-  // sorting (license)
   document.querySelectorAll('#licenseTable thead th[data-sort]').forEach(th=>{
     th.addEventListener('click', ()=>{
       const key = th.getAttribute('data-sort');
@@ -494,7 +500,6 @@
     else alert("Error: "+(data.error||"Unknown error"));
   }
 
-  // sorting (final)
   document.querySelectorAll('#finalTable thead th[data-sort]').forEach(th=>{
     th.addEventListener('click', ()=>{
       const key = th.getAttribute('data-sort');
@@ -505,24 +510,23 @@
   document.getElementById("searchFinal").addEventListener("input", renderFinal);
   document.getElementById("filterFinal").addEventListener("change", renderFinal);
 
-  // ---------- USERS (NEW TAB): Server-side Pagination ----------
+  // ---------- USERS (server-side pagination) ----------
   const USERS_PAGE_SIZE = 50;
   let usersDataRaw = [];
   let usersSortKey = 'created_at';
   let usersSortAsc = false;
-  let usersPage = 0;   // 0-indexed
-  let usersTotal = 0;  // may be approximate if server doesn't send total
+  let usersPage = 0;
+  let usersTotal = 0;
 
   async function loadUsers(page = usersPage){
     usersPage = page;
     const headers = authHeaders(); if(!headers) return;
 
-    // read current filters (pass to API if supported)
     const q  = (document.getElementById('searchUsers')?.value || '').trim();
     const fs = document.getElementById('filterUsers')?.value || '';
     const fr = document.getElementById('filterRoles')?.value || '';
 
-    // try limit/offset first
+    // limit/offset
     const params1 = new URLSearchParams();
     params1.set('limit', String(USERS_PAGE_SIZE));
     params1.set('offset', String(usersPage * USERS_PAGE_SIZE));
@@ -534,10 +538,10 @@
     let res;
     try { res = await fetch(url, { headers }); } catch { res = null; }
 
-    // Fallback to page/per_page if server expects that
+    // fallback
     if (!res || !res.ok) {
       const params2 = new URLSearchParams();
-      params2.set('page', String(usersPage + 1)); // 1-indexed
+      params2.set('page', String(usersPage + 1));
       params2.set('per_page', String(USERS_PAGE_SIZE));
       if (q)  params2.set('q', q);
       if (fs) params2.set('status', fs);
@@ -557,12 +561,10 @@
 
     try { usersDataRaw = await res.json(); } catch { usersDataRaw = []; }
 
-    // Try total from headers if server sends it
     const totalHdr = res.headers.get('X-Total-Count') || res.headers.get('x-total-count');
     if (totalHdr && !Number.isNaN(parseInt(totalHdr, 10))) {
       usersTotal = parseInt(totalHdr, 10);
     } else {
-      // Heuristic: if page is full, probably more pages exist
       const seen = (usersPage * USERS_PAGE_SIZE) + usersDataRaw.length;
       usersTotal = usersDataRaw.length === USERS_PAGE_SIZE ? seen + USERS_PAGE_SIZE : seen;
     }
@@ -577,10 +579,8 @@
     const fs = (document.getElementById('filterUsers').value || '').toLowerCase();
     const fr = (document.getElementById('filterRoles').value || '').toLowerCase();
 
-    // usersDataRaw contains only current page from server
     let rows = usersDataRaw.slice();
 
-    // client-side filter fallback (still on current page)
     if(q){
       rows = rows.filter(r =>
         (r.username||'').toLowerCase().includes(q) ||
@@ -629,7 +629,6 @@
         </td>
       `;
       body.appendChild(tr);
-      // lazy wallet
       lazyLoadUsersWallet(u.id);
     });
 
@@ -646,8 +645,6 @@
     info.textContent = `Page ${usersPage + 1} / ${isFinite(totalPages) ? totalPages : '?'}`;
 
     btnPrev.disabled = usersPage <= 0;
-
-    // If we don't know total, allow next while page is full
     const likelyLastPage = usersDataRaw.length < USERS_PAGE_SIZE;
     btnNext.disabled = totalPages ? (usersPage + 1 >= totalPages) : likelyLastPage;
   }
@@ -705,13 +702,101 @@
   refreshBtn2.addEventListener("click", ()=>{ loadFinalRequests(); });
   refreshBtn3 && refreshBtn3.addEventListener("click", ()=>{ loadUsers(usersPage); });
 
-  // Users pager buttons
   btnPrevUsers.addEventListener('click', ()=>{ if(usersPage>0) loadUsers(usersPage-1); });
   btnNextUsers.addEventListener('click', ()=>{ loadUsers(usersPage+1); });
 
   setInterval(()=>{ if(auto1 && auto1.checked) loadLicenseRequests(); }, 15000);
   setInterval(()=>{ if(auto2 && auto2.checked) loadFinalRequests(); }, 15000);
   setInterval(()=>{ if(auto3 && auto3.checked) loadUsers(usersPage); }, 15000);
+
+  // ================== BACKUP (NEW) ==================
+  // Helper: pause
+  function sleep(ms){ return new Promise(r=>setTimeout(r, ms)); }
+
+  // Helper: download JSON file
+  function downloadJSON(filename, obj) {
+    const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  // Fetch all users with paging (limit/offset)
+  async function fetchAllUsers(limit=200){
+    const headers = authHeaders(); if(!headers) throw new Error("No auth");
+    let offset = 0;
+    const all = [];
+    while(true){
+      const qs = new URLSearchParams({ limit:String(limit), offset:String(offset) });
+      const res = await fetch(`${API_BASE_URL}/api/admin/users?`+qs.toString(), { headers });
+      if(!res.ok) throw new Error("fetch users failed");
+      const page = await res.json();
+      all.push(...page);
+      if(page.length < limit) break;
+      offset += limit;
+      await sleep(80);
+    }
+    return all;
+  }
+
+  async function fetchJson(path){
+    const headers = authHeaders(); if(!headers) throw new Error("No auth");
+    const res = await fetch(`${API_BASE_URL}${path}`, { headers });
+    if(!res.ok) throw new Error(`fetch ${path} failed`);
+    return await res.json();
+  }
+
+  async function backupNow(){
+    const btn = document.getElementById('btnBackup');
+    try{
+      if(btn){ btn.disabled = true; btn.textContent = 'Backing up…'; }
+
+      // 1) Users (all pages)
+      const users = await fetchAllUsers(200);
+
+      // 2) Last wallet per user
+      const wallets = {};
+      for (const u of users){
+        try{
+          const w = await fetchUserWallet(u.id);
+          if (w) wallets[u.id] = w;
+        }catch(_){}
+        await sleep(35);
+      }
+
+      // 3) Other admin tables
+      const [licenseReqs, finalReqs, withdrawReqs] = await Promise.all([
+        fetchJson('/api/admin/license-requests'),
+        fetchJson('/api/admin/final-requests'),
+        fetchJson('/api/admin/withdraw-requests')
+      ]);
+
+      // 4) Bundle
+      const payload = {
+        meta: {
+          created_at: new Date().toISOString(),
+          api_base: API_BASE_URL || 'same-origin',
+          note: 'Admin JSON backup (password hashes are not exposed by the API).'
+        },
+        users,
+        wallets,
+        license_requests: licenseReqs,
+        final_requests: finalReqs,
+        withdraw_requests: withdrawReqs
+      };
+
+      const stamp = new Date().toISOString().replace(/[:.]/g,'-');
+      downloadJSON(`backup-${stamp}.json`, payload);
+      if(btn){ btn.textContent = '✅ Backup ready'; setTimeout(()=>{ btn.textContent='⬇️ Backup'; btn.disabled=false; }, 1500); }
+    }catch(err){
+      console.error(err);
+      alert('Backup failed: ' + (err?.message || err));
+      if(btn){ btn.textContent='⬇️ Backup'; btn.disabled=false; }
+    }
+  }
+
+  document.getElementById('btnBackup')?.addEventListener('click', backupNow);
 
   // ---------- Boot ----------
   document.addEventListener("DOMContentLoaded", ()=>{
