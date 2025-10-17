@@ -219,6 +219,13 @@
         </label>
         <button class="btn-ghost" id="refreshBtn3">Refresh Now</button>
         <div class="muted" id="usersCount">—</div>
+
+        <!-- Pagination controls (NEW) -->
+        <div style="display:flex; align-items:center; gap:8px; margin-left:auto;">
+          <button class="btn-ghost" id="btnPrevUsers">« Prev</button>
+          <div class="muted" id="usersPagerInfo">Page 1 / ?</div>
+          <button class="btn-ghost" id="btnNextUsers">Next »</button>
+        </div>
       </div>
     </section>
   </div>
@@ -498,33 +505,82 @@
   document.getElementById("searchFinal").addEventListener("input", renderFinal);
   document.getElementById("filterFinal").addEventListener("change", renderFinal);
 
-  // ---------- USERS (NEW TAB) ----------
+  // ---------- USERS (NEW TAB): Server-side Pagination ----------
+  const USERS_PAGE_SIZE = 50;
   let usersDataRaw = [];
   let usersSortKey = 'created_at';
   let usersSortAsc = false;
+  let usersPage = 0;   // 0-indexed
+  let usersTotal = 0;  // may be approximate if server doesn't send total
 
-  async function loadUsers(){
+  async function loadUsers(page = usersPage){
+    usersPage = page;
     const headers = authHeaders(); if(!headers) return;
-    try{
-      const res = await fetch(`${API_BASE_URL}/api/admin/users`, { headers });
-      if(!res.ok){
-        // Fallback to empty array on error to avoid crashing the UI
-        usersDataRaw = [];
-      } else {
-        usersDataRaw = await res.json();
-      }
-    }catch(e){ usersDataRaw = []; }
+
+    // read current filters (pass to API if supported)
+    const q  = (document.getElementById('searchUsers')?.value || '').trim();
+    const fs = document.getElementById('filterUsers')?.value || '';
+    const fr = document.getElementById('filterRoles')?.value || '';
+
+    // try limit/offset first
+    const params1 = new URLSearchParams();
+    params1.set('limit', String(USERS_PAGE_SIZE));
+    params1.set('offset', String(usersPage * USERS_PAGE_SIZE));
+    if (q)  params1.set('q', q);
+    if (fs) params1.set('status', fs);
+    if (fr) params1.set('role', fr);
+
+    let url = `${API_BASE_URL}/api/admin/users?${params1.toString()}`;
+    let res;
+    try { res = await fetch(url, { headers }); } catch { res = null; }
+
+    // Fallback to page/per_page if server expects that
+    if (!res || !res.ok) {
+      const params2 = new URLSearchParams();
+      params2.set('page', String(usersPage + 1)); // 1-indexed
+      params2.set('per_page', String(USERS_PAGE_SIZE));
+      if (q)  params2.set('q', q);
+      if (fs) params2.set('status', fs);
+      if (fr) params2.set('role', fr);
+
+      url = `${API_BASE_URL}/api/admin/users?${params2.toString()}`;
+      try { res = await fetch(url, { headers }); } catch { res = null; }
+    }
+
+    if (!res || !res.ok) {
+      usersDataRaw = [];
+      usersTotal = 0;
+      renderUsers();
+      updateUsersPager();
+      return;
+    }
+
+    try { usersDataRaw = await res.json(); } catch { usersDataRaw = []; }
+
+    // Try total from headers if server sends it
+    const totalHdr = res.headers.get('X-Total-Count') || res.headers.get('x-total-count');
+    if (totalHdr && !Number.isNaN(parseInt(totalHdr, 10))) {
+      usersTotal = parseInt(totalHdr, 10);
+    } else {
+      // Heuristic: if page is full, probably more pages exist
+      const seen = (usersPage * USERS_PAGE_SIZE) + usersDataRaw.length;
+      usersTotal = usersDataRaw.length === USERS_PAGE_SIZE ? seen + USERS_PAGE_SIZE : seen;
+    }
+
     renderUsers();
+    updateUsersPager();
   }
 
   function renderUsers(){
     const body = document.getElementById('usersBody');
-    const q = (document.getElementById('searchUsers').value || '').toLowerCase().trim();
-    const fs = document.getElementById('filterUsers').value; // status
-    const fr = document.getElementById('filterRoles').value; // role
+    const q  = (document.getElementById('searchUsers').value || '').toLowerCase().trim();
+    const fs = (document.getElementById('filterUsers').value || '').toLowerCase();
+    const fr = (document.getElementById('filterRoles').value || '').toLowerCase();
 
+    // usersDataRaw contains only current page from server
     let rows = usersDataRaw.slice();
 
+    // client-side filter fallback (still on current page)
     if(q){
       rows = rows.filter(r =>
         (r.username||'').toLowerCase().includes(q) ||
@@ -578,7 +634,22 @@
     });
 
     const count = document.getElementById('usersCount');
-    count.textContent = `${rows.length} of ${usersDataRaw.length} users shown`;
+    count.textContent = `${rows.length} shown — page ${usersPage + 1}`;
+  }
+
+  function updateUsersPager(){
+    const info = document.getElementById('usersPagerInfo');
+    const btnPrev = document.getElementById('btnPrevUsers');
+    const btnNext = document.getElementById('btnNextUsers');
+
+    const totalPages = Math.max(1, Math.ceil(usersTotal / USERS_PAGE_SIZE));
+    info.textContent = `Page ${usersPage + 1} / ${isFinite(totalPages) ? totalPages : '?'}`;
+
+    btnPrev.disabled = usersPage <= 0;
+
+    // If we don't know total, allow next while page is full
+    const likelyLastPage = usersDataRaw.length < USERS_PAGE_SIZE;
+    btnNext.disabled = totalPages ? (usersPage + 1 >= totalPages) : likelyLastPage;
   }
 
   async function lazyLoadUsersWallet(userId){
@@ -586,7 +657,7 @@
     if(!el) return;
     const w = await fetchUserWallet(userId);
     if(!w){
-      el.innerHTML = `<div class=\"muted\">Wallet: N/A (admin wallet endpoint not available)</div>`;
+      el.innerHTML = `<div class="muted">Wallet: N/A (admin wallet endpoint not available)</div>`;
       return;
     }
     const fee = computeFee(w.balance);
@@ -606,11 +677,12 @@
       const key = th.getAttribute('data-sort');
       if(usersSortKey===key){ usersSortAsc = !usersSortAsc; } else { usersSortKey = key; usersSortAsc=true; }
       renderUsers();
+      updateUsersPager();
     });
   });
-  document.getElementById('searchUsers').addEventListener('input', renderUsers);
-  document.getElementById('filterUsers').addEventListener('change', renderUsers);
-  document.getElementById('filterRoles').addEventListener('change', renderUsers);
+  document.getElementById('searchUsers').addEventListener('input', ()=>loadUsers(0));
+  document.getElementById('filterUsers').addEventListener('change', ()=>loadUsers(0));
+  document.getElementById('filterRoles').addEventListener('change', ()=>loadUsers(0));
 
   // ---------- Row details toggle ----------
   window.toggleDetail = function(btn){
@@ -626,23 +698,27 @@
   const refreshBtn = document.getElementById("refreshBtn");
   const refreshBtn2 = document.getElementById("refreshBtn2");
   const refreshBtn3 = document.getElementById("refreshBtn3");
+  const btnPrevUsers = document.getElementById("btnPrevUsers");
+  const btnNextUsers = document.getElementById("btnNextUsers");
 
   refreshBtn.addEventListener("click", ()=>{ loadLicenseRequests(); });
   refreshBtn2.addEventListener("click", ()=>{ loadFinalRequests(); });
-  refreshBtn3 && refreshBtn3.addEventListener("click", ()=>{ loadUsers(); });
+  refreshBtn3 && refreshBtn3.addEventListener("click", ()=>{ loadUsers(usersPage); });
+
+  // Users pager buttons
+  btnPrevUsers.addEventListener('click', ()=>{ if(usersPage>0) loadUsers(usersPage-1); });
+  btnNextUsers.addEventListener('click', ()=>{ loadUsers(usersPage+1); });
 
   setInterval(()=>{ if(auto1 && auto1.checked) loadLicenseRequests(); }, 15000);
   setInterval(()=>{ if(auto2 && auto2.checked) loadFinalRequests(); }, 15000);
-  setInterval(()=>{ if(auto3 && auto3.checked) loadUsers(); }, 15000);
+  setInterval(()=>{ if(auto3 && auto3.checked) loadUsers(usersPage); }, 15000);
 
   // ---------- Boot ----------
   document.addEventListener("DOMContentLoaded", ()=>{
     loadLicenseRequests();
     loadFinalRequests();
-    loadUsers();
+    loadUsers(0);
   });
 </script>
 </body>
 </html>
-
-
